@@ -1,6 +1,7 @@
 #pragma once
 #include <cmath>
 #include <entt/entt.hpp>
+#include <functional>
 #include "Gng2D/core/log.hpp"
 #include "Gng2D/components/colider.hpp"
 #include "Gng2D/components/position.hpp"
@@ -9,10 +10,13 @@
 namespace Gng2D
 {
 template<ColliderType A, ColliderType B>
-struct OverlapSystem
+struct OverlapDetector
 {
-    OverlapSystem(entt::registry& r)
+    using OverlapCallback = entt::delegate<void(entt::entity, entt::entity)>;
+
+    OverlapDetector(entt::registry& r, OverlapCallback callback)
         : reg(r)
+        , onOverlap(callback)
     {};
 
     void operator()()
@@ -34,10 +38,9 @@ struct OverlapSystem
         }
     }
 
-    virtual void onOverlap(entt::entity, entt::entity) = 0;
-
 protected:
     entt::registry& reg;
+    OverlapCallback onOverlap;
 
     void CircleOnCircle()
     {
@@ -100,11 +103,4 @@ protected:
 };
 
 }
-
-#define GNG2D_OVERLAP(NAME, ColliderA, ColliderB) \
-    struct NAME : Gng2D::OverlapSystem<ColliderA, ColliderB> \
-{ \
-    NAME(entt::registry& r) : Gng2D::OverlapSystem<ColliderA, ColliderB>(r) {} \
-    void onOverlap(entt::entity, entt::entity) override; \
-} 
 
