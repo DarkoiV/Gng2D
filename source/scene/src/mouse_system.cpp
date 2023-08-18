@@ -20,6 +20,8 @@ MouseSystem::~MouseSystem()
 {
     reg.on_construct<UseSpriteHoverArea>()
         .disconnect<&useSpriteHoverArea>();
+
+    reg.ctx().erase<MouseSystem&>();
 }
 
 void MouseSystem::motion(SDL_MouseMotionEvent event)

@@ -19,6 +19,8 @@ PositionSystem::~PositionSystem()
     reg
         .on_construct<RelativePosition>()
         .disconnect<&PositionSystem::attachPositionToRelativePosition>();
+
+    reg.ctx().erase<PositionSystem&>();
 }
 
 void PositionSystem::operator()()
