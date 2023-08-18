@@ -30,7 +30,7 @@ void Scene::operator()()
     preUpdate();
 
     mouseSystem();
-    positionSystem();
+    relationSystem();
 
     update();
 }

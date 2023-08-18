@@ -12,7 +12,7 @@ struct Layer
     auto operator<=>(const Layer&) const = default;
 };
 
-struct UseParentLayer
+struct RelativeLayer
 {
     int8_t subOffset{1};
 };

@@ -9,7 +9,6 @@
 #include "Gng2D/types/coroutine.hpp"
 #include "entity_renderer.hpp"
 #include "mouse_system.hpp"
-#include "position_system.hpp"
 #include "relation_system.hpp"
 
 namespace Gng2D
@@ -54,7 +53,7 @@ protected:
     entt::registry      reg;
 
     EntityRenderer      entityRenderer{reg};
-    PositionSystem      positionSystem{reg};
+    RelationSystem      relationSystem{reg};
     MouseSystem         mouseSystem{reg};
 
 private:
