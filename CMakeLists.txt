@@ -40,5 +40,19 @@ set_property(TARGET Gng2D_TESTS PROPERTY CXX_STANDARD 20)
 add_custom_target(Gng2D_run_test
     COMMAND Gng2D_TESTS)
 
+# Sandbox
+add_executable(sandbox EXCLUDE_FROM_ALL)
+target_link_libraries(sandbox 
+    Gng2D)
+set_target_properties(sandbox 
+    PROPERTIES  
+    CXX_STANDARD 20
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/sandbox/")
+set(CMAKE_EXPORT_COMPILE_COMMANDS True)
+add_compile_options(-Wall -Wextra -Wpedantic)
+add_custom_target(Gng2D_run_sandbox 
+    COMMAND sandbox)
+
 add_subdirectory(source)
+add_subdirectory(sandbox)
 
