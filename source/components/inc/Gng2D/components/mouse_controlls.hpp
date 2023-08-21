@@ -1,14 +1,12 @@
 #pragma once
-#include <functional>
 #include <entt/entt.hpp>
 #include "Gng2D/types/v2d.hpp"
+#include "Gng2D/types/modfunc.hpp"
 
 namespace Gng2D
 {
 struct Hoverable
 {
-    using ModFunc = std::function<void(entt::registry&, entt::entity)>;
-
     Hoverable(ModFunc enter, ModFunc leave, V2d dimension = {0, 0})
         : onEnterHover(enter)
         , onLeaveHover(leave) 
@@ -24,12 +22,22 @@ struct UseSpriteHoverArea {};
 
 struct Clickable
 {
-    using Callback = std::function<void(entt::registry&, entt::entity)>;
+    Clickable(ModFunc lmb, ModFunc rmb)
+        : lmbCallback(lmb) 
+        , rmbCallback(rmb) {}
 
-    Clickable(Callback lmb)
-        : leftButtonCallback(lmb) {}
+    ModFunc lmbCallback;
+    ModFunc rmbCallback;
 
-    Callback leftButtonCallback;
+    void leftClick(entt::registry& reg, entt::entity e)
+    {
+        if (lmbCallback) lmbCallback(reg, e);
+    }
+
+    void rightClick(entt::registry& reg, entt::entity e)
+    {
+        if (rmbCallback) rmbCallback(reg, e);
+    }
 };
 }
 

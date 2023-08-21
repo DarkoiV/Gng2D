@@ -57,7 +57,7 @@ void MouseSystem::button(SDL_MouseButtonEvent event)
             }
             else if (clickArmedOnEntity == currentlyHovered)
             {
-                clickable->leftButtonCallback(reg, currentlyHovered);
+                clickable->leftClick(reg, currentlyHovered);
             }
             else 
             {
