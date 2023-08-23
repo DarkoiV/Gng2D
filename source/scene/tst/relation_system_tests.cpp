@@ -62,13 +62,13 @@ struct RelativeLayerTests : RelationSystemTests
 {
     RelativeLayerTests()
     {
-        reg.emplace<Gng2D::Layer>(parent, (uint8_t)100);
+        reg.emplace<Gng2D::Layer>(parent, int16_t{100});
         reg.emplace<Gng2D::Parent>(child, parent);
         reg.emplace<Gng2D::Parent>(childTwo, parent);
     }
 
-    const int8_t offsetOne = 10;
-    const int8_t offsetTwo = -20;
+    const int16_t offsetOne = 10;
+    const int16_t offsetTwo = -20;
 };
 
 TEST_F(RelativeLayerTests, AttachingRelativeLayerComponent_AttachesLayerComponentOffsetToParentLayer)
@@ -93,7 +93,7 @@ TEST_F(RelativeLayerTests, ChangingParentLayer_ChangesChildrenLayers)
     const auto& layerTwo        = reg.get<Gng2D::Layer>(childTwo);
     const auto& parentLayer     = reg.get<Gng2D::Layer>(parent);
 
-    reg.replace<Gng2D::Layer>(parent, (uint8_t)77, (uint8_t)35);
+    reg.replace<Gng2D::Layer>(parent, int16_t{77}, int16_t{35});
     ASSERT_EQ(parentLayer.main, 77);
     ASSERT_EQ(parentLayer.sub, 35);
 

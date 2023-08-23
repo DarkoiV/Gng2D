@@ -6,15 +6,15 @@ namespace Gng2D
 {
 struct Layer
 {
-    uint8_t main{0};
-    uint8_t sub{127};
+    int16_t main{0};
+    int16_t sub{0};
 
     auto operator<=>(const Layer&) const = default;
 };
 
 struct RelativeLayer
 {
-    int8_t subOffset{1};
+    int16_t subOffset{1};
 };
 }
 

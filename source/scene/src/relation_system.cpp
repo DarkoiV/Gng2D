@@ -64,8 +64,8 @@ void RelationSystem::addChildToParent(entt::registry& reg, entt::entity child)
     if (auto* parentLayer = reg.try_get<Gng2D::Layer>(parentEntity))
     {
         reg.emplace_or_replace<Layer>(child, 
-                                      static_cast<uint8_t>(parentLayer->main), 
-                                      static_cast<uint8_t>(parentLayer->sub + useParentLayer->subOffset));
+                                      static_cast<int16_t>(parentLayer->main), 
+                                      static_cast<int16_t>(parentLayer->sub + useParentLayer->subOffset));
     }
 }
 
@@ -92,8 +92,8 @@ void RelationSystem::attachLayerToRelativeLayer(entt::registry& reg, entt::entit
     auto parentLayer    = reg.get<Layer>(parent);
     auto relLayer       = reg.get<RelativeLayer>(entity);
     reg.emplace<Layer>(entity, 
-            static_cast<uint8_t>(parentLayer.main), 
-            static_cast<uint8_t>(parentLayer.sub + relLayer.subOffset));
+            static_cast<int16_t>(parentLayer.main), 
+            static_cast<int16_t>(parentLayer.sub + relLayer.subOffset));
 }
 
 void RelationSystem::updateChildrenLayer(entt::registry& reg, entt::entity parent)
@@ -108,8 +108,8 @@ void RelationSystem::updateChildrenLayer(entt::registry& reg, entt::entity paren
 
         auto parentLayer = reg.get<Layer>(parent);
         reg.emplace_or_replace<Layer>(child, 
-                                      static_cast<uint8_t>(parentLayer.main), 
-                                      static_cast<uint8_t>(parentLayer.sub + useParentLayer->subOffset));
+                                      static_cast<int16_t>(parentLayer.main), 
+                                      static_cast<int16_t>(parentLayer.sub + useParentLayer->subOffset));
     }
 }
 
