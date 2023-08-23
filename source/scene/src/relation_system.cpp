@@ -7,7 +7,6 @@ using Gng2D::RelationSystem;
 
 RelationSystem::RelationSystem(entt::registry& r)
     : reg(r)
-    , parentPosObserver(reg, entt::collector.update<Position>().where<Children>())
 {
     reg.on_construct<Gng2D::Parent>()
         .connect<&RelationSystem::addChildToParent>();
@@ -23,6 +22,8 @@ RelationSystem::RelationSystem(entt::registry& r)
 
     reg.on_construct<RelativePosition>()
         .connect<&RelationSystem::attachPositionToRelativePosition>();
+    reg.on_update<Gng2D::Position>()
+        .connect<&RelationSystem::updateChildrenPosition>();
 
     reg.ctx().emplace<RelationSystem&>(*this);
 }
@@ -43,33 +44,10 @@ RelationSystem::~RelationSystem()
 
     reg.on_construct<RelativePosition>()
         .disconnect<&RelationSystem::attachPositionToRelativePosition>();
+    reg.on_update<Gng2D::Position>()
+        .disconnect<&RelationSystem::updateChildrenPosition>();
 
     reg.ctx().erase<RelationSystem&>();
-}
-
-void RelationSystem::operator()()
-{
-    updateRelativePositions();
-}
-
-void RelationSystem::updateRelativePositions()
-{
-    parentPosObserver.each([&](auto entity)
-    {
-        auto& children  = reg.get<Children>(entity).list;
-        auto& parentPos = reg.get<Position>(entity);
-        for (const auto child : children)
-        {
-            if (auto relativePos = reg.try_get<RelativePosition>(child))
-            {
-                reg.patch<Position>(child, [&](auto& pos)
-                {
-                    pos.x = relativePos->x + parentPos.x;
-                    pos.y = relativePos->y + parentPos.y;
-                });
-            }
-        }
-    });
 }
 
 void RelationSystem::addChildToParent(entt::registry& reg, entt::entity child)
@@ -141,5 +119,25 @@ void RelationSystem::attachPositionToRelativePosition(entt::registry& reg, entt:
     auto parentPos  = reg.get<Position>(parent);
     auto relPos     = reg.get<RelativePosition>(entity);
     reg.emplace<Position>(entity, parentPos.x + relPos.x, parentPos.y + relPos.y);
+}
+
+void RelationSystem::updateChildrenPosition(entt::registry& reg, entt::entity parent)
+{
+    auto* children = reg.try_get<Children>(parent);
+    if (not children) return;
+
+    auto parentPos = reg.get<Position>(parent);
+
+    for (const auto child : children->list)
+    {
+        if (auto relativePos = reg.try_get<RelativePosition>(child))
+        {
+            reg.patch<Position>(child, [&](auto& pos)
+            {
+                pos.x = relativePos->x + parentPos.x;
+                pos.y = relativePos->y + parentPos.y;
+            });
+        }
+    }
 }
 
