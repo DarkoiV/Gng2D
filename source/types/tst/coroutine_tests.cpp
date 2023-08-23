@@ -2,19 +2,16 @@
 #include <gmock/gmock.h>
 #include "Gng2D/types/coroutine.hpp"
 
-namespace
-{
-Gng2D::Coroutine empty()
+static Gng2D::Coroutine empty()
 {
     co_return;
 }
 
-Gng2D::Coroutine waitXTicks(unsigned ticks, bool& beforeYield, bool& afterYield)
+static Gng2D::Coroutine waitXTicks(unsigned ticks, bool& beforeYield, bool& afterYield)
 {
     beforeYield = true;
     co_yield Gng2D::Coroutine::Wait{ticks};
     afterYield = true;
-}
 }
 
 TEST(CoroutineTests, EmptyCoroutineObject_HasCompletedStatus)

@@ -7,5 +7,6 @@ target_sources(Gng2D PRIVATE
     src/scene.cpp)
 
 # Testing
-target_sources(Gng2D_TESTS PRIVATE)
+target_sources(Gng2D_TESTS PRIVATE
+    tst/relation_system_tests.cpp)
 
