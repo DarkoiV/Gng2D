@@ -1,4 +1,5 @@
 #include "Gng2D/scene/mouse_system.hpp"
+#include "Gng2D/components/layer.hpp"
 #include "Gng2D/components/mouse_controlls.hpp"
 #include "Gng2D/components/position.hpp"
 #include "Gng2D/components/sprite.hpp"
@@ -13,6 +14,13 @@ MouseSystem::MouseSystem(entt::registry& reg)
     reg.on_construct<UseSpriteHoverArea>()
         .connect<&useSpriteHoverArea>();
 
+    reg.on_construct<Layer>()
+        .connect<&MouseSystem::markForSorting>(this);
+    reg.on_update<Layer>()
+        .connect<&MouseSystem::markForSorting>(this);
+    reg.on_destroy<Layer>()
+        .connect<&MouseSystem::markForSorting>(this);
+
     reg.ctx().emplace<MouseSystem&>(*this);
 }
 
@@ -21,12 +29,39 @@ MouseSystem::~MouseSystem()
     reg.on_construct<UseSpriteHoverArea>()
         .disconnect<&useSpriteHoverArea>();
 
+    reg.on_construct<Layer>()
+        .disconnect<&MouseSystem::markForSorting>(this);
+    reg.on_update<Layer>()
+        .disconnect<&MouseSystem::markForSorting>(this);
+    reg.on_destroy<Layer>()
+        .disconnect<&MouseSystem::markForSorting>(this);
+
     reg.ctx().erase<MouseSystem&>();
+}
+
+void MouseSystem::markForSorting()
+{
+    needsSorting = true;
+}
+
+void MouseSystem::sortHoverables()
+{
+    reg.sort<Hoverable>([&](entt::entity lhs, entt::entity rhs)
+    {
+        bool leftHasLayer  = reg.all_of<Layer>(lhs);
+        bool rightHasLayer = reg.all_of<Layer>(rhs);
+        if (not leftHasLayer)  return false;
+        if (not rightHasLayer) return true;
+        return reg.get<Layer>(lhs) > reg.get<Layer>(rhs);
+    });
+
+    needsSorting = false;
 }
 
 void MouseSystem::motion(SDL_MouseMotionEvent event)
 {
-    for (auto&& [entity, hoverable, pos] : reg.view<Hoverable, Position>().each())
+    if (needsSorting) sortHoverables();
+    for (auto&& [entity, hoverable, pos] : reg.view<Hoverable, Position>().use<Hoverable>().each())
     {
         const auto beginX   = pos.x - (hoverable.dimension.x/2);
         const auto endX     = pos.x + (hoverable.dimension.x/2);

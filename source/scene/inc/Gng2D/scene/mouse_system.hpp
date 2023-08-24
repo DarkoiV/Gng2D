@@ -19,6 +19,10 @@ private:
     entt::observer  spriteHoverObserver;
     entt::observer  stretchHoverObserver;
 
+    void markForSorting();
+    bool needsSorting{false};
+    void sortHoverables();
+
     void updateSpriteHoverArea();
     static void useSpriteHoverArea(entt::registry&, entt::entity);
 
