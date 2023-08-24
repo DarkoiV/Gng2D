@@ -58,6 +58,13 @@ struct V2d
     }
 };
 
+constexpr bool operator==(const V2d& lhs, const V2d& rhs)
+{
+    constexpr float EPSILON = 0.001f;
+    return  (lhs.x - rhs.x < EPSILON)
+    and     (lhs.y - rhs.y < EPSILON);
+}
+
 constexpr V2d operator*(const float lhs, const V2d& rhs)
 {
     return {lhs * rhs.x, lhs * rhs.y};
@@ -83,3 +90,4 @@ constexpr V2d operator-(const V2d& lhs, const V2d& rhs)
     return {lhs.x - rhs.x, lhs.y - rhs.y};
 }
 }
+

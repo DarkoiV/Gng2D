@@ -13,7 +13,6 @@ struct RelationSystemTests : ::testing::Test
         childTwo    = reg.create();
     }
 
-
     entt::registry reg;
     Gng2D::RelationSystem sut{reg};
 
@@ -101,5 +100,46 @@ TEST_F(RelativeLayerTests, ChangingParentLayer_ChangesChildrenLayers)
     ASSERT_EQ(layerTwo.main, parentLayer.main);
     ASSERT_EQ(layerOne.sub, parentLayer.sub + offsetOne);
     ASSERT_EQ(layerTwo.sub, parentLayer.sub + offsetTwo);
+}
+
+struct RelativePositionTests : RelationSystemTests
+{
+    RelativePositionTests()
+    {
+        reg.emplace<Gng2D::Position>(parent, 345.0f, -207.0f);
+        reg.emplace<Gng2D::Parent>(child, parent);
+        reg.emplace<Gng2D::Parent>(childTwo, parent);
+    }
+
+    Gng2D::V2d offsetOne{20.0f, 15.0f};
+    Gng2D::V2d offsetTwo{-22.0f, 7.0f};
+};
+
+TEST_F(RelativePositionTests, AttachingRelativePositionComponent_AttachesPositionComponentOffsetToParentPosition)
+{
+    reg.emplace<Gng2D::RelativePosition>(child, offsetOne);
+    reg.emplace<Gng2D::RelativePosition>(childTwo, offsetTwo);
+    const auto& posOne      = reg.get<Gng2D::Position>(child);
+    const auto& posTwo      = reg.get<Gng2D::Position>(childTwo);
+    const auto& parentPos   = reg.get<Gng2D::Position>(parent);
+
+    ASSERT_EQ(posOne, parentPos + offsetOne);
+    ASSERT_EQ(posTwo, parentPos + offsetTwo);
+}
+
+TEST_F(RelativePositionTests, ChangingParentPosition_ChangesChildrenPosition)
+{
+    reg.emplace<Gng2D::RelativePosition>(child, offsetOne);
+    reg.emplace<Gng2D::RelativePosition>(childTwo, offsetTwo);
+    const auto& posOne      = reg.get<Gng2D::Position>(child);
+    const auto& posTwo      = reg.get<Gng2D::Position>(childTwo);
+    const auto& parentPos   = reg.get<Gng2D::Position>(parent);
+
+    const auto newParentPos = Gng2D::V2d{106.0f, 1023.1f};
+    reg.replace<Gng2D::Position>(parent, newParentPos);
+    ASSERT_EQ(parentPos, newParentPos);
+
+    ASSERT_EQ(posOne, parentPos + offsetOne);
+    ASSERT_EQ(posTwo, parentPos + offsetTwo);
 }
 
