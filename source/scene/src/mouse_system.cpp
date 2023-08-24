@@ -53,15 +53,15 @@ void MouseSystem::button(SDL_MouseButtonEvent event)
         case SDL_BUTTON_LEFT:
             if (event.state == SDL_PRESSED)
             {
-                clickArmedOnEntity = currentlyHovered;
+                leftSelected = currentlyHovered;
             }
-            else if (clickArmedOnEntity == currentlyHovered)
+            else if (leftSelected == currentlyHovered)
             {
                 clickable->leftClick(reg, currentlyHovered);
             }
             else 
             {
-                clickArmedOnEntity = entt::null;
+                leftSelected = entt::null;
             }
             break;
     }
@@ -88,9 +88,9 @@ void MouseSystem::updateSpriteHoverArea()
 void MouseSystem::useSpriteHoverArea(entt::registry& reg, entt::entity entity)
 {
     auto& hoverable = reg.get<Hoverable>(entity);
-    auto& rect = reg.get<Sprite>(entity).srcRect;
+    const auto& rect = reg.get<Sprite>(entity).srcRect;
     hoverable.dimension = V2d{(float)rect.w, (float)rect.h};
-    if (auto* stretch = reg.try_get<SpriteStretch>(entity))
+    if (const auto* stretch = reg.try_get<SpriteStretch>(entity))
     {
         hoverable.dimension.x *= stretch->x;
         hoverable.dimension.y *= stretch->y;

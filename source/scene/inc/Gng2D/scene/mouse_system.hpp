@@ -20,14 +20,13 @@ private:
     entt::observer  stretchHoverObserver;
 
     void updateSpriteHoverArea();
-
     static void useSpriteHoverArea(entt::registry&, entt::entity);
 
     entt::entity currentlyHovered{entt::null};
     void enterHover(entt::entity);
     void leaveHover(entt::entity);
 
-    entt::entity clickArmedOnEntity{entt::null};
+    entt::entity leftSelected{entt::null};
 };
 }
 
