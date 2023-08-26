@@ -31,6 +31,7 @@ private:
     void leaveHover(entt::entity);
 
     entt::entity leftSelected{entt::null};
+    entt::entity rightSelected{entt::null};
 };
 }
 

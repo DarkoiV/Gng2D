@@ -93,10 +93,27 @@ void MouseSystem::button(SDL_MouseButtonEvent event)
             else if (leftSelected == currentlyHovered)
             {
                 clickable->leftClick(reg, currentlyHovered);
+                leftSelected = entt::null;
             }
             else 
             {
                 leftSelected = entt::null;
+            }
+            break;
+
+        case SDL_BUTTON_RIGHT:
+            if (event.state == SDL_PRESSED)
+            {
+                rightSelected = currentlyHovered;
+            }
+            else if (rightSelected == currentlyHovered)
+            {
+                clickable->rightClick(reg, currentlyHovered);
+                rightSelected = entt::null;
+            }
+            else 
+            {
+                rightSelected = entt::null;
             }
             break;
     }
