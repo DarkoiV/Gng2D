@@ -22,10 +22,6 @@ struct UseSpriteHoverArea {};
 
 struct Clickable
 {
-    Clickable(ModFunc lmb, ModFunc rmb)
-        : lmbCallback(lmb) 
-        , rmbCallback(rmb) {}
-
     ModFunc lmbCallback;
     ModFunc rmbCallback;
 

@@ -12,8 +12,11 @@ struct MouseSystemTests : ::testing::Test
     int         mouseX = 0;
     int         mouseY = 0;
 
-    ::testing::MockFunction<void(entt::registry&, entt::entity)> onEnterHover;
-    ::testing::MockFunction<void(entt::registry&, entt::entity)> onLeaveHover;
+    using ModFuncMock = ::testing::MockFunction<void(entt::registry&, entt::entity)>;
+    ModFuncMock onEnterHover;
+    ModFuncMock onLeaveHover;
+    ModFuncMock onLeftClick;
+    ModFuncMock onRightClick;
 
     void callOnEnter(entt::registry& reg, entt::entity e)
     {
@@ -24,6 +27,17 @@ struct MouseSystemTests : ::testing::Test
     {
         onLeaveHover.Call(reg, e);
     }
+
+    void callOnLeftClick(entt::registry& reg, entt::entity e)
+    {
+        onLeftClick.Call(reg, e);
+    }
+
+    void callOnRightClick(entt::registry& reg, entt::entity e)
+    {
+        onRightClick.Call(reg, e);
+    }
+
     entt::entity            entity0{reg.create()};
     const Gng2D::Position   pos0{10, 20};
     const Gng2D::V2d        size0{10, 20};
@@ -31,12 +45,29 @@ struct MouseSystemTests : ::testing::Test
         {entt::connect_arg<&MouseSystemTests::callOnEnter>, this},
         {entt::connect_arg<&MouseSystemTests::callOnLeave>, this},
         size0};
+    const Gng2D::Clickable clickable0{
+        {entt::connect_arg<&MouseSystemTests::callOnLeftClick>, this},
+        {entt::connect_arg<&MouseSystemTests::callOnRightClick>, this}};
+
+    entt::entity            entity1{reg.create()};
+    const Gng2D::Position   pos1{30, -20};
+    const Gng2D::V2d        size1{21, 20};
+    const Gng2D::Hoverable  hoverable1{
+        {entt::connect_arg<&MouseSystemTests::callOnEnter>, this},
+        {entt::connect_arg<&MouseSystemTests::callOnLeave>, this},
+        size0};
+    const Gng2D::Clickable clickable1{};
 
 
     MouseSystemTests()
     {
         reg.emplace<Gng2D::Position>(entity0, pos0);
         reg.emplace<Gng2D::Hoverable>(entity0, hoverable0);
+        reg.emplace<Gng2D::Clickable>(entity0, clickable0);
+
+        reg.emplace<Gng2D::Position>(entity1, pos1);
+        reg.emplace<Gng2D::Hoverable>(entity1, hoverable1);
+        reg.emplace<Gng2D::Clickable>(entity1, clickable1);
     }
 
 
@@ -60,6 +91,7 @@ struct MouseSystemTests : ::testing::Test
         SDL_MouseButtonEvent event;
         event.type = SDL_MOUSEBUTTONDOWN;
         event.button = SDL_BUTTON_LEFT;
+        event.state = SDL_PRESSED;
         event.x = mouseX;
         event.y = mouseY;
 
@@ -71,6 +103,7 @@ struct MouseSystemTests : ::testing::Test
         SDL_MouseButtonEvent event;
         event.type = SDL_MOUSEBUTTONUP;
         event.button = SDL_BUTTON_LEFT;
+        event.state = SDL_RELEASED;
         event.x = mouseX;
         event.y = mouseY;
 
@@ -106,5 +139,51 @@ TEST_F(MouseSystemTests, MovingInsideHoverableArea_WontCallAdditionLeaveOrEnterH
     moveMouse(size0.x/2 - 1, size0.y/2 - 1);
     moveMouse(0, -size0.y + 2);
     moveMouse(-size0.x + 2, 0);
+}
+
+TEST_F(MouseSystemTests, MovingFromOneHoverableAreaToAnother_WillCallHoverModFuncsInOrder)
+{
+    {
+        testing::InSequence s;
+
+        EXPECT_CALL(onEnterHover, Call(_, entity0)).Times(1);
+        EXPECT_CALL(onLeaveHover, Call(_, entity0)).Times(1);
+        EXPECT_CALL(onEnterHover, Call(_, entity1)).Times(1);
+    }
+
+    moveMouse(pos0.x, pos0.y);
+    moveMouse(-pos0.x + pos1.x, -pos0.y + pos1.y);
+}
+
+TEST_F(MouseSystemTests, LeftClickingOnHoveredArea_CausesOnClickCallback)
+{
+    EXPECT_CALL(onEnterHover, Call(_,_));
+    EXPECT_CALL(onLeftClick, Call(_, entity0)).Times(1);
+
+    moveMouse(pos0.x, pos0.y);
+    pushLMB();
+    releaseLMB();
+}
+
+TEST_F(MouseSystemTests, LeftClickingOnHoveredArea_WhenNoCallbackProvied_WontCallClickCallback)
+{
+    EXPECT_CALL(onEnterHover, Call(_,_));
+    EXPECT_CALL(onLeftClick, Call(_, entity1)).Times(0);
+
+    moveMouse(pos1.x, pos1.y);
+    pushLMB();
+    releaseLMB();
+}
+
+TEST_F(MouseSystemTests, LeftPressingThenReleasingOutOfHoverableArea_WontCallClickCallback)
+{
+    EXPECT_CALL(onEnterHover, Call(_,_));
+    EXPECT_CALL(onLeaveHover, Call(_,_));
+    EXPECT_CALL(onLeftClick, Call(_, entity0)).Times(0);
+
+    moveMouse(pos0.x, pos0.y);
+    pushLMB();
+    moveMouse(-pos0.x, -pos0.y);
+    releaseLMB();
 }
 
