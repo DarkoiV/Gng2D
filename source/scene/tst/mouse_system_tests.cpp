@@ -3,6 +3,7 @@
 #include "Gng2D/scene/mouse_system.hpp"
 #include "Gng2D/components/mouse_controlls.hpp"
 #include "Gng2D/components/position.hpp"
+#include "Gng2D/components/layer.hpp"
 
 struct MouseSystemTests : ::testing::Test 
 {
@@ -43,7 +44,6 @@ struct MouseSystemTests : ::testing::Test
         {entt::connect_arg<&MouseSystemTests::callOnEnter>, this},
         {entt::connect_arg<&MouseSystemTests::callOnLeave>, this},
         size0};
-
 
     MouseSystemTests()
     {
@@ -113,6 +113,37 @@ TEST_F(MouseSystemTests, MovingFromOneHoverableAreaToAnother_WillCallHoverModFun
 
     moveMouse(pos0.x, pos0.y);
     moveMouse(-pos0.x + pos1.x, -pos0.y + pos1.y);
+}
+
+struct MouseHoverLayerTests : MouseSystemTests
+{
+    entt::entity            entity2{reg.create()};
+    const Gng2D::Position   pos2 = pos0;
+    const Gng2D::V2d        size2 = size0;
+    const Gng2D::Hoverable  hoverable2 = hoverable0;
+
+    const Gng2D::Layer layer0{int16_t{10}};
+    const Gng2D::Layer layer2{int16_t{100}};
+
+    MouseHoverLayerTests()
+    {
+        reg.emplace<Gng2D::Layer>(entity0, layer0);
+
+        reg.emplace<Gng2D::Position>(entity2, pos2);
+        reg.emplace<Gng2D::Hoverable>(entity2, hoverable2);
+        reg.emplace<Gng2D::Layer>(entity2, layer2);
+    }
+};
+
+TEST_F(MouseHoverLayerTests, WhenHoveringOverTwoEntites_WillCallHoverModFuncOfHigherLayerOne)
+{
+    EXPECT_CALL(onEnterHover, Call(_, entity0)).Times(0);
+    EXPECT_CALL(onLeaveHover, Call(_, entity0)).Times(0);
+    EXPECT_CALL(onEnterHover, Call(_, entity2)).Times(1);
+    EXPECT_CALL(onLeaveHover, Call(_, entity2)).Times(1);
+
+    moveMouse(pos0.x, pos0.y);
+    moveMouse(-pos0.x, -pos0.y);
 }
 
 struct MouseClicksTests : MouseSystemTests 
