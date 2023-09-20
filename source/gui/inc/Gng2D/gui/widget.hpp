@@ -5,9 +5,14 @@ namespace Gng2D
 {
 struct Widget
 {
+    Widget(entt::registry& r)
+        : reg(r)
+        , root(reg.create()) {}
+    virtual ~Widget() = default;
 
-private:
-    entt::entity root;
+protected:
+    entt::registry& reg;
+    entt::entity    root;
 };
 }
 
