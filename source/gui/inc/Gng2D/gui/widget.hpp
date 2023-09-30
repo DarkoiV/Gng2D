@@ -8,7 +8,11 @@ struct Widget
     Widget(entt::registry& r)
         : reg(r)
         , root(reg.create()) {}
-    virtual ~Widget() = default;
+
+    virtual ~Widget()
+    {
+        reg.destroy(root);
+    }
 
 protected:
     entt::registry& reg;
