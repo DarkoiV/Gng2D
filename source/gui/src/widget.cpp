@@ -23,12 +23,12 @@ Widget::~Widget()
     if (reg.valid(root)) reg.destroy(root);
 }
 
-const Gng2D::Position Widget::getAbsolutePos() const 
+Gng2D::Position Widget::getAbsolutePos() const 
 {
     return reg.get<Gng2D::Position>(root);
 }
 
-const Gng2D::Position Widget::getPos() const 
+Gng2D::Position Widget::getPos() const 
 {
     if (auto* rpos = reg.try_get<Gng2D::RelativePosition>(root)) return static_cast<Gng2D::Position>(*rpos);
     else return reg.get<Gng2D::Position>(root);

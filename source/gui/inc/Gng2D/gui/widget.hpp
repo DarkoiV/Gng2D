@@ -12,11 +12,11 @@ struct Widget
     Widget(Widget&&)        = delete;
     virtual ~Widget();
 
-    const Position  getAbsolutePos()    const;
-    const Position  getPos() const;
+    Position    getAbsolutePos() const;
+    Position    getPos() const;
+    virtual V2d getDimensions() const = 0;
 
     void setPos(float x, float y);
-
 
 protected:
     entt::registry& reg;
