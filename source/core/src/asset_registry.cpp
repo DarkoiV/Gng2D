@@ -9,24 +9,31 @@ using Gng2D::AssetRegistry;
 void AssetRegistry::loadSprite(const std::string& name)
 {
     if (globalSprites.contains(name)) return LOG::WARN("Sprite", name, "already loaded");
-    if (auto* sprite = loadSpriteFile(name)) globalSprites[name] = sprite; 
+    if (auto* texture = loadTextureFile(name))
+    {
+        SDL_Rect textureRect{0, 0, 0, 0};
+        SDL_QueryTexture(texture, nullptr, nullptr, &textureRect.w, &textureRect.h);
+        globalSprites[name] = Gng2D::Sprite(texture, textureRect); 
+    }
 }
 
 void AssetRegistry::loadBMFont(const std::string& name, int charW, int charH)
 {
     if (globalFonts.contains(name)) return LOG::WARN("Font", name, "already loaded");
-    auto* fontSprite = loadSpriteFile(name, "data/fonts/");
-    if (not fontSprite) return;
+    auto* fontTexture = loadTextureFile(name, "data/fonts/");
+    if (not fontTexture) return;
 
     int width;
-    SDL_QueryTexture(fontSprite, nullptr, nullptr, &width, nullptr);
+    SDL_QueryTexture(fontTexture, nullptr, nullptr, &width, nullptr);
     int charsPerRow = width / charW;
 
-    globalFonts.emplace(name, Font(fontSprite, charW, charH, charsPerRow));
-    globalSprites["fonts/" + name] = fontSprite;
+    globalFonts.emplace(name, Font(fontTexture, charW, charH, charsPerRow));
+    SDL_Rect textureRect{0, 0, 0, 0};
+    SDL_QueryTexture(fontTexture, nullptr, nullptr, &textureRect.w, &textureRect.h);
+    globalSprites["fonts/" + name] = Gng2D::Sprite(fontTexture, textureRect);
 }
 
-SDL_Texture* AssetRegistry::loadSpriteFile(const std::string& name, const std::string& path)
+SDL_Texture* AssetRegistry::loadTextureFile(const std::string& name, const std::string& path)
 {
     LOG::INFO("Loading:", name);
     const std::string pathToSprite{path + name + ".png"};
@@ -36,12 +43,12 @@ SDL_Texture* AssetRegistry::loadSpriteFile(const std::string& name, const std::s
     return sprite;
 }
 
-SDL_Texture* AssetRegistry::getSprite(const std::string& name) const
+std::optional<Gng2D::Sprite> AssetRegistry::getSprite(const std::string& name) const
 {
     if (not globalSprites.contains(name))
     {
         LOG::ERROR("No sprite:", name);
-        return nullptr;
+        return std::nullopt;
     }
     return globalSprites.at(name);
 }
@@ -60,9 +67,9 @@ Gng2D::Font AssetRegistry::getFont(const std::string& name) const
 void Gng2D::AssetRegistry::freeAllSprites()
 {
     LOG::INFO("Freeing loaded sprites");
-    for (const auto& [_, texture] : globalSprites)
+    for (const auto& [_, sprite] : globalSprites)
     {
-        SDL_DestroyTexture(texture);
+        SDL_DestroyTexture(sprite.texture);
     }
 }
 
@@ -81,6 +88,7 @@ AssetRegistry::RenderToTexture::RenderToTexture(int width, int height, Commands 
     SDL_SetTextureBlendMode(target, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(renderer, 0,0,0,0); 
     SDL_RenderClear(renderer);
+
     commands(renderer);
 }
 
@@ -96,9 +104,13 @@ SDL_Texture* AssetRegistry::RenderToTexture::getTexture()
     return target;
 }
 
-void AssetRegistry::RenderToTexture::saveTexture(const std::string& name)
+void AssetRegistry::RenderToTexture::saveTextureAsSprite(const std::string& name)
 {
+    if (globalSprites.contains(name)) return LOG::WARN("Sprite", name, "already loaded");
+
     transferredOwnership = true;
-    globalSprites[name] = target;
+    SDL_Rect textureRect{0, 0, 0, 0};
+    SDL_QueryTexture(target, nullptr, nullptr, &textureRect.w, &textureRect.h);
+    globalSprites[name] = Gng2D::Sprite(target, textureRect);
 }
 

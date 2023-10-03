@@ -6,6 +6,7 @@
 #include <optional>
 #include <SDL2/SDL.h>
 #include "Gng2D/types/font.hpp"
+#include "Gng2D/components/sprite.hpp"
 
 struct SDL_Texture;
 
@@ -14,10 +15,10 @@ namespace Gng2D
 struct Application;
 struct AssetRegistry
 {
-    void            loadSprite(const std::string& name);
-    void            loadBMFont(const std::string& name, int charW, int charH);
-    SDL_Texture*    getSprite(const std::string& name)  const;
-    Font            getFont(const std::string& name)    const;
+    void    loadSprite(const std::string& name);
+    void    loadBMFont(const std::string& name, int charW, int charH);
+    std::optional<Sprite>   getSprite(const std::string& name)  const;
+    Font                    getFont(const std::string& name)    const;
 
     struct RenderToTexture
     {
@@ -25,8 +26,8 @@ struct AssetRegistry
         RenderToTexture(int width, int height, Commands);
         ~RenderToTexture();
 
-        SDL_Texture*        getTexture();
-        void                saveTexture(const std::string& name);
+        SDL_Texture*    getTexture();
+        void            saveTextureAsSprite(const std::string& name);
 
     private:
         bool            transferredOwnership{false};
@@ -34,11 +35,11 @@ struct AssetRegistry
     };
 
 private:
-    SDL_Texture*    loadSpriteFile(const std::string& name, 
+    SDL_Texture*    loadTextureFile(const std::string& name, 
                                    const std::string& path = "data/sprites/");
 
-    inline static std::map<std::string, SDL_Texture*>   globalSprites;
-    inline static std::map<std::string, Font>           globalFonts;
+    inline static std::map<std::string, Sprite> globalSprites;
+    inline static std::map<std::string, Font>   globalFonts;
 
     /// ONLY FOR APPLICATION ///
     friend struct   Application;
