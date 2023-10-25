@@ -32,7 +32,7 @@ void Luna::doFile(const std::string& path, const std::string& env)
 {
     luaL_loadfile(L, path.c_str());
     if (not env.empty()) setEnv(env);
-    lua_pcall(L, 0, 0, 0);
+    if (lua_pcall(L, 0, 0, 0) != 0) LOG::ERROR("Issue running dofile", path);
 }
 
 std::optional<int> Luna::readGlobalInt(const std::string& name)
@@ -41,6 +41,21 @@ std::optional<int> Luna::readGlobalInt(const std::string& name)
     if (LUA_TNUMBER == lua_getglobal(L, name.c_str()))
     {
         int ret = lua_tointeger(L, -1);
+        return ret;
+    }
+    else [[unlikely]]
+    {
+        LOG::ERROR(name, "is not a number");
+        return std::nullopt;
+    }
+}
+
+std::optional<double> Luna::readGlobalFloat(const std::string& name)
+{
+    LuaStackLock lock(L);
+    if (LUA_TNUMBER == lua_getglobal(L, name.c_str()))
+    {
+        double ret = lua_tonumber(L, -1);
         return ret;
     }
     else [[unlikely]]
@@ -61,6 +76,21 @@ std::optional<std::string> Luna::readGlobalString(const std::string& name)
     else [[unlikely]]
     {
         LOG::ERROR(name, "is not a string");
+        return std::nullopt;
+    }
+}
+
+std::optional<bool> Luna::readGlobalBool(const std::string& name)
+{
+    LuaStackLock lock(L);
+    if (LUA_TBOOLEAN == lua_getglobal(L, name.c_str()))
+    {
+        bool ret = lua_toboolean(L, -1);
+        return ret;
+    }
+    else [[unlikely]]
+    {
+        LOG::ERROR(name, "is not a bool");
         return std::nullopt;
     }
 }

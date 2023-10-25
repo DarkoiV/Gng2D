@@ -12,7 +12,9 @@ struct Luna
 
     void                        doFile(const std::string& path, const std::string& env = "");
     std::optional<int>          readGlobalInt(const std::string&);
+    std::optional<double>       readGlobalFloat(const std::string&);
     std::optional<std::string>  readGlobalString(const std::string&);
+    std::optional<bool>         readGlobalBool(const std::string&);
 
     template<typename T>
     void setVar(const std::string&, T& var);
@@ -34,13 +36,36 @@ void Luna::setVar(const std::string& name, T& var)
             LOG::INFO(name, "set to", var);
         }
     }
-    if constexpr (std::is_same_v<T, std::string>)
+    else if constexpr (std::is_floating_point_v<T>)
+    {
+        if (auto value = readGlobalFloat(name); value)
+        {
+            var = std::move(*value);
+            LOG::INFO(name, "set to", var);
+        }
+    }
+    else if constexpr (std::is_same_v<T, std::string>)
     {
         if (auto value = readGlobalString(name); value)
         {
             var = std::move(*value);
             LOG::INFO(name, "set to", var);
         }
+    }
+    else if constexpr (std::is_same_v<T, bool>)
+    {
+        if (auto value = readGlobalBool(name); value)
+        {
+            var = std::move(*value);
+            LOG::INFO(name, "set to", var);
+        }
+    }
+    else
+    {
+        []<bool flag = false>()
+        {
+            static_assert(flag, "Type not supported");
+        }();
     }
 }
 
