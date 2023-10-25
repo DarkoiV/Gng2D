@@ -1,14 +1,39 @@
 #include "Gng2D/core/app.hpp"
 #include "Gng2D/core/global.hpp"
 #include "Gng2D/core/log.hpp"
+#include "Gng2D/core/luna.hpp"
 
 using Gng2D::LOG;
+using Gng2D::Luna;
 using namespace Gng2D::GLOBAL;
 
 static void loadAppSettings()
 {
     APP_DIRECTORY = SDL_GetBasePath();
     LOG::INFO("Application directory path:", APP_DIRECTORY);
+
+    LOG::INFO("Loading config");
+    Luna configReader;
+    configReader.doFile(APP_DIRECTORY + "config.lua");
+    auto setIntValue = [&](const std::string& name, auto& target) 
+    {
+        if (auto value = configReader.readGlobalInt(name); value)
+        {
+            target = *value;
+            LOG::INFO(name, "set to", *value);
+        }
+    };
+
+    setIntValue("WINDOW_WIDTH", WINDOW_WIDTH);
+    setIntValue("WINDOW_HEIGHT", WINDOW_HEIGHT);
+    setIntValue("RENDER_SCALE", RENDER_SCALE);
+    setIntValue("LOGIC_TICK", LOGIC_TICK);
+    if (auto value = configReader.readGlobalString("WINDOW_TITLE"); value)
+    {
+        WINDOW_TITLE = std::move(*value);
+    }
+
+    LOG::OK("Config loaded");
 }
 
 static void createSdlWindow()
