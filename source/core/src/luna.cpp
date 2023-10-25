@@ -100,6 +100,34 @@ std::optional<bool> Luna::readGlobalBool(const std::string& name)
     }
 }
 
+void Luna::createGlobalInt(const std::string& name, int var)
+{
+    LuaStackLock lock(L);
+    lua_pushinteger(L, var);
+    lua_setglobal(L, name.c_str());
+}
+
+void Luna::createGlobalFloat(const std::string& name, double var)
+{
+    LuaStackLock lock(L);
+    lua_pushnumber(L, var);
+    lua_setglobal(L, name.c_str());
+}
+
+void Luna::createGlobalString(const std::string& name, const std::string& var)
+{
+    LuaStackLock lock(L);
+    lua_pushstring(L, var.c_str());
+    lua_setglobal(L, name.c_str());
+}
+
+void Luna::createGlobalBool(const std::string& name, bool var)
+{
+    LuaStackLock lock(L);
+    lua_pushboolean(L, var);
+    lua_setglobal(L, name.c_str());
+}
+
 void Luna::setEnv(const std::string& env)
 {
     auto envType = lua_getglobal(L, env.c_str());

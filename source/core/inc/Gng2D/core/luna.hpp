@@ -16,6 +16,10 @@ struct Luna
     std::optional<double>       readGlobalFloat(const std::string&);
     std::optional<std::string>  readGlobalString(const std::string&);
     std::optional<bool>         readGlobalBool(const std::string&);
+    void                        createGlobalInt(const std::string&, int);
+    void                        createGlobalFloat(const std::string&, double);
+    void                        createGlobalString(const std::string& name, const std::string& var);
+    void                        createGlobalBool(const std::string&, bool);
 
     template<typename T>
     void readToVar(const std::string&, T& var);
@@ -69,6 +73,5 @@ void Luna::readToVar(const std::string& name, T& var)
         }();
     }
 }
-
 }
 
