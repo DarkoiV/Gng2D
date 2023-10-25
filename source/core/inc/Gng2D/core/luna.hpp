@@ -9,6 +9,7 @@ namespace Gng2D
 struct Luna 
 {
     Luna();
+    ~Luna();
 
     void                        doFile(const std::string& path, const std::string& env = "");
     std::optional<int>          readGlobalInt(const std::string&);

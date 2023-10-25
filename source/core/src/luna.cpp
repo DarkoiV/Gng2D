@@ -28,6 +28,11 @@ Luna::Luna()
     if (not L) LOG::FATAL("Failed to create lua state");
 }
 
+Luna::~Luna()
+{
+    lua_close(L);
+}
+
 void Luna::doFile(const std::string& path, const std::string& env)
 {
     luaL_loadfile(L, path.c_str());
