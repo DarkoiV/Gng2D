@@ -10,7 +10,7 @@ struct Luna
 {
     Luna();
 
-    void                        doFile(const std::string&);
+    void                        doFile(const std::string& path, const std::string& env = "");
     std::optional<int>          readGlobalInt(const std::string&);
     std::optional<std::string>  readGlobalString(const std::string&);
 
@@ -19,6 +19,8 @@ struct Luna
 
 private:
     lua_State* L = luaL_newstate();
+
+    void setEnv(const std::string& env);
 };
 
 template<typename T>
