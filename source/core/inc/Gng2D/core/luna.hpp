@@ -33,7 +33,7 @@ private:
 template<typename T>
 void Luna::readToVar(const std::string& name, T& var)
 {
-    if constexpr (std::is_integral_v<T>)
+    if constexpr (std::is_integral_v<T> and not std::is_same_v<T, bool>)
     {
         if (auto value = readGlobalInt(name); value)
         {

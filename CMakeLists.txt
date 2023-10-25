@@ -34,35 +34,39 @@ add_library(lua ${lua_src})
 target_include_directories(lua INTERFACE "${lua_SOURCE_DIR}/src")
 
 ### Gng2D #####################################################################
-add_executable(Gng2D)
+add_library(Gng2D)
 target_link_libraries(Gng2D
     SDL2
     SDL2_image
     EnTT::EnTT
     lua)
 set_property(TARGET Gng2D PROPERTY CXX_STANDARD 20)
+set_property(TARGET Gng2D PROPERTY ENABLE_EXPORTS TRUE)
 add_compile_options(-Wall -Wextra -Wpedantic)
+add_executable(Gng2D_EXEC)
+target_link_libraries(Gng2D_EXEC
+    Gng2D)
 
 ### SANDBOX ###################################################################
 if(NOT DEFINED GAME_NAME)
-    set_property(TARGET Gng2D PROPERTY OUTPUT_NAME "sandbox")
-    set_property(TARGET Gng2D PROPERTY RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/sandbox")
-    add_custom_command(TARGET Gng2D POST_BUILD
-        COMMAND Gng2D
+    set_property(TARGET Gng2D_EXEC PROPERTY OUTPUT_NAME "sandbox")
+    set_property(TARGET Gng2D_EXEC PROPERTY RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/sandbox")
+    add_custom_command(TARGET Gng2D_EXEC POST_BUILD
+        COMMAND Gng2D_EXEC
         COMMENT "RUNNING GNG2D-SANDBOX")
 endif()
 
 ### TESTING ###################################################################
-#enable_testing()
-#add_executable(Gng2D_TESTS EXCLUDE_FROM_ALL)
-#target_link_libraries(Gng2D_TESTS
-#    Gng2D
-#    GTest::gtest_main
-#    GTest::gmock_main)
-#gtest_discover_tests(Gng2D_TESTS)
-#set_property(TARGET Gng2D_TESTS PROPERTY CXX_STANDARD 20)
-#add_custom_target(Gng2D_run_test
-#    COMMAND Gng2D_TESTS)
+enable_testing()
+add_executable(Gng2D_TESTS EXCLUDE_FROM_ALL)
+target_link_libraries(Gng2D_TESTS
+    Gng2D
+    GTest::gtest_main
+    GTest::gmock_main)
+gtest_discover_tests(Gng2D_TESTS)
+set_property(TARGET Gng2D_TESTS PROPERTY CXX_STANDARD 20)
+add_custom_target(run_tests
+    COMMAND Gng2D_TESTS)
 
 add_subdirectory(source)
 
