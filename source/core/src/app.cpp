@@ -15,23 +15,11 @@ static void loadAppSettings()
     LOG::INFO("Loading config");
     Luna configReader;
     configReader.doFile(APP_DIRECTORY + "config.lua");
-    auto setIntValue = [&](const std::string& name, auto& target) 
-    {
-        if (auto value = configReader.readGlobalInt(name); value)
-        {
-            target = *value;
-            LOG::INFO(name, "set to", *value);
-        }
-    };
-
-    setIntValue("WINDOW_WIDTH", WINDOW_WIDTH);
-    setIntValue("WINDOW_HEIGHT", WINDOW_HEIGHT);
-    setIntValue("RENDER_SCALE", RENDER_SCALE);
-    setIntValue("LOGIC_TICK", LOGIC_TICK);
-    if (auto value = configReader.readGlobalString("WINDOW_TITLE"); value)
-    {
-        WINDOW_TITLE = std::move(*value);
-    }
+    configReader.setVar("TITLE", TITLE);
+    configReader.setVar("RENDER_WIDTH", RENDER_WIDTH);
+    configReader.setVar("RENDER_HEIGHT", RENDER_HEIGHT);
+    configReader.setVar("RENDER_SCALE", RENDER_SCALE);
+    configReader.setVar("LOGIC_TICK", LOGIC_TICK);
 
     LOG::OK("Config loaded");
 }
@@ -45,21 +33,21 @@ static void createSdlWindow()
     if (err) LOG::FATAL("Could not initialize SDL2 Video", SDL_GetError());
 
     LOG::INFO("Creating SDL2 Window");
-    WINDOW = SDL_CreateWindow(WINDOW_TITLE.c_str(), 
-                                 SDL_WINDOWPOS_CENTERED, 
-                                 SDL_WINDOWPOS_CENTERED, 
-                                 WINDOW_WIDTH * RENDER_SCALE, 
-                                 WINDOW_HEIGHT * RENDER_SCALE, 
-                                 0);
+    WINDOW = SDL_CreateWindow(TITLE.c_str(), 
+                                SDL_WINDOWPOS_CENTERED, 
+                                SDL_WINDOWPOS_CENTERED, 
+                                RENDER_WIDTH * RENDER_SCALE, 
+                                RENDER_HEIGHT * RENDER_SCALE, 
+                                0);
     if (not WINDOW) LOG::FATAL("Could not create SDL2 Window", SDL_GetError());
-    LOG::INFO("Window size set to", WINDOW_WIDTH * RENDER_SCALE, "x", WINDOW_HEIGHT * RENDER_SCALE);
+    LOG::INFO("Window size set to", RENDER_WIDTH * RENDER_SCALE, "x", RENDER_HEIGHT * RENDER_SCALE);
 
     LOG::INFO("Creating SDL2 Renderer for window");
     RENDERER = SDL_CreateRenderer(WINDOW, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     if (not RENDERER) LOG::FATAL("Could not create SDL2 Renderer", SDL_GetError());
 
-    SDL_RenderSetLogicalSize(RENDERER, WINDOW_WIDTH, WINDOW_HEIGHT);
-    LOG::INFO("Renderer logical size set to", WINDOW_WIDTH, "x", WINDOW_HEIGHT);
+    SDL_RenderSetLogicalSize(RENDERER, RENDER_WIDTH, RENDER_HEIGHT);
+    LOG::INFO("Renderer logical size set to", RENDER_WIDTH, "x", RENDER_HEIGHT);
 
     LOG::OK("Created Gng2D Window");
 }
