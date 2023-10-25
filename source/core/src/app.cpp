@@ -15,11 +15,11 @@ static void loadAppSettings()
     LOG::INFO("Loading config");
     Luna configReader;
     configReader.doFile(APP_DIRECTORY + "config.lua");
-    configReader.setVar("TITLE", TITLE);
-    configReader.setVar("RENDER_WIDTH", RENDER_WIDTH);
-    configReader.setVar("RENDER_HEIGHT", RENDER_HEIGHT);
-    configReader.setVar("RENDER_SCALE", RENDER_SCALE);
-    configReader.setVar("LOGIC_TICK", LOGIC_TICK);
+    configReader.readToVar("TITLE", TITLE);
+    configReader.readToVar("RENDER_WIDTH", RENDER_WIDTH);
+    configReader.readToVar("RENDER_HEIGHT", RENDER_HEIGHT);
+    configReader.readToVar("RENDER_SCALE", RENDER_SCALE);
+    configReader.readToVar("LOGIC_TICK", LOGIC_TICK);
 
     LOG::OK("Config loaded");
 }
