@@ -3,6 +3,11 @@
 
 using Gng2D::Luna;
 
+Luna::Luna()
+{
+    if (not L) LOG::FATAL("Failed to create lua state");
+}
+
 void Luna::doFile(const std::string& filePath)
 {
     luaL_dofile(L, filePath.c_str());
