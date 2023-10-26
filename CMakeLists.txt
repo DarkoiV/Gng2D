@@ -63,9 +63,13 @@ target_link_libraries(Gng2D_TESTS
     Gng2D
     GTest::gtest_main
     GTest::gmock_main)
+set(TEST_FILES_DIR "${CMAKE_BINARY_DIR}/testdir")
+target_compile_definitions(Gng2D_TESTS PRIVATE   
+    "TEST_FILES_DIR=\"${TEST_FILES_DIR}\"")      
 gtest_discover_tests(Gng2D_TESTS)
 set_property(TARGET Gng2D_TESTS PROPERTY CXX_STANDARD 20)
 add_custom_target(run_tests
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${TEST_FILES_DIR}
     COMMAND Gng2D_TESTS)
 
 add_subdirectory(source)
