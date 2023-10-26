@@ -35,35 +35,19 @@ void Luna::readToVar(const std::string& name, T& var)
 {
     if constexpr (std::is_integral_v<T> and not std::is_same_v<T, bool>)
     {
-        if (auto value = readGlobalInt(name); value)
-        {
-            var = *value;
-            LOG::INFO(name, "=", var);
-        }
+        if (auto value = readGlobalInt(name); value) var = *value;
     }
     else if constexpr (std::is_floating_point_v<T>)
     {
-        if (auto value = readGlobalFloat(name); value)
-        {
-            var = std::move(*value);
-            LOG::INFO(name, "=", var);
-        }
+        if (auto value = readGlobalFloat(name); value) var = *value;
     }
     else if constexpr (std::is_same_v<T, std::string>)
     {
-        if (auto value = readGlobalString(name); value)
-        {
-            var = std::move(*value);
-            LOG::INFO(name, "=", var);
-        }
+        if (auto value = readGlobalString(name); value) var = std::move(*value);
     }
     else if constexpr (std::is_same_v<T, bool>)
     {
-        if (auto value = readGlobalBool(name); value)
-        {
-            var = std::move(*value);
-            LOG::INFO(name, "=", var);
-        }
+        if (auto value = readGlobalBool(name); value) var = *value;
     }
     else
     {
@@ -72,6 +56,7 @@ void Luna::readToVar(const std::string& name, T& var)
             static_assert(flag, "Type not supported");
         }();
     }
+    LOG::INFO(name, "=", var);
 }
 }
 
