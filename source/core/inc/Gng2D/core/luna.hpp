@@ -22,7 +22,7 @@ struct Luna
     void                        createGlobalBool(const std::string&, bool);
 
     template<typename T>
-    void readToVar(const std::string&, T& var);
+    bool readToVar(const std::string&, T& var);
 
 private:
     lua_State* L = luaL_newstate();
@@ -31,23 +31,27 @@ private:
 };
 
 template<typename T>
-void Luna::readToVar(const std::string& name, T& var)
+bool Luna::readToVar(const std::string& name, T& var)
 {
     if constexpr (std::is_integral_v<T> and not std::is_same_v<T, bool>)
     {
         if (auto value = readGlobalInt(name); value) var = *value;
+        else return false;
     }
     else if constexpr (std::is_floating_point_v<T>)
     {
         if (auto value = readGlobalFloat(name); value) var = *value;
+        else return false;
     }
     else if constexpr (std::is_same_v<T, std::string>)
     {
         if (auto value = readGlobalString(name); value) var = std::move(*value);
+        else return false;
     }
     else if constexpr (std::is_same_v<T, bool>)
     {
         if (auto value = readGlobalBool(name); value) var = *value;
+        else return false;
     }
     else
     {
@@ -57,6 +61,7 @@ void Luna::readToVar(const std::string& name, T& var)
         }();
     }
     LOG::INFO(name, "=", var);
+    return true;
 }
 }
 

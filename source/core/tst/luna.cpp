@@ -59,14 +59,36 @@ TEST_F(LunaTest, AfterDoingFile_LunaCanUseReadToVar)
     bool        testBool;
     std::string testString;
 
-    luna.readToVar(INT_ID, testInt);
-    luna.readToVar(FLOAT_ID, testFloat);
-    luna.readToVar(BOOL_ID, testBool);
-    luna.readToVar(STR_ID, testString);
+    ASSERT_TRUE(luna.readToVar(INT_ID, testInt));
+    ASSERT_TRUE(luna.readToVar(FLOAT_ID, testFloat));
+    ASSERT_TRUE(luna.readToVar(BOOL_ID, testBool));
+    ASSERT_TRUE(luna.readToVar(STR_ID, testString));
 
     ASSERT_EQ(testInt, INT_VALUE);
     ASSERT_EQ(testFloat, FLOAT_VALUE);
     ASSERT_EQ(testBool, BOOL_VALUE);
     ASSERT_EQ(testString, STR_VALUE);
+}
+
+TEST_F(LunaTest, IfVarNotDefinedInLua_LunaReadToVarWontChangeTargetVar)
+{
+    constexpr int       OLD_INT_VALUE{100};
+    constexpr double    OLD_FLOAT_VALUE{231.20};
+    constexpr bool      OLD_BOOL_VALUE{true};
+    constexpr char      OLD_STR_VALUE[]{"TESTO"};
+    int         testInt     = OLD_INT_VALUE;
+    double      testFloat   = OLD_FLOAT_VALUE;
+    bool        testBool    = OLD_BOOL_VALUE;
+    std::string testString  = OLD_STR_VALUE;
+
+    ASSERT_FALSE(luna.readToVar(INT_ID, testInt));
+    ASSERT_FALSE(luna.readToVar(FLOAT_ID, testFloat));
+    ASSERT_FALSE(luna.readToVar(BOOL_ID, testBool));
+    ASSERT_FALSE(luna.readToVar(STR_ID, testString));
+
+    ASSERT_EQ(testInt, OLD_INT_VALUE);
+    ASSERT_EQ(testFloat, OLD_FLOAT_VALUE);
+    ASSERT_EQ(testBool, OLD_BOOL_VALUE);
+    ASSERT_EQ(testString, OLD_STR_VALUE);
 }
 
