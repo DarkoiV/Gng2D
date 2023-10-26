@@ -50,7 +50,7 @@ std::optional<int> Luna::readGlobalInt(const std::string& name)
     }
     else [[unlikely]]
     {
-        LOG::ERROR(name, "is not a number");
+        LOG::DEBUG(name, "is not a number");
         return std::nullopt;
     }
 }
@@ -65,7 +65,7 @@ std::optional<double> Luna::readGlobalFloat(const std::string& name)
     }
     else [[unlikely]]
     {
-        LOG::ERROR(name, "is not a number");
+        LOG::DEBUG(name, "is not a number");
         return std::nullopt;
     }
 }
@@ -80,7 +80,7 @@ std::optional<std::string> Luna::readGlobalString(const std::string& name)
     }
     else [[unlikely]]
     {
-        LOG::ERROR(name, "is not a string");
+        LOG::DEBUG(name, "is not a string");
         return std::nullopt;
     }
 }
@@ -95,7 +95,7 @@ std::optional<bool> Luna::readGlobalBool(const std::string& name)
     }
     else [[unlikely]]
     {
-        LOG::ERROR(name, "is not a bool");
+        LOG::DEBUG(name, "is not a bool");
         return std::nullopt;
     }
 }
