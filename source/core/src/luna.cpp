@@ -40,6 +40,16 @@ void Luna::doFile(const std::string& path, const std::string& env)
     if (lua_pcall(L, 0, 0, 0) != 0) LOG::ERROR("Issue running dofile", path);
 }
 
+void Luna::doString(const std::string& str, const std::string& env)
+{
+    luaL_loadstring(L, str.c_str());
+    if (not env.empty()) setEnv(env);
+    if (lua_pcall(L, 0, 0, 0) != 0) LOG::ERROR("Issue running script: \n", 
+                                               "-- LUA SCRIPT --\n", 
+                                               str, 
+                                               "\n-- END SCRIPT --");
+}
+
 std::optional<int> Luna::readGlobalInt(const std::string& name)
 {
     LuaStackLock lock(L);
@@ -50,7 +60,7 @@ std::optional<int> Luna::readGlobalInt(const std::string& name)
     }
     else [[unlikely]]
     {
-        LOG::DEBUG(name, "is not a number");
+        LOG::WARN(name, "is not a number");
         return std::nullopt;
     }
 }
@@ -65,7 +75,7 @@ std::optional<double> Luna::readGlobalFloat(const std::string& name)
     }
     else [[unlikely]]
     {
-        LOG::DEBUG(name, "is not a number");
+        LOG::WARN(name, "is not a number");
         return std::nullopt;
     }
 }
@@ -80,7 +90,7 @@ std::optional<std::string> Luna::readGlobalString(const std::string& name)
     }
     else [[unlikely]]
     {
-        LOG::DEBUG(name, "is not a string");
+        LOG::WARN(name, "is not a string");
         return std::nullopt;
     }
 }
@@ -95,7 +105,7 @@ std::optional<bool> Luna::readGlobalBool(const std::string& name)
     }
     else [[unlikely]]
     {
-        LOG::DEBUG(name, "is not a bool");
+        LOG::WARN(name, "is not a bool");
         return std::nullopt;
     }
 }

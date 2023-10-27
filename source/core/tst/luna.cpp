@@ -2,6 +2,7 @@
 #include "gtest/gtest.h"
 #include <filesystem>
 #include <fstream>
+#include <sstream>
 
 constexpr char INT_ID[]         = "TEST_INT";
 constexpr int INT_VALUE         = 129;
@@ -50,6 +51,14 @@ TEST_F(LunaTest, AfterDoingFile_LunaCanReadGlobalVariables)
     ASSERT_EQ(*readString, STR_VALUE);
 }
 
+TEST_F(LunaTest, WhenReadingNotDefinedGlobal_LunaWillReturnNullopt)
+{
+    ASSERT_EQ(luna.readGlobalInt("NOT_DEF_1"), std::nullopt);
+    ASSERT_EQ(luna.readGlobalFloat("NOT_DEF_2"), std::nullopt);
+    ASSERT_EQ(luna.readGlobalBool("NOT_DEF_3"), std::nullopt);
+    ASSERT_EQ(luna.readGlobalString("NOT_DEF_4"), std::nullopt);
+}
+
 TEST_F(LunaTest, AfterDoingFile_LunaCanUseReadToVar)
 {
     luna.doFile(testFile);
@@ -90,5 +99,28 @@ TEST_F(LunaTest, IfVarNotDefinedInLua_LunaReadToVarWontChangeTargetVar)
     ASSERT_EQ(testFloat, OLD_FLOAT_VALUE);
     ASSERT_EQ(testBool, OLD_BOOL_VALUE);
     ASSERT_EQ(testString, OLD_STR_VALUE);
+}
+
+TEST_F(LunaTest, LunaCanRunStringAsScript)
+{
+    constexpr char  SCRIPT_INT_ID[]{"SCRIPT_INT"};
+    constexpr int   SCRIPT_INT_VALUE{120};
+    constexpr char  SCRIPT_STR_ID[]{"SCRIPT_STR"};
+    constexpr char  SCRIPT_STR_VALUE[]{"HELLO LUNA FROM STRING!"};
+
+    std::stringstream script;
+    script << SCRIPT_INT_ID << "=" << SCRIPT_INT_VALUE              << "\n";
+    script << SCRIPT_STR_ID << "=" << std::quoted(SCRIPT_STR_VALUE) << "\n";
+
+    luna.doString(script.str());
+
+    auto readInt = luna.readGlobalInt(SCRIPT_INT_ID);
+    auto readStr = luna.readGlobalString(SCRIPT_STR_ID);
+
+    ASSERT_TRUE(readInt);
+    ASSERT_TRUE(readStr);
+
+    ASSERT_EQ(readInt, SCRIPT_INT_VALUE);
+    ASSERT_EQ(readStr, SCRIPT_STR_VALUE);
 }
 

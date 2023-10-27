@@ -12,6 +12,7 @@ struct Luna
     ~Luna();
 
     void                        doFile(const std::string& path, const std::string& env = "");
+    void                        doString(const std::string& str, const std::string& env = "");
     std::optional<int>          readGlobalInt(const std::string&);
     std::optional<double>       readGlobalFloat(const std::string&);
     std::optional<std::string>  readGlobalString(const std::string&);
@@ -60,7 +61,7 @@ bool Luna::readToVar(const std::string& name, T& var)
             static_assert(flag, "Type not supported");
         }();
     }
-    LOG::INFO(name, "=", var);
+    LOG::DEBUG(name, "=", var);
     return true;
 }
 }
