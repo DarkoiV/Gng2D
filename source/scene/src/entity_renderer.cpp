@@ -51,6 +51,7 @@ void EntityRenderer::sortRenderables()
         if (not leftHasLayer)  return true;
         return reg.get<Layer>(lhs) < reg.get<Layer>(rhs);
     });
+    needsSorting = false;
 }
 
 template<typename Component>
