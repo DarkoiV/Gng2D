@@ -12,6 +12,8 @@ struct MainLoop
     inline void rendering();
 
 private:
+    void switchScene();
+
     uint64_t    previousTS{0};
     uint32_t    logicLag{0};
 };
