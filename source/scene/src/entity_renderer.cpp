@@ -5,18 +5,36 @@
 
 using Gng2D::EntityRenderer;
 
+#define SORT_SIGNAL &EntityRenderer::needsSorting
+
 EntityRenderer::EntityRenderer(entt::registry& r)
     : reg(r)
 {
-    connectSortOnChange<Sprite>();
-    connectSortOnChange<Layer>();
+    entt::sigh_helper{reg}
+        .with<Sprite>()
+            .on_construct<SORT_SIGNAL>(this)
+            .on_destroy<SORT_SIGNAL>(this)
+        .with<Position>()
+            .on_construct<SORT_SIGNAL>(this)
+            .on_destroy<SORT_SIGNAL>(this)
+        .with<Layer>()
+            .on_construct<SORT_SIGNAL>(this)
+            .on_update<SORT_SIGNAL>(this)
+            .on_destroy<SORT_SIGNAL>(this);
     LOG::INFO("Created entity renderer");
 }
 
 EntityRenderer::~EntityRenderer()
 {
-    disconnectSortOnChange<Sprite>();
-    disconnectSortOnChange<Layer>();
+    reg.on_construct<Sprite>().disconnect<SORT_SIGNAL>(this);
+    reg.on_destroy<Sprite>().disconnect<SORT_SIGNAL>(this);
+
+    reg.on_construct<Position>().disconnect<SORT_SIGNAL>(this);
+    reg.on_destroy<Position>().disconnect<SORT_SIGNAL>(this);
+
+    reg.on_construct<Layer>().disconnect<SORT_SIGNAL>(this);
+    reg.on_update<Layer>().disconnect<SORT_SIGNAL>(this);
+    reg.on_destroy<Layer>().disconnect<SORT_SIGNAL>(this);
 }
 
 void EntityRenderer::operator()(SDL_Renderer* r)
@@ -27,12 +45,12 @@ void EntityRenderer::operator()(SDL_Renderer* r)
 
     renderables.each([r, this, midYOffset, midXOffset](Sprite& sprite, Position& pos)
     {
-        SDL_Rect    dst;
-        dst.w = sprite.srcRect.w;
-        dst.h = sprite.srcRect.h;
-        dst.x = static_cast<int>(pos.x) - dst.w / 2 + midXOffset;
-        dst.y = static_cast<int>(pos.y) - dst.h / 2 + midYOffset;
-        SDL_RenderCopy(r, sprite.texture, &sprite.srcRect, &dst);
+        SDL_Rect dstRect;
+        dstRect.w = sprite.srcRect.w;
+        dstRect.h = sprite.srcRect.h;
+        dstRect.x = static_cast<int>(pos.x) - dstRect.w / 2 + midXOffset;
+        dstRect.y = static_cast<int>(pos.y) - dstRect.h / 2 + midYOffset;
+        SDL_RenderCopy(r, sprite.texture, &sprite.srcRect, &dstRect);
     });
 }
 
@@ -52,27 +70,5 @@ void EntityRenderer::sortRenderables()
         return reg.get<Layer>(lhs) < reg.get<Layer>(rhs);
     });
     needsSorting = false;
-}
-
-template<typename Component>
-void EntityRenderer::connectSortOnChange()
-{
-    reg.on_construct<Component>()
-        .template connect<&EntityRenderer::markForSorting>(this);
-    reg.on_update<Component>()
-        .template connect<&EntityRenderer::markForSorting>(this);
-    reg.on_destroy<Component>()
-        .template connect<&EntityRenderer::markForSorting>(this);
-}
-
-template<typename Component>
-void EntityRenderer::disconnectSortOnChange()
-{
-    reg.on_construct<Component>()
-        .template disconnect<&EntityRenderer::markForSorting>(this);
-    reg.on_update<Component>()
-        .template disconnect<&EntityRenderer::markForSorting>(this);
-    reg.on_destroy<Component>()
-        .template disconnect<&EntityRenderer::markForSorting>(this);
 }
 

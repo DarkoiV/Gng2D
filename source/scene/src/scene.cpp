@@ -16,6 +16,11 @@ Scene::Scene()
     name = "unnamed scene";
 }
 
+Scene::~Scene() 
+{
+    reg.clear();
+}
+
 void Scene::onEnter()
 {
     LOG::INFO("Entering", name);

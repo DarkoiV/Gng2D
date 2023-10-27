@@ -13,7 +13,7 @@ struct Scene : SceneInterface
     Scene();
     Scene(const Scene&) = delete;
     Scene(Scene&&)      = delete;
-    virtual ~Scene()    = default;
+    virtual ~Scene();
 
     auto operator=(Scene&)  = delete;
     auto operator=(Scene&&) = delete;

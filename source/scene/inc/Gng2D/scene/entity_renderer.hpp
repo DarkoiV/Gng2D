@@ -25,12 +25,6 @@ private:
     void markForSorting();
     void sortRenderables();
 
-    template<typename Component>
-    void connectSortOnChange();
-
-    template<typename Component>
-    void disconnectSortOnChange();
-
     using Renderables = decltype(reg.group<Sprite, Position>());
     Renderables renderables{reg.group<Sprite, Position>()};
 };
