@@ -3,7 +3,7 @@
 namespace Gng2D
 {
     void initApp();
-    void mainLoop();
+    void runApp();
     void closeApp();
 }
 

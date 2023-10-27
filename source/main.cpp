@@ -4,7 +4,7 @@
 int main()
 {
     Gng2D::initApp();
-    Gng2D::mainLoop();
+    Gng2D::runApp();
     Gng2D::closeApp();
     return 0;
 }

@@ -2,6 +2,7 @@
 #include "Gng2D/core/global.hpp"
 #include "Gng2D/core/log.hpp"
 #include "Gng2D/core/luna.hpp"
+#include "Gng2D/core/main_loop.hpp"
 
 using Gng2D::LOG;
 using Gng2D::Luna;
@@ -26,8 +27,6 @@ static void loadAppSettings()
 
 static void createSdlWindow()
 {
-    LOG::INFO("Creating Gng2D Window");
-
     LOG::INFO("Initializing SDL2 Video");
     auto err = SDL_Init(SDL_INIT_VIDEO);
     if (err) LOG::FATAL("Could not initialize SDL2 Video", SDL_GetError());
@@ -49,7 +48,7 @@ static void createSdlWindow()
     SDL_RenderSetLogicalSize(RENDERER, RENDER_WIDTH, RENDER_HEIGHT);
     LOG::INFO("Renderer logical size set to", RENDER_WIDTH, "x", RENDER_HEIGHT);
 
-    LOG::OK("Created Gng2D Window");
+    LOG::OK("Created Window");
 }
 
 static void destroySdlWindow()
@@ -62,17 +61,21 @@ static void destroySdlWindow()
 
 void Gng2D::initApp()
 {
+    LOG::INFO("App init");
     loadAppSettings();
     createSdlWindow();
 }
 
-void Gng2D::mainLoop()
+void Gng2D::runApp()
 {
-    SDL_Delay(1000);
+    LOG::INFO("Entering main loop");
+    MainLoop loop;
+    while(APP_RUNNING) loop();
 }
 
 void Gng2D::closeApp()
 {
+    LOG::INFO("Closing app");
     destroySdlWindow();
 }
 
