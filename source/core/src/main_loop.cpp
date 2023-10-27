@@ -1,8 +1,6 @@
 #include "Gng2D/core/main_loop.hpp"
 #include "Gng2D/core/global.hpp"
 #include "Gng2D/core/log.hpp"
-#include "Gng2D/scene/scene.hpp"
-#include <SDL2/SDL.h>
 
 using Gng2D::MainLoop;
 using namespace Gng2D::GLOBAL;

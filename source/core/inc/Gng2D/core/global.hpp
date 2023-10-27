@@ -2,11 +2,7 @@
 #include <SDL2/SDL.h>
 #include <string>
 #include <memory>
-
-namespace Gng2D 
-{
-struct Scene;
-}
+#include "Gng2D/core/scene_interface.hpp"
 
 namespace Gng2D::GLOBAL
 {
@@ -22,7 +18,7 @@ inline SDL_Window*      WINDOW;
 inline SDL_Renderer*    RENDERER;
 inline std::string      APP_DIRECTORY;
 inline bool             APP_RUNNING     = true;
-inline ::Gng2D::Scene*  CURRENT_SCENE   = nullptr;
-inline ::Gng2D::Scene*  NEXT_SCENE      = nullptr;
+inline SceneInterface*  CURRENT_SCENE   = nullptr;
+inline SceneInterface*  NEXT_SCENE      = nullptr;
 }
 

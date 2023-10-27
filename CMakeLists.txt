@@ -50,6 +50,7 @@ target_link_libraries(Gng2D_EXEC
 ### SANDBOX ###################################################################
 if(NOT DEFINED GAME_NAME)
     set_property(TARGET Gng2D_EXEC PROPERTY OUTPUT_NAME "sandbox")
+    set_property(TARGET Gng2D_EXEC PROPERTY CXX_STANDARD 20)
     set_property(TARGET Gng2D_EXEC PROPERTY RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/sandbox")
     add_custom_command(TARGET Gng2D_EXEC POST_BUILD
         COMMAND Gng2D_EXEC

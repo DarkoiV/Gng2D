@@ -9,7 +9,7 @@ struct LOG
     template<typename... T>
     static void TRACE(T... msg) 
     {
-        out << DEBUG_TXT;
+        out << TRACE_TXT;
         ((out << " " << msg ), ... );
         out << "\n";
     }

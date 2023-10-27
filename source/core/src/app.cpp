@@ -3,7 +3,6 @@
 #include "Gng2D/core/log.hpp"
 #include "Gng2D/core/luna.hpp"
 #include "Gng2D/core/main_loop.hpp"
-#include "Gng2D/scene/scene.hpp"
 #include <SDL2/SDL_image.h>
 
 using Gng2D::LOG;
@@ -56,11 +55,6 @@ static void createSdlWindow()
     LOG::OK("Created Window");
 }
 
-static void loadFirstScene()
-{
-    NEXT_SCENE = new Gng2D::Scene();
-}
-
 static void destroySdlWindow()
 {
     LOG::INFO("Destroying Gng2D Window");
@@ -75,7 +69,6 @@ void Gng2D::initApp()
     LOG::INFO("App init");
     loadAppSettings();
     createSdlWindow();
-    loadFirstScene();
 }
 
 void Gng2D::runApp()
