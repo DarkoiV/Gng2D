@@ -1,5 +1,6 @@
 #pragma once
 #include <entt/entt.hpp>
+#include "Gng2D/core/luna.hpp"
 
 struct SDL_Renderer;
 
@@ -22,8 +23,9 @@ struct Scene
 
     const std::string& getName() const;
 
-private:
+protected:
     entt::registry  reg;
+    Luna            luna;
     std::string     name;
 };
 }
