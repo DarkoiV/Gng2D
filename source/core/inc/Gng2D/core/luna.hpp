@@ -13,14 +13,14 @@ struct Luna
 
     void                        doFile(const std::string& path, const std::string& env = "");
     void                        doString(const std::string& str, const std::string& env = "");
-    std::optional<int>          readGlobalInt(const std::string&);
-    std::optional<double>       readGlobalFloat(const std::string&);
-    std::optional<std::string>  readGlobalString(const std::string&);
-    std::optional<bool>         readGlobalBool(const std::string&);
-    void                        createGlobalInt(const std::string&, int);
-    void                        createGlobalFloat(const std::string&, double);
-    void                        createGlobalString(const std::string& name, const std::string& var);
-    void                        createGlobalBool(const std::string&, bool);
+    std::optional<int>          readInt(const std::string&);
+    std::optional<double>       readFloat(const std::string&);
+    std::optional<std::string>  readString(const std::string&);
+    std::optional<bool>         readBool(const std::string&);
+    void                        createInt(const std::string&, int);
+    void                        createFloat(const std::string&, double);
+    void                        createString(const std::string& name, const std::string& var);
+    void                        createBool(const std::string&, bool);
 
     template<typename T>
     bool readToVar(const std::string&, T& var);
@@ -36,22 +36,22 @@ bool Luna::readToVar(const std::string& name, T& var)
 {
     if constexpr (std::is_integral_v<T> and not std::is_same_v<T, bool>)
     {
-        if (auto value = readGlobalInt(name); value) var = *value;
+        if (auto value = readInt(name); value) var = *value;
         else return false;
     }
     else if constexpr (std::is_floating_point_v<T>)
     {
-        if (auto value = readGlobalFloat(name); value) var = *value;
+        if (auto value = readFloat(name); value) var = *value;
         else return false;
     }
     else if constexpr (std::is_same_v<T, std::string>)
     {
-        if (auto value = readGlobalString(name); value) var = std::move(*value);
+        if (auto value = readString(name); value) var = std::move(*value);
         else return false;
     }
     else if constexpr (std::is_same_v<T, bool>)
     {
-        if (auto value = readGlobalBool(name); value) var = *value;
+        if (auto value = readBool(name); value) var = *value;
         else return false;
     }
     else

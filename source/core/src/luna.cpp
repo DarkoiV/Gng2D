@@ -50,7 +50,7 @@ void Luna::doString(const std::string& str, const std::string& env)
                                                "\n-- END SCRIPT --");
 }
 
-std::optional<int> Luna::readGlobalInt(const std::string& name)
+std::optional<int> Luna::readInt(const std::string& name)
 {
     LuaStackLock lock(L);
     if (LUA_TNUMBER == lua_getglobal(L, name.c_str()))
@@ -65,7 +65,7 @@ std::optional<int> Luna::readGlobalInt(const std::string& name)
     }
 }
 
-std::optional<double> Luna::readGlobalFloat(const std::string& name)
+std::optional<double> Luna::readFloat(const std::string& name)
 {
     LuaStackLock lock(L);
     if (LUA_TNUMBER == lua_getglobal(L, name.c_str()))
@@ -80,7 +80,7 @@ std::optional<double> Luna::readGlobalFloat(const std::string& name)
     }
 }
 
-std::optional<std::string> Luna::readGlobalString(const std::string& name)
+std::optional<std::string> Luna::readString(const std::string& name)
 {
     LuaStackLock lock(L);
     if (LUA_TSTRING == lua_getglobal(L, name.c_str()))
@@ -95,7 +95,7 @@ std::optional<std::string> Luna::readGlobalString(const std::string& name)
     }
 }
 
-std::optional<bool> Luna::readGlobalBool(const std::string& name)
+std::optional<bool> Luna::readBool(const std::string& name)
 {
     LuaStackLock lock(L);
     if (LUA_TBOOLEAN == lua_getglobal(L, name.c_str()))
@@ -110,28 +110,28 @@ std::optional<bool> Luna::readGlobalBool(const std::string& name)
     }
 }
 
-void Luna::createGlobalInt(const std::string& name, int var)
+void Luna::createInt(const std::string& name, int var)
 {
     LuaStackLock lock(L);
     lua_pushinteger(L, var);
     lua_setglobal(L, name.c_str());
 }
 
-void Luna::createGlobalFloat(const std::string& name, double var)
+void Luna::createFloat(const std::string& name, double var)
 {
     LuaStackLock lock(L);
     lua_pushnumber(L, var);
     lua_setglobal(L, name.c_str());
 }
 
-void Luna::createGlobalString(const std::string& name, const std::string& var)
+void Luna::createString(const std::string& name, const std::string& var)
 {
     LuaStackLock lock(L);
     lua_pushstring(L, var.c_str());
     lua_setglobal(L, name.c_str());
 }
 
-void Luna::createGlobalBool(const std::string& name, bool var)
+void Luna::createBool(const std::string& name, bool var)
 {
     LuaStackLock lock(L);
     lua_pushboolean(L, var);

@@ -35,10 +35,10 @@ TEST_F(LunaTest, AfterDoingFile_LunaCanReadGlobalVariables)
 {
     luna.doFile(testFile.string());
 
-    auto readInt    = luna.readGlobalInt(INT_ID);
-    auto readFloat  = luna.readGlobalFloat(FLOAT_ID);
-    auto readBool   = luna.readGlobalBool(BOOL_ID);
-    auto readString = luna.readGlobalString(STR_ID);
+    auto readInt    = luna.readInt(INT_ID);
+    auto readFloat  = luna.readFloat(FLOAT_ID);
+    auto readBool   = luna.readBool(BOOL_ID);
+    auto readString = luna.readString(STR_ID);
 
     ASSERT_TRUE(readInt);
     ASSERT_TRUE(readFloat);
@@ -53,10 +53,10 @@ TEST_F(LunaTest, AfterDoingFile_LunaCanReadGlobalVariables)
 
 TEST_F(LunaTest, WhenReadingNotDefinedGlobal_LunaWillReturnNullopt)
 {
-    ASSERT_EQ(luna.readGlobalInt("NOT_DEF_1"), std::nullopt);
-    ASSERT_EQ(luna.readGlobalFloat("NOT_DEF_2"), std::nullopt);
-    ASSERT_EQ(luna.readGlobalBool("NOT_DEF_3"), std::nullopt);
-    ASSERT_EQ(luna.readGlobalString("NOT_DEF_4"), std::nullopt);
+    ASSERT_EQ(luna.readInt("NOT_DEF_1"), std::nullopt);
+    ASSERT_EQ(luna.readFloat("NOT_DEF_2"), std::nullopt);
+    ASSERT_EQ(luna.readBool("NOT_DEF_3"), std::nullopt);
+    ASSERT_EQ(luna.readString("NOT_DEF_4"), std::nullopt);
 }
 
 TEST_F(LunaTest, AfterDoingFile_LunaCanUseReadToVar)
@@ -114,8 +114,8 @@ TEST_F(LunaTest, LunaCanRunStringAsScript)
 
     luna.doString(script.str());
 
-    auto readInt = luna.readGlobalInt(SCRIPT_INT_ID);
-    auto readStr = luna.readGlobalString(SCRIPT_STR_ID);
+    auto readInt = luna.readInt(SCRIPT_INT_ID);
+    auto readStr = luna.readString(SCRIPT_STR_ID);
 
     ASSERT_TRUE(readInt);
     ASSERT_TRUE(readStr);
