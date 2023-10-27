@@ -4,6 +4,7 @@
 #include "Gng2D/core/luna.hpp"
 #include "Gng2D/core/main_loop.hpp"
 #include "Gng2D/scene/scene.hpp"
+#include <SDL2/SDL_image.h>
 
 using Gng2D::LOG;
 using Gng2D::Luna;
@@ -49,6 +50,9 @@ static void createSdlWindow()
     SDL_RenderSetLogicalSize(RENDERER, RENDER_WIDTH, RENDER_HEIGHT);
     LOG::INFO("Renderer logical size set to", RENDER_WIDTH, "x", RENDER_HEIGHT);
 
+    auto flags = IMG_INIT_PNG | IMG_INIT_JPG;
+    if (IMG_Init(flags) != flags) LOG::FATAL("Failed to initialize SDL2_image:", IMG_GetError());
+
     LOG::OK("Created Window");
 }
 
@@ -60,6 +64,7 @@ static void loadFirstScene()
 static void destroySdlWindow()
 {
     LOG::INFO("Destroying Gng2D Window");
+    IMG_Quit();
     SDL_DestroyRenderer(RENDERER);
     SDL_DestroyWindow(WINDOW);
     SDL_QuitSubSystem(SDL_INIT_VIDEO);

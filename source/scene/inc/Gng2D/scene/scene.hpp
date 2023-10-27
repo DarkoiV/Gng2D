@@ -1,6 +1,7 @@
 #pragma once
 #include <entt/entt.hpp>
 #include "Gng2D/core/luna.hpp"
+#include "Gng2D/scene/entity_renderer.hpp"
 
 struct SDL_Renderer;
 
@@ -26,7 +27,9 @@ struct Scene
 protected:
     entt::registry  reg;
     Luna            luna;
+
     std::string     name;
+    EntityRenderer  entityRenderer{reg};
 };
 }
 
