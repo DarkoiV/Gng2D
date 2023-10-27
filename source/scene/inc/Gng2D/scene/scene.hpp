@@ -7,7 +7,7 @@ namespace Gng2D
 {
 struct Scene 
 {
-    Scene()             = default;
+    Scene();
     Scene(const Scene&) = delete;
     Scene(Scene&&)      = delete;
     virtual ~Scene()    = default;
@@ -15,13 +15,16 @@ struct Scene
     auto operator=(Scene&)  = delete;
     auto operator=(Scene&&) = delete;
 
-    virtual void onEnter()  {};
-    virtual void onExit()   {};
-    virtual void update()   {};
-    virtual void render(SDL_Renderer*) {};
+    virtual void onEnter();
+    virtual void onExit();
+    virtual void update();
+    virtual void render(SDL_Renderer*);
+
+    const std::string& getName() const;
 
 private:
-    entt::registry reg;
+    entt::registry  reg;
+    std::string     name;
 };
 }
 

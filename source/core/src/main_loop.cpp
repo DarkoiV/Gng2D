@@ -9,11 +9,18 @@ using namespace Gng2D::GLOBAL;
 
 void MainLoop::operator()()
 {
+    while (APP_RUNNING) loop();
+    if (CURRENT_SCENE) CURRENT_SCENE->onExit();
+}
+
+void MainLoop::loop()
+{
     if (NEXT_SCENE) switchScene();
     if (not CURRENT_SCENE) LOG::FATAL("No scene set");
 
     uint64_t currentTS  = SDL_GetTicks64();
     uint32_t elapsed    = currentTS - previousTS;
+    previousTS          = currentTS;
     logicLag           += elapsed; 
 
     eventsProcessing();
@@ -50,12 +57,17 @@ void MainLoop::rendering()
 
 void MainLoop::switchScene()
 {
-    CURRENT_SCENE->onExit();
-    delete CURRENT_SCENE;
+    LOG::INFO("Switching scene");
+    if (CURRENT_SCENE) 
+    {
+        CURRENT_SCENE->onExit();
+        delete CURRENT_SCENE;
+    }
 
     CURRENT_SCENE = NEXT_SCENE;
     CURRENT_SCENE->onEnter();
 
     NEXT_SCENE = nullptr;
+    previousTS = SDL_GetTicks64();
 }
 

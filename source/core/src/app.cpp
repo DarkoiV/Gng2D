@@ -76,8 +76,7 @@ void Gng2D::initApp()
 void Gng2D::runApp()
 {
     LOG::INFO("Entering main loop");
-    MainLoop loop;
-    while(APP_RUNNING) loop();
+    MainLoop()();
 }
 
 void Gng2D::closeApp()

@@ -7,11 +7,12 @@ struct MainLoop
 {
     void operator()();
 
+private:
+    inline void loop();
     inline void eventsProcessing();
     inline void logicProcessing();
     inline void rendering();
 
-private:
     void switchScene();
 
     uint64_t    previousTS{0};
