@@ -104,6 +104,9 @@ TEST_F(InputHandlerTest, NothingHappensOnNonProccessedAction)
 
 TEST_F(InputHandlerTest, OnHandledKeyPress_KeyPressComponentsWillPublishToSinks)
 {
+    SUT.registerKeyPressAction(SDL_SCANCODE_UP,     "up"_hs);
+    SUT.registerKeyPressAction(SDL_SCANCODE_DOWN, "down"_hs);
+
     EXPECT_CALL(actionCallback, Call(entity_one, entt::hashed_string::value("up"))).Times(1);
     EXPECT_CALL(actionCallback, Call(entity_two, entt::hashed_string::value("up"))).Times(0);
 

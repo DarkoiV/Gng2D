@@ -16,6 +16,8 @@ struct InputHandler
     auto operator=(InputHandler&)   = delete;
     auto operator=(InputHandler&&)  = delete;
 
+    void registerKeyPressAction(SDL_Scancode, KeyPress::Action);
+
     void handleKeyPress(SDL_KeyboardEvent&);
 
 private:

@@ -10,18 +10,15 @@ using namespace entt::literals;
 InputHandler::InputHandler(entt::registry& r)
     : reg(r)
 {
-    keyPressActions[SDL_SCANCODE_UP]    = "up"_hs;
-    keyPressActions[SDL_SCANCODE_LEFT]  = "left"_hs;
-    keyPressActions[SDL_SCANCODE_DOWN]  = "down"_hs;
-    keyPressActions[SDL_SCANCODE_RIGHT] = "right"_hs;
-    keyPressActions[SDL_SCANCODE_W] = "up"_hs;
-    keyPressActions[SDL_SCANCODE_A] = "left"_hs;
-    keyPressActions[SDL_SCANCODE_S] = "down"_hs;
-    keyPressActions[SDL_SCANCODE_D] = "right"_hs;
 }
 
 InputHandler::~InputHandler()
 {
+}
+
+void InputHandler::registerKeyPressAction(SDL_Scancode scancode, KeyPress::Action action)
+{
+    keyPressActions[scancode] = action;
 }
 
 void InputHandler::handleKeyPress(SDL_KeyboardEvent& e)
