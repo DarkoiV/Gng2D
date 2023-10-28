@@ -22,7 +22,7 @@ Scene::~Scene()
     reg.clear();
 }
 
-static void LogPress(entt::registry&, entt::entity, Gng2D::KeyPress::Action action)
+static void LogPress(entt::entity, Gng2D::KeyPress::Action action)
 {
     switch(action)
     {
@@ -50,7 +50,7 @@ void Scene::onEnter()
     auto& pos       = reg.emplace<Position>(x_entity, 0.0f, 0.0f);
     auto& sprite    = reg.emplace<Sprite>(x_entity, texture, SDL_Rect{0, 0, 12, 12});
     auto& key       = reg.emplace<KeyPress>(x_entity);
-    key.handler.connect<&LogPress>();
+    entt::sink{key.signal}.connect<&LogPress>();
     key.actions.emplace_back("up"_hs);
     key.actions.emplace_back("left"_hs);
     key.actions.emplace_back("down"_hs);

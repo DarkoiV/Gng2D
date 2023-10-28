@@ -36,7 +36,7 @@ void InputHandler::handleKeyPress(SDL_KeyboardEvent& e)
     {
         auto it = std::find(k.actions.begin(), k.actions.end(), action);
         if (it == k.actions.end()) return;
-        k.handler(reg, e, action);
+        k.signal.publish(e, action);
     });
 }
 
