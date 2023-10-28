@@ -38,9 +38,8 @@ void MainLoop::eventsProcessing()
         case SDL_QUIT:
             APP_RUNNING = false;
             break;
-        case SDL_KEYUP:
         case SDL_KEYDOWN:
-            CURRENT_SCENE->onKeyboardEvent(event.key);
+            CURRENT_SCENE->onKeyPress(event.key);
             break;
     }
 }

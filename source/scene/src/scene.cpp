@@ -35,8 +35,8 @@ void Scene::onEnter()
     if (not texture) LOG::FATAL(IMG_GetError());
     auto& pos           = reg.emplace<Position>(x_entity, 0.0f, 0.0f);
     auto& sprite        = reg.emplace<Sprite>(x_entity, texture, SDL_Rect{0, 0, 12, 12});
-    auto& keyHandler    = reg.emplace<KeyboardInput>(x_entity);
-    keyHandler.handledInputs.emplace_back(KeyboardInput::InputHandlerPair{"up"_hs, entt::connect_arg<&LogUp>});
+    auto& keyHandler    = reg.emplace<KeyPress>(x_entity);
+    keyHandler.handlers.emplace_back(KeyPress::Handler{"up"_hs, entt::connect_arg<&LogUp>});
 }
 
 void Scene::onExit()
@@ -53,9 +53,9 @@ void Scene::render(SDL_Renderer* r)
     entityRenderer(r);
 }
 
-void Scene::onKeyboardEvent(SDL_KeyboardEvent& e)
+void Scene::onKeyPress(SDL_KeyboardEvent& e)
 {
-    inputHandler.handleKeyboardEvent(e);
+    inputHandler.handleKeyPress(e);
 }
 
 const std::string& Scene::getName() const 

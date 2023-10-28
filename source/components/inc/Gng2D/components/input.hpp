@@ -6,24 +6,24 @@
 
 namespace Gng2D
 {
-struct KeyboardInput 
+struct KeyPress 
 {
-    using InputId   = entt::hashed_string::hash_type;
-    using Handler   = entt::delegate<void(entt::registry&, entt::entity)>;
-    struct InputHandlerPair 
+    using Id        = entt::hashed_string::hash_type;
+    using Callback  = entt::delegate<void(entt::registry&, entt::entity)>;
+    struct Handler 
     {
-        InputId id;
-        Handler handler;
-        friend std::weak_ordering operator<=>(const InputHandlerPair& lhs, const InputHandlerPair& rhs)
+        Id id;
+        Callback handler;
+        friend std::weak_ordering operator<=>(const Handler& lhs, const Handler& rhs)
         {
             return lhs.id <=> rhs.id;
         }
-        friend std::weak_ordering operator<=>(const InputId lhs, const InputHandlerPair& rhs)
+        friend std::weak_ordering operator<=>(const Id lhs, const Handler& rhs)
         {
             return lhs <=> rhs.id;
         }
     };
-    std::vector<InputHandlerPair> handledInputs;
+    std::vector<Handler> handlers;
 };
 }
 

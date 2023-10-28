@@ -24,7 +24,7 @@ struct Scene : SceneInterface
     virtual void update()   override;
     virtual void render(SDL_Renderer*) override;
 
-    virtual void onKeyboardEvent(SDL_KeyboardEvent&) override;
+    virtual void onKeyPress(SDL_KeyboardEvent&) override;
 
     virtual const std::string& getName() const override;
 

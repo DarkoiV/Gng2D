@@ -9,22 +9,22 @@ using namespace entt::literals;
 InputHandler::InputHandler(entt::registry& r)
     : reg(r)
 {
-    keyPressHandlers[SDL_SCANCODE_UP] = "up"_hs;
+    keyPressActions[SDL_SCANCODE_UP] = "up"_hs;
 }
 
 InputHandler::~InputHandler()
 {
 }
 
-void InputHandler::handleKeyboardEvent(SDL_KeyboardEvent& e)
+void InputHandler::handleKeyPress(SDL_KeyboardEvent& e)
 {
     if(e.repeat) return;
 
-    auto view = reg.view<KeyboardInput>();
-    view.each([this](entt::entity e, KeyboardInput& ki)
+    auto view = reg.view<KeyPress>();
+    view.each([this](entt::entity e, KeyPress& ki)
     {
-        auto it = std::lower_bound(ki.handledInputs.begin(), ki.handledInputs.end(), "up"_hs);
-        if (it != ki.handledInputs.end())
+        auto it = std::lower_bound(ki.handlers.begin(), ki.handlers.end(), "up"_hs);
+        if (it != ki.handlers.end())
         {
             auto& inputHandler = *it;
             if (inputHandler.id != "up"_hs) return;
