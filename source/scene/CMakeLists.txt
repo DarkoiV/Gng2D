@@ -6,5 +6,6 @@ target_sources(Gng2D PRIVATE
     src/entity_renderer.cpp)
 
 # TESTS
-#target_sources(Gng2D_TESTS PRIVATE)
+target_sources(Gng2D_TESTS PRIVATE
+    tst/input_handler.cpp)
 
