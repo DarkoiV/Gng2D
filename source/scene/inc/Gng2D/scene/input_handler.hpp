@@ -20,7 +20,7 @@ struct InputHandler
 
 private:
     entt::registry& reg;
-    std::map<SDL_Scancode, KeyPress::Id> keyPressActions;
+    std::map<SDL_Scancode, KeyPress::Action> keyPressActions;
 };
 }
 
