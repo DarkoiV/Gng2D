@@ -3,6 +3,7 @@
 #include "Gng2D/core/luna.hpp"
 #include "Gng2D/core/scene_interface.hpp"
 #include "Gng2D/scene/entity_renderer.hpp"
+#include "Gng2D/scene/input_handler.hpp"
 
 struct SDL_Renderer;
 
@@ -23,13 +24,16 @@ struct Scene : SceneInterface
     virtual void update()   override;
     virtual void render(SDL_Renderer*) override;
 
-    const std::string& getName() const override;
+    virtual void onKeyboardEvent(SDL_KeyboardEvent&) override;
+
+    virtual const std::string& getName() const override;
 
 protected:
     entt::registry  reg;
     Luna            luna;
 
     std::string     name;
+    InputHandler    inputHandler{reg};
     EntityRenderer  entityRenderer{reg};
 };
 }

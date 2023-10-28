@@ -1,7 +1,6 @@
 #pragma once
 #include <string>
-
-struct SDL_Renderer;
+#include <SDL2/SDL.h>
 
 namespace Gng2D
 {
@@ -19,6 +18,8 @@ struct SceneInterface
     virtual void onExit()               = 0;
     virtual void update()               = 0;
     virtual void render(SDL_Renderer*)  = 0;
+
+    virtual void onKeyboardEvent(SDL_KeyboardEvent&) = 0;
 
     virtual const std::string& getName() const  = 0;
 };
