@@ -1,6 +1,6 @@
 #include "Gng2D/scene/entity_renderer.hpp"
 #include "Gng2D/core/global.hpp"
-#include "Gng2D/core/log.hpp"
+#include "Gng2D/commons/log.hpp"
 #include "Gng2D/components/layer.hpp"
 
 using Gng2D::EntityRenderer;

@@ -2,7 +2,7 @@
 #include "Gng2D/components/input.hpp"
 #include <algorithm>
 #include <entt/entt.hpp>
-#include "Gng2D/core/log.hpp"
+#include "Gng2D/commons/log.hpp"
 
 using Gng2D::InputHandler;
 using namespace entt::literals;

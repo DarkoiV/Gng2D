@@ -2,7 +2,7 @@
 #include <SDL2/SDL.h>
 #include <string>
 #include <memory>
-#include "Gng2D/core/scene_interface.hpp"
+#include "Gng2D/commons/scene_interface.hpp"
 
 namespace Gng2D::GLOBAL
 {

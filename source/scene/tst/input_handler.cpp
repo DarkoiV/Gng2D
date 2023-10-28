@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "Gng2D/scene/input_handler.hpp"
-#include "Gng2D/core/log.hpp"
+#include "Gng2D/commons/log.hpp"
 
 #define KEY_PRESS_BOILERPLATE  \
     .type       = SDL_KEYDOWN,  \

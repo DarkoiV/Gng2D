@@ -1,5 +1,5 @@
 #pragma once
-#include "Gng2D/core/log.hpp"
+#include "Gng2D/commons/log.hpp"
 #include "lua.hpp"
 #include <string>
 #include <optional>

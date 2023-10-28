@@ -1,5 +1,5 @@
 #include "Gng2D/scene/scene.hpp"
-#include "Gng2D/core/log.hpp"
+#include "Gng2D/commons/log.hpp"
 
 // TMP INCLUDES
 #include "Gng2D/components/layer.hpp"

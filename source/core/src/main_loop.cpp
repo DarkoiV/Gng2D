@@ -1,6 +1,6 @@
 #include "Gng2D/core/main_loop.hpp"
 #include "Gng2D/core/global.hpp"
-#include "Gng2D/core/log.hpp"
+#include "Gng2D/commons/log.hpp"
 
 using Gng2D::MainLoop;
 using namespace Gng2D::GLOBAL;
