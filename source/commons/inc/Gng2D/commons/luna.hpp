@@ -13,14 +13,22 @@ struct Luna
     Luna();
     ~Luna();
 
-    void                        doFile(const std::string& path, const std::string& env = "");
-    void                        doString(const std::string& str, const std::string& env = "");
+    void doFile(const std::string& path, const std::string& env = "");
+    void doString(const std::string& str, const std::string& env = "");
 
     using Nil       = std::monostate;
     using Integer   = lua_Integer;
     using Float     = lua_Number;
     using String    = std::string;
-    using Type      = std::variant<Nil, Integer, Float, String, bool>;
+    using Bool      = bool;
+    using Type      = std::variant<Nil, Integer, Float, String, Bool>;
+
+    struct StackLock;
+    void pushOnStack(Integer);
+    void pushOnStack(Float);
+    void pushOnStack(const String&);
+    void pushOnStack(Bool);
+    void popStack(int n);
 
     Type                        read(const std::string&);
     std::optional<lua_Integer>  readInt(const std::string&);
@@ -28,10 +36,10 @@ struct Luna
     std::optional<std::string>  readString(const std::string&);
     std::optional<bool>         readBool(const std::string&);
 
-    void                        createInt(const std::string&, lua_Integer);
-    void                        createFloat(const std::string&, lua_Number);
-    void                        createString(const std::string& name, const std::string& var);
-    void                        createBool(const std::string&, bool);
+    void createInt(const std::string&, lua_Integer);
+    void createFloat(const std::string&, lua_Number);
+    void createString(const std::string& name, const std::string& var);
+    void createBool(const std::string&, bool);
 
     template<typename T>
     bool readToVar(const std::string&, T& var);
@@ -40,6 +48,17 @@ private:
     lua_State* L = luaL_newstate();
 
     void setEnv(const std::string& env);
+
+public:
+    struct StackLock
+    {
+        StackLock(lua_State*);
+        ~StackLock();
+
+    private:
+        lua_State*  L;
+        int         top;
+    };
 };
 
 template<typename T>

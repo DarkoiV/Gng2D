@@ -3,26 +3,6 @@
 
 using Gng2D::Luna;
 
-namespace 
-{
-struct LuaStackLock 
-{
-    LuaStackLock(lua_State* L)
-        : L(L)
-    {
-        top = lua_gettop(L);
-    }
-
-    ~LuaStackLock()
-    {
-        lua_settop(L, top);
-    }
-private:
-    lua_State*  L;
-    int         top;
-};
-}
-
 Luna::Luna()
 {
     if (not L) LOG::FATAL("Failed to create lua state");
@@ -50,9 +30,34 @@ void Luna::doString(const std::string& str, const std::string& env)
                                                "\n-- END SCRIPT --");
 }
 
+void Luna::pushOnStack(Luna::Integer value)
+{
+    lua_pushinteger(L, value);
+}
+
+void Luna::pushOnStack(Luna::Float value)
+{
+    lua_pushnumber(L, value);
+}
+
+void Luna::pushOnStack(const Luna::String& value)
+{
+    lua_pushstring(L, value.c_str());
+}
+
+void Luna::pushOnStack(Luna::Bool value)
+{
+    lua_pushboolean(L, value);
+}
+
+void Luna::popStack(int n)
+{
+    lua_pop(L, n);
+}
+
 Luna::Type Luna::read(const std::string& name)
 {
-    LuaStackLock lock(L);
+    StackLock lock(L);
     auto type = lua_getglobal(L, name.c_str());
     switch (type)
     {
@@ -70,7 +75,7 @@ Luna::Type Luna::read(const std::string& name)
 
 std::optional<lua_Integer> Luna::readInt(const std::string& name)
 {
-    LuaStackLock lock(L);
+    StackLock lock(L);
     if (LUA_TNUMBER == lua_getglobal(L, name.c_str()))
     {
         int ret = lua_tointeger(L, -1);
@@ -85,7 +90,7 @@ std::optional<lua_Integer> Luna::readInt(const std::string& name)
 
 std::optional<lua_Number> Luna::readFloat(const std::string& name)
 {
-    LuaStackLock lock(L);
+    StackLock lock(L);
     if (LUA_TNUMBER == lua_getglobal(L, name.c_str()))
     {
         double ret = lua_tonumber(L, -1);
@@ -100,7 +105,7 @@ std::optional<lua_Number> Luna::readFloat(const std::string& name)
 
 std::optional<std::string> Luna::readString(const std::string& name)
 {
-    LuaStackLock lock(L);
+    StackLock lock(L);
     if (LUA_TSTRING == lua_getglobal(L, name.c_str()))
     {
         std::string ret{lua_tostring(L, -1)};
@@ -115,7 +120,7 @@ std::optional<std::string> Luna::readString(const std::string& name)
 
 std::optional<bool> Luna::readBool(const std::string& name)
 {
-    LuaStackLock lock(L);
+    StackLock lock(L);
     if (LUA_TBOOLEAN == lua_getglobal(L, name.c_str()))
     {
         bool ret = lua_toboolean(L, -1);
@@ -130,28 +135,28 @@ std::optional<bool> Luna::readBool(const std::string& name)
 
 void Luna::createInt(const std::string& name, lua_Integer var)
 {
-    LuaStackLock lock(L);
+    StackLock lock(L);
     lua_pushinteger(L, var);
     lua_setglobal(L, name.c_str());
 }
 
 void Luna::createFloat(const std::string& name, lua_Number var)
 {
-    LuaStackLock lock(L);
+    StackLock lock(L);
     lua_pushnumber(L, var);
     lua_setglobal(L, name.c_str());
 }
 
 void Luna::createString(const std::string& name, const std::string& var)
 {
-    LuaStackLock lock(L);
+    StackLock lock(L);
     lua_pushstring(L, var.c_str());
     lua_setglobal(L, name.c_str());
 }
 
 void Luna::createBool(const std::string& name, bool var)
 {
-    LuaStackLock lock(L);
+    StackLock lock(L);
     lua_pushboolean(L, var);
     lua_setglobal(L, name.c_str());
 }
@@ -172,5 +177,17 @@ void Luna::setEnv(const std::string& env)
         lua_getglobal(L, env.c_str());
     }
     lua_setupvalue(L, -2, 1);
+}
+
+Luna::StackLock::StackLock(lua_State* L)
+    : L(L)
+{
+    top = lua_gettop(L);
+}
+
+Luna::StackLock::~StackLock()
+{
+    GNG2D_ASSERT(top < lua_gettop(L), "Stack lock went out of scope!");
+    lua_settop(L, top);
 }
 
