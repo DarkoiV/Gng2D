@@ -13,6 +13,8 @@ constexpr bool BOOL_VALUE       = false;
 constexpr char STR_ID[]         = "TEST_STRING";
 constexpr char STR_VALUE[]      = "HELLO LUNA!";
 
+using Gng2D::Luna;
+
 struct LunaTest : ::testing::Test 
 {
     inline static std::string testFilesDir{TEST_FILES_DIR};
@@ -57,6 +59,28 @@ TEST_F(LunaTest, WhenReadingNotDefinedGlobal_LunaWillReturnNullopt)
     ASSERT_EQ(luna.readFloat("NOT_DEF_2"), std::nullopt);
     ASSERT_EQ(luna.readBool("NOT_DEF_3"), std::nullopt);
     ASSERT_EQ(luna.readString("NOT_DEF_4"), std::nullopt);
+}
+
+TEST_F(LunaTest, ReadGlobalCanBeUsedToReadVarOfUnknownType)
+{
+    luna.doFile(testFile);
+
+    auto readInt    = luna.read(INT_ID);
+    auto readFloat  = luna.read(FLOAT_ID);
+    auto readString = luna.read(STR_ID);
+    auto readBool   = luna.read(BOOL_ID);
+    auto readNotDef = luna.read("NOT_DEF_VALUE");
+
+    ASSERT_TRUE(std::holds_alternative<Luna::Integer>(readInt));
+    ASSERT_TRUE(std::holds_alternative<Luna::Float>(readFloat));
+    ASSERT_TRUE(std::holds_alternative<Luna::String>(readString));
+    ASSERT_TRUE(std::holds_alternative<bool>(readBool));
+    ASSERT_TRUE(std::holds_alternative<Luna::Nil>(readNotDef));
+
+    ASSERT_EQ(std::get<Luna::Integer>(readInt), INT_VALUE);
+    ASSERT_EQ(std::get<Luna::Float>(readFloat), FLOAT_VALUE);
+    ASSERT_EQ(std::get<bool>(readBool), BOOL_VALUE);
+    ASSERT_EQ(std::get<Luna::String>(readString), STR_VALUE);
 }
 
 TEST_F(LunaTest, AfterDoingFile_LunaCanUseReadToVar)

@@ -50,7 +50,25 @@ void Luna::doString(const std::string& str, const std::string& env)
                                                "\n-- END SCRIPT --");
 }
 
-std::optional<int> Luna::readInt(const std::string& name)
+Luna::Type Luna::read(const std::string& name)
+{
+    LuaStackLock lock(L);
+    auto type = lua_getglobal(L, name.c_str());
+    switch (type)
+    {
+        case LUA_TNUMBER:
+            if (lua_isinteger(L, -1)) return Integer{lua_tointeger(L, -1)};
+            else return Float{lua_tonumber(L, -1)};
+        case LUA_TSTRING:
+            return String{lua_tostring(L, -1)};
+        case LUA_TBOOLEAN:
+            return bool{static_cast<bool>(lua_toboolean(L, -1))};
+    }
+    LOG::DEBUG("Global is of non readable type");
+    return Nil{};
+}
+
+std::optional<lua_Integer> Luna::readInt(const std::string& name)
 {
     LuaStackLock lock(L);
     if (LUA_TNUMBER == lua_getglobal(L, name.c_str()))
@@ -65,7 +83,7 @@ std::optional<int> Luna::readInt(const std::string& name)
     }
 }
 
-std::optional<double> Luna::readFloat(const std::string& name)
+std::optional<lua_Number> Luna::readFloat(const std::string& name)
 {
     LuaStackLock lock(L);
     if (LUA_TNUMBER == lua_getglobal(L, name.c_str()))
@@ -110,14 +128,14 @@ std::optional<bool> Luna::readBool(const std::string& name)
     }
 }
 
-void Luna::createInt(const std::string& name, int var)
+void Luna::createInt(const std::string& name, lua_Integer var)
 {
     LuaStackLock lock(L);
     lua_pushinteger(L, var);
     lua_setglobal(L, name.c_str());
 }
 
-void Luna::createFloat(const std::string& name, double var)
+void Luna::createFloat(const std::string& name, lua_Number var)
 {
     LuaStackLock lock(L);
     lua_pushnumber(L, var);
