@@ -1,7 +1,7 @@
 #include "Gng2D/core/app.hpp"
 #include "Gng2D/core/global.hpp"
 #include "Gng2D/commons/log.hpp"
-#include "Gng2D/core/luna.hpp"
+#include "Gng2D/commons/luna.hpp"
 #include "Gng2D/core/main_loop.hpp"
 #include <SDL2/SDL_image.h>
 

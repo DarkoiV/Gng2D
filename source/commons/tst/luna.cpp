@@ -1,4 +1,4 @@
-#include "Gng2D/core/luna.hpp"
+#include "Gng2D/commons/luna.hpp"
 #include "gtest/gtest.h"
 #include <filesystem>
 #include <fstream>

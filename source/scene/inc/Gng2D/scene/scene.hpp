@@ -1,6 +1,6 @@
 #pragma once
 #include <entt/entt.hpp>
-#include "Gng2D/core/luna.hpp"
+#include "Gng2D/commons/luna.hpp"
 #include "Gng2D/commons/scene_interface.hpp"
 #include "Gng2D/scene/entity_renderer.hpp"
 #include "Gng2D/scene/input_handler.hpp"
