@@ -60,7 +60,7 @@ std::optional<int> Luna::readInt(const std::string& name)
     }
     else [[unlikely]]
     {
-        LOG::WARN(name, "is not a number");
+        LOG::DEBUG(name, "is not a number");
         return std::nullopt;
     }
 }
@@ -75,7 +75,7 @@ std::optional<double> Luna::readFloat(const std::string& name)
     }
     else [[unlikely]]
     {
-        LOG::WARN(name, "is not a number");
+        LOG::DEBUG(name, "is not a number");
         return std::nullopt;
     }
 }
@@ -90,7 +90,7 @@ std::optional<std::string> Luna::readString(const std::string& name)
     }
     else [[unlikely]]
     {
-        LOG::WARN(name, "is not a string");
+        LOG::DEBUG(name, "is not a string");
         return std::nullopt;
     }
 }
@@ -105,7 +105,7 @@ std::optional<bool> Luna::readBool(const std::string& name)
     }
     else [[unlikely]]
     {
-        LOG::WARN(name, "is not a bool");
+        LOG::DEBUG(name, "is not a bool");
         return std::nullopt;
     }
 }
