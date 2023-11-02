@@ -166,14 +166,29 @@ TEST_F(LunaTest, LunaCanDoStackOpeartions)
     auto readFloat  = luna.readStack(-3);
     auto readInt    = luna.readStack(-4);
 
+    auto readString2    = luna.readStack(4);
+    auto readBool2      = luna.readStack(3);
+    auto readFloat2     = luna.readStack(2);
+    auto readInt2       = luna.readStack(1);
+
     ASSERT_TRUE(std::holds_alternative<Luna::String>(readString));
     ASSERT_TRUE(std::holds_alternative<Luna::Bool>(readBool));
     ASSERT_TRUE(std::holds_alternative<Luna::Float>(readFloat));
     ASSERT_TRUE(std::holds_alternative<Luna::Integer>(readInt));
 
+    ASSERT_TRUE(std::holds_alternative<Luna::String>(readString2));
+    ASSERT_TRUE(std::holds_alternative<Luna::Bool>(readBool2));
+    ASSERT_TRUE(std::holds_alternative<Luna::Float>(readFloat2));
+    ASSERT_TRUE(std::holds_alternative<Luna::Integer>(readInt2));
+
     ASSERT_EQ(std::get<Luna::String>(readString), STACK_STRING);
     ASSERT_EQ(std::get<Luna::Bool>(readBool), STACK_BOOL);
     ASSERT_EQ(std::get<Luna::Float>(readFloat), STACK_FLOAT);
     ASSERT_EQ(std::get<Luna::Integer>(readInt), STACK_INT);
+
+    ASSERT_EQ(std::get<Luna::String>(readString2), STACK_STRING);
+    ASSERT_EQ(std::get<Luna::Bool>(readBool2), STACK_BOOL);
+    ASSERT_EQ(std::get<Luna::Float>(readFloat2), STACK_FLOAT);
+    ASSERT_EQ(std::get<Luna::Integer>(readInt2), STACK_INT);
 }
 
