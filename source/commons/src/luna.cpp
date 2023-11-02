@@ -30,24 +30,41 @@ void Luna::doString(const std::string& str, const std::string& env)
                                                "\n-- END SCRIPT --");
 }
 
-void Luna::pushOnStack(Luna::Integer value)
+void Luna::pushInt(Luna::Integer value)
 {
     lua_pushinteger(L, value);
 }
 
-void Luna::pushOnStack(Luna::Float value)
+void Luna::pushFloat(Luna::Float value)
 {
     lua_pushnumber(L, value);
 }
 
-void Luna::pushOnStack(const Luna::String& value)
+void Luna::pushString(const Luna::String& value)
 {
     lua_pushstring(L, value.c_str());
 }
 
-void Luna::pushOnStack(Luna::Bool value)
+void Luna::pushBool(Luna::Bool value)
 {
     lua_pushboolean(L, value);
+}
+
+Luna::Type Luna::readStack(int n)
+{
+    auto type = lua_type(L, n);
+    switch (type)
+    {
+        case LUA_TNUMBER:
+            if (lua_isinteger(L, n)) return Integer{lua_tointeger(L, n)};
+            else return Float{lua_tonumber(L, n)};
+        case LUA_TSTRING:
+            return String{lua_tostring(L, n)};
+        case LUA_TBOOLEAN:
+            return bool{static_cast<bool>(lua_toboolean(L, n))};
+    }
+    LOG::DEBUG("Global is of non readable type");
+    return Nil{};
 }
 
 void Luna::popStack(int n)
@@ -187,7 +204,7 @@ Luna::StackLock::StackLock(lua_State* L)
 
 Luna::StackLock::~StackLock()
 {
-    GNG2D_ASSERT(top < lua_gettop(L), "Stack lock went out of scope!");
+    GNG2D_ASSERT(top <= lua_gettop(L), "Stack lock went out of scope!");
     lua_settop(L, top);
 }
 

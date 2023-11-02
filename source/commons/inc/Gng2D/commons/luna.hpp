@@ -24,10 +24,11 @@ struct Luna
     using Type      = std::variant<Nil, Integer, Float, String, Bool>;
 
     struct StackLock;
-    void pushOnStack(Integer);
-    void pushOnStack(Float);
-    void pushOnStack(const String&);
-    void pushOnStack(Bool);
+    void pushInt(Integer);
+    void pushFloat(Float);
+    void pushString(const String&);
+    void pushBool(Bool);
+    Type readStack(int n);
     void popStack(int n);
 
     Type                        read(const std::string&);

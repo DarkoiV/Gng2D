@@ -148,3 +148,32 @@ TEST_F(LunaTest, LunaCanRunStringAsScript)
     ASSERT_EQ(readStr, SCRIPT_STR_VALUE);
 }
 
+TEST_F(LunaTest, LunaCanDoStackOpeartions)
+{
+    constexpr int   STACK_INT       = 12;
+    constexpr float STACK_FLOAT     = 123.45;
+    constexpr bool  STACK_BOOL      = false;
+    constexpr char  STACK_STRING[]  = "HELLO STACK!";
+
+    Luna luna;
+    luna.pushInt(STACK_INT);
+    luna.pushFloat(STACK_FLOAT);
+    luna.pushBool(STACK_BOOL);
+    luna.pushString(STACK_STRING);
+
+    auto readString = luna.readStack(-1);
+    auto readBool   = luna.readStack(-2);
+    auto readFloat  = luna.readStack(-3);
+    auto readInt    = luna.readStack(-4);
+
+    ASSERT_TRUE(std::holds_alternative<Luna::String>(readString));
+    ASSERT_TRUE(std::holds_alternative<Luna::Bool>(readBool));
+    ASSERT_TRUE(std::holds_alternative<Luna::Float>(readFloat));
+    ASSERT_TRUE(std::holds_alternative<Luna::Integer>(readInt));
+
+    ASSERT_EQ(std::get<Luna::String>(readString), STACK_STRING);
+    ASSERT_EQ(std::get<Luna::Bool>(readBool), STACK_BOOL);
+    ASSERT_EQ(std::get<Luna::Float>(readFloat), STACK_FLOAT);
+    ASSERT_EQ(std::get<Luna::Integer>(readInt), STACK_INT);
+}
+
