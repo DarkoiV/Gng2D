@@ -2,8 +2,10 @@
 #include "Gng2D/commons/assert.hpp"
 #include "Gng2D/commons/log.hpp"
 #include "lua.hpp"
-#include <string>
+#include <map>
+#include <memory>
 #include <optional>
+#include <string>
 #include <variant>
 
 namespace Gng2D
@@ -16,20 +18,24 @@ struct Luna
     void doFile(const std::string& path, const std::string& env = "");
     void doString(const std::string& str, const std::string& env = "");
 
-    using Nil       = std::monostate;
-    using Integer   = lua_Integer;
-    using Float     = lua_Number;
-    using String    = std::string;
-    using Bool      = bool;
-    using Type      = std::variant<Nil, Integer, Float, String, Bool>;
+    using   Nil         = std::monostate;
+    using   Integer     = lua_Integer;
+    using   Float       = lua_Number;
+    using   String      = std::string;
+    using   Bool        = bool;
+    struct  Table;
+    using   TablePtr    = std::unique_ptr<Table>;
+    using   TableKey    = std::variant<Integer, String>;
+    using   Type        = std::variant<Nil, Integer, Float, String, Bool, TablePtr>;
 
     struct StackLock;
-    void pushInt(Integer);
-    void pushFloat(Float);
-    void pushString(const String&);
-    void pushBool(Bool);
-    Type readStack(int n);
-    void popStack(int n);
+    void    pushNil();
+    void    pushInt(Integer);
+    void    pushFloat(Float);
+    void    pushString(const String&);
+    void    pushBool(Bool);
+    Type    readStack(int n);
+    void    popStack(int n);
 
     Type                        read(const std::string&);
     std::optional<lua_Integer>  readInt(const std::string&);
@@ -48,7 +54,8 @@ struct Luna
 private:
     lua_State* L = luaL_newstate();
 
-    void setEnv(const std::string& env);
+    void    setEnv(const std::string& env);
+    Table   luaToTable(int n);
 
 public:
     struct StackLock
@@ -59,6 +66,11 @@ public:
     private:
         lua_State*  L;
         int         top;
+    };
+
+    struct Table : std::map<TableKey, Type>
+    {
+        using std::map<TableKey, Type>::map;
     };
 };
 

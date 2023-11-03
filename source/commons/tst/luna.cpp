@@ -192,3 +192,28 @@ TEST_F(LunaTest, LunaCanDoStackOpeartions)
     ASSERT_EQ(std::get<Luna::Integer>(readInt2), STACK_INT);
 }
 
+constexpr static char TABLE_SCRIPT[] = 
+    "my_table = {}                          \n"
+    "my_table[123]          = false         \n"
+    "my_table[\"test\"]     = \"testo\"     \n"
+    "my_table[\"table\"]    = {}            \n"
+    "my_table.table[\"float\"]  = 123.0     \n"
+    "my_table.table[\"int\"]    = 2         \n";
+
+TEST_F(LunaTest, LunaCanReadTableToCppMap)
+{
+    luna.doString(TABLE_SCRIPT);
+    auto tableptr = luna.read("my_table");
+
+    ASSERT_TRUE(std::holds_alternative<Luna::TablePtr>(tableptr));
+    auto& table = *(std::get<Luna::TablePtr>(tableptr));
+
+    ASSERT_TRUE(std::holds_alternative<Luna::Bool>(table[123]));
+    ASSERT_TRUE(std::holds_alternative<Luna::String>(table["test"]));
+    ASSERT_TRUE(std::holds_alternative<Luna::TablePtr>(table["table"]));
+
+    auto& innerTable = *(std::get<Luna::TablePtr>(table["table"]));
+    ASSERT_TRUE(std::holds_alternative<Luna::Float>(innerTable["float"]));
+    ASSERT_TRUE(std::holds_alternative<Luna::Integer>(innerTable["int"]));
+}
+
