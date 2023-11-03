@@ -2,6 +2,7 @@
 #include "Gng2D/commons/assert.hpp"
 #include "Gng2D/commons/log.hpp"
 #include "lua.hpp"
+#include <functional>
 #include <map>
 #include <memory>
 #include <optional>
@@ -24,9 +25,14 @@ struct Luna
     using   String      = std::string;
     using   Bool        = bool;
     struct  Table;
-    using   TablePtr    = std::unique_ptr<Table>;
+    using   TablePtr    = std::shared_ptr<Table>;
     using   TableKey    = std::variant<Integer, String>;
     using   Type        = std::variant<Nil, Integer, Float, String, Bool, TablePtr>;
+
+    template<typename T>
+    constexpr static bool   is(const Type&);
+    template<typename T>
+    static T*               get(Type&);
 
     struct StackLock;
     void    pushNil();
@@ -74,6 +80,32 @@ public:
     };
 };
 
+template<>
+inline bool Luna::is<Luna::Table>(const Luna::Type& t) 
+{
+    return std::holds_alternative<TablePtr>(t);
+}
+
+template<typename T>
+constexpr bool Luna::is(const Luna::Type& t)
+{
+    return std::holds_alternative<T>(t);
+}
+
+template<>
+inline Luna::Table* Luna::get<Luna::Table>(Luna::Type& t)
+{
+    if (not is<Luna::Table>(t)) [[unlikely]] return nullptr;
+    return std::get<Luna::TablePtr>(t).get();
+}
+
+template<typename T>
+T* Luna::get(Luna::Type& t)
+{
+    if (not is<T>(t)) [[unlikely]] return nullptr;
+    return &(std::get<T>(t));
+}
+
 template<typename T>
 bool Luna::readToVar(const std::string& name, T& var)
 {
@@ -101,5 +133,25 @@ bool Luna::readToVar(const std::string& name, T& var)
     LOG::DEBUG(name, "=", var);
     return true;
 }
+
+constexpr inline bool operator==(const char* lhs, const Luna::Type& rhs)
+{
+    if (not Luna::is<Luna::String>(rhs)) return false;
+    else return std::get<Luna::String>(rhs) == lhs;
+}
+
+template<typename T>
+constexpr bool operator== (const T& lhs, const Luna::Type& rhs)
+{
+    if (not Luna::is<T>(rhs)) return false;
+    else return std::get<T>(rhs) == lhs;
+}
+
+template<typename T>
+constexpr bool operator== (const Luna::Type& lhs, const T& rhs)
+{
+    return rhs == lhs;
+}
+
 }
 
