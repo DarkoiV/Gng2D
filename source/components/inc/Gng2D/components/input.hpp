@@ -6,10 +6,11 @@
 
 namespace Gng2D
 {
-struct KeyPress 
+struct ActionListener 
 {
-    using Action    = entt::hashed_string::hash_type;
-    using Signal    = entt::sigh<void(entt::entity, Action)>;
+    using ActionString  = entt::hashed_string;
+    using Action        = entt::hashed_string::hash_type;
+    using Signal        = entt::sigh<void(entt::entity, Action)>;
     std::vector<Action> actions;
     Signal              signal;
 };

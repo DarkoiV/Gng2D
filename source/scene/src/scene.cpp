@@ -13,10 +13,6 @@ Scene::~Scene()
     reg.clear();
 }
 
-static void LogPress(entt::entity, Gng2D::KeyPress::Action action)
-{
-}
-
 void Scene::onEnter()
 {
     LOG::INFO("Entering", name);

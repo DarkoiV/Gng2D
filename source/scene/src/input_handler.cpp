@@ -16,7 +16,7 @@ InputHandler::~InputHandler()
 {
 }
 
-void InputHandler::registerKeyPressAction(SDL_Scancode scancode, KeyPress::Action action)
+void InputHandler::registerKeyPressAction(SDL_Scancode scancode, const ActionListener::ActionString& action)
 {
     keyPressActions[scancode] = action;
 }
@@ -28,8 +28,9 @@ void InputHandler::handleKeyPress(SDL_KeyboardEvent& e)
     if (actionIt == keyPressActions.end()) return;
 
     auto action = actionIt->second;
-    auto view = reg.view<KeyPress>();
-    view.each([this, action](entt::entity e, KeyPress& k)
+    LOG::TRACE("Action: ", actionIt->second.data());
+    auto view = reg.view<ActionListener>();
+    view.each([this, action](entt::entity e, ActionListener& k)
     {
         auto it = std::find(k.actions.begin(), k.actions.end(), action);
         if (it == k.actions.end()) return;

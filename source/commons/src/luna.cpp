@@ -55,6 +55,11 @@ void Luna::pushBool(Luna::Bool value)
     lua_pushboolean(L, value);
 }
 
+void Luna::pushGlobal(const String& name)
+{
+    lua_getglobal(L, name.c_str());
+}
+
 Luna::Type Luna::readStack(int n)
 {
     GNG2D_ASSERT(lua_gettop(L) >= abs(n) and n != 0 , "Out of stack access");

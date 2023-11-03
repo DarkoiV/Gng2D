@@ -16,13 +16,13 @@ struct InputHandler
     auto operator=(InputHandler&)   = delete;
     auto operator=(InputHandler&&)  = delete;
 
-    void registerKeyPressAction(SDL_Scancode, KeyPress::Action);
+    void registerKeyPressAction(SDL_Scancode, const ActionListener::ActionString&);
 
     void handleKeyPress(SDL_KeyboardEvent&);
 
 private:
     entt::registry& reg;
-    std::map<SDL_Scancode, KeyPress::Action> keyPressActions;
+    std::map<SDL_Scancode, ActionListener::ActionString> keyPressActions;
 };
 }
 

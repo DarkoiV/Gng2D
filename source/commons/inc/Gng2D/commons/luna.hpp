@@ -40,6 +40,7 @@ struct Luna
     void    pushFloat(Float);
     void    pushString(const String&);
     void    pushBool(Bool);
+    void    pushGlobal(const String&);
     Type    readStack(int n);
     void    popStack(int n);
 
