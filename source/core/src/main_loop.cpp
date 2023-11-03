@@ -62,13 +62,10 @@ void MainLoop::switchScene()
     if (CURRENT_SCENE) 
     {
         CURRENT_SCENE->onExit();
-        delete CURRENT_SCENE;
     }
 
-    CURRENT_SCENE = NEXT_SCENE;
+    CURRENT_SCENE = std::move(NEXT_SCENE);
     CURRENT_SCENE->onEnter();
-
-    NEXT_SCENE = nullptr;
     previousTS = SDL_GetTicks64();
 }
 

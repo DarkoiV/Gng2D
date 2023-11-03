@@ -18,7 +18,9 @@ inline SDL_Window*      WINDOW;
 inline SDL_Renderer*    RENDERER;
 inline std::string      APP_DIRECTORY;
 inline bool             APP_RUNNING     = true;
-inline SceneInterface*  CURRENT_SCENE   = nullptr;
-inline SceneInterface*  NEXT_SCENE      = nullptr;
+
+using ScenePtr = std::unique_ptr<SceneInterface>;
+inline ScenePtr         CURRENT_SCENE   = nullptr;
+inline ScenePtr         NEXT_SCENE      = nullptr;
 }
 
