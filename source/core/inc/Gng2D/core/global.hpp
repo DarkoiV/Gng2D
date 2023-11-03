@@ -17,6 +17,7 @@ inline uint32_t         LOGIC_TICK      = 10;
 inline SDL_Window*      WINDOW;
 inline SDL_Renderer*    RENDERER;
 inline std::string      APP_DIRECTORY;
+inline std::string      DATA_DIRECTORY;
 inline bool             APP_RUNNING     = true;
 
 using ScenePtr = std::unique_ptr<SceneInterface>;

@@ -12,7 +12,9 @@ using namespace Gng2D::GLOBAL;
 static void loadAppSettings()
 {
     APP_DIRECTORY = SDL_GetBasePath();
+    DATA_DIRECTORY = APP_DIRECTORY + "data/";
     LOG::INFO("Application directory path:", APP_DIRECTORY);
+    LOG::INFO("Data directory path:", APP_DIRECTORY);
 
     LOG::INFO("Loading config");
     Luna configReader;
