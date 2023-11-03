@@ -6,6 +6,14 @@ using Gng2D::Scene;
 Scene::Scene()
 {
     name = "unnamed scene";
+    reg.ctx().emplace<Luna&>(luna);
+    reg.ctx().emplace<Assets&>(assets);
+
+    Assets::loadGlobalSprite("red_x");
+    
+    auto red_x = reg.create();
+    reg.emplace<Gng2D::Sprite>(red_x, *assets.getSprite("red_x"));
+    reg.emplace<Gng2D::Position>(red_x, 0.0f, 0.0f);
 }
 
 Scene::~Scene() 

@@ -1,9 +1,10 @@
 #pragma once
-#include <entt/entt.hpp>
 #include "Gng2D/commons/luna.hpp"
 #include "Gng2D/commons/scene_interface.hpp"
+#include "Gng2D/scene/assets.hpp"
 #include "Gng2D/scene/entity_renderer.hpp"
 #include "Gng2D/scene/input_handler.hpp"
+#include <entt/entt.hpp>
 
 struct SDL_Renderer;
 
@@ -29,10 +30,11 @@ struct Scene : SceneInterface
     virtual const std::string& getName() const override;
 
 protected:
-    entt::registry  reg;
-    Luna            luna;
-
     std::string     name;
+    entt::registry  reg;
+
+    Assets          assets;
+    Luna            luna;
     InputHandler    inputHandler{reg};
     EntityRenderer  entityRenderer{reg};
 };

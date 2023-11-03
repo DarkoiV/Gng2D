@@ -5,8 +5,8 @@ namespace Gng2D
 {
 struct Sprite 
 {
-    SDL_Texture*    texture;
-    SDL_Rect        srcRect;
+    SDL_Texture*    texture{};
+    SDL_Rect        srcRect{};
 };
 }
 
