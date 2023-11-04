@@ -34,7 +34,7 @@ EntityRecipe EntityRecipe::redXRecipe(entt::registry& reg)
     auto spriteType = entt::resolve("Sprite"_hs);
     GNG2D_ASSERT(spriteType, "Cannot resolve sprite");
 
-    auto sprite = spriteType.construct(&reg, "red_x"_hs);
+    auto sprite = spriteType.construct(&reg, entt::hashed_string::value("red_x"));
     GNG2D_ASSERT(sprite, "Cannot construct sprite");
     
     auto tPosType   = entt::resolve("TransformPosition"_hs);

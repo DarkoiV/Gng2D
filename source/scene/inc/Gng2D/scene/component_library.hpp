@@ -1,6 +1,12 @@
 #pragma once
 #include <entt/entt.hpp>
 
+template<typename T>
+concept HasMetaInfo = requires(T t)
+{
+    T::createMetaInfo();
+};
+
 namespace Gng2D
 {
 struct ComponentLibrary
@@ -10,10 +16,10 @@ struct ComponentLibrary
     template<typename Component>
     static void emplace(entt::registry*, entt::entity, entt::meta_any&);
 
-    template<typename Component>
-    static auto registerComponent(entt::hashed_string name);
+    template<HasMetaInfo Component>
+    static auto registerComponent();
 
-    entt::meta_type getMeta(entt::hashed_string);
+    static entt::meta_type getMeta(entt::hashed_string);
 
 private: 
     entt::registry& reg;
@@ -29,12 +35,11 @@ void ComponentLibrary::emplace(entt::registry* reg, entt::entity e, entt::meta_a
     reg->emplace<Component>(e, metaComp.cast<Component>());
 }
 
-template<typename Component>
-auto ComponentLibrary::registerComponent(entt::hashed_string name)
+template<HasMetaInfo Component>
+auto ComponentLibrary::registerComponent()
 {
     using namespace entt::literals;
-    return entt::meta<Component>()
-        .type(name.value())
+    return Component::createMetaInfo()
         .template func<&ComponentLibrary::emplace<Component>>("emplace"_hs);
 }
 }

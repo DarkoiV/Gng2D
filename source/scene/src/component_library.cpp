@@ -20,25 +20,11 @@ entt::meta_type ComponentLibrary::getMeta(entt::hashed_string name)
     return entt::resolve(name);
 }
 
-static Gng2D::Sprite loadFromAssets(entt::registry* reg, entt::hashed_string name)
-{
-    LOG::TRACE("Loading constructor for sprite");
-    auto& assets = reg->ctx().get<Gng2D::Assets&>();
-    if (auto sprite = assets.getSprite(name)) return *sprite;
-
-    LOG::DEBUG("No sprite:", name.data());
-    return Gng2D::Sprite{};
-}
-
 void ComponentLibrary::init()
 {
     using namespace entt::literals;
-    registerComponent<Gng2D::Sprite>("Sprite"_hs)
-        .ctor<&loadFromAssets>();
-    registerComponent<Gng2D::TransformPosition>("TransformPosition"_hs)
-        .ctor<float, float>();
-    registerComponent<Gng2D::TransformLayer>("TransformLayer"_hs);
-    registerComponent<Gng2D::ActionListener>("ActionListener"_hs);
+    registerComponent<Gng2D::Sprite>();
+    registerComponent<Gng2D::TransformPosition>();
     initialized = true;
 }
 
