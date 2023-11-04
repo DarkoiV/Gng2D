@@ -12,7 +12,7 @@ struct Layer
     auto operator<=>(const Layer&) const = default;   
 };
 
-struct LayerTransform
+struct TransformLayer
 {
     int8_t main;
     int8_t sub;

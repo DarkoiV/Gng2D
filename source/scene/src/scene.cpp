@@ -5,14 +5,20 @@ using Gng2D::Scene;
 
 Scene::Scene()
 {
+    using namespace entt::literals;
     name = "unnamed scene";
     reg.ctx().emplace<Luna&>(luna);
     reg.ctx().emplace<Assets&>(assets);
 
     Assets::loadGlobalSprite("red_x");
+    auto type           = componentLibrary.getMeta("Sprite");
+    auto emplace        = type.func("emplace"_hs);
+    auto any            = type.construct(&reg, "red_x"_hs);
+
+    LOG::INFO("Any is", type.info().name());
     
     auto red_x = reg.create();
-    reg.emplace<Gng2D::Sprite>(red_x, *assets.getSprite("red_x"));
+    emplace.invoke({}, &reg, red_x, entt::forward_as_meta(any));
     reg.emplace<Gng2D::Position>(red_x, 0.0f, 0.0f);
 }
 

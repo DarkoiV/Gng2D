@@ -2,6 +2,7 @@
 #include "Gng2D/commons/luna.hpp"
 #include "Gng2D/commons/scene_interface.hpp"
 #include "Gng2D/scene/assets.hpp"
+#include "Gng2D/scene/component_library.hpp"
 #include "Gng2D/scene/entity_renderer.hpp"
 #include "Gng2D/scene/input_handler.hpp"
 #include <entt/entt.hpp>
@@ -33,9 +34,11 @@ protected:
     std::string     name;
     entt::registry  reg;
 
-    Assets          assets;
-    Luna            luna;
-    InputHandler    inputHandler{reg};
+    Assets              assets;
+    Luna                luna;
+    InputHandler        inputHandler{reg};
+    ComponentLibrary    componentLibrary{reg};
+
     EntityRenderer  entityRenderer{reg};
 };
 }
