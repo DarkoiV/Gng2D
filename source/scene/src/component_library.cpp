@@ -35,7 +35,8 @@ void ComponentLibrary::init()
     using namespace entt::literals;
     registerComponent<Gng2D::Sprite>("Sprite"_hs)
         .ctor<&loadFromAssets>();
-    registerComponent<Gng2D::TransformPosition>("TransformPosition"_hs);
+    registerComponent<Gng2D::TransformPosition>("TransformPosition"_hs)
+        .ctor<float, float>();
     registerComponent<Gng2D::TransformLayer>("TransformLayer"_hs);
     registerComponent<Gng2D::ActionListener>("ActionListener"_hs);
     initialized = true;

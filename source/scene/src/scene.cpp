@@ -1,5 +1,6 @@
 #include "Gng2D/scene/scene.hpp"
 #include "Gng2D/commons/log.hpp"
+#include "Gng2D/entities/entity_recipe.hpp"
 
 using Gng2D::Scene;
 
@@ -11,15 +12,21 @@ Scene::Scene()
     reg.ctx().emplace<Assets&>(assets);
 
     Assets::loadGlobalSprite("red_x");
-    auto type           = componentLibrary.getMeta("Sprite");
-    auto emplace        = type.func("emplace"_hs);
-    auto any            = type.construct(&reg, "red_x"_hs);
 
-    LOG::INFO("Any is", type.info().name());
-    
-    auto red_x = reg.create();
-    emplace.invoke({}, &reg, red_x, entt::forward_as_meta(any));
-    reg.emplace<Gng2D::Position>(red_x, 0.0f, 0.0f);
+    auto redXRecipe = EntityRecipe::redXRecipe(reg);
+    auto x1 = redXRecipe.spawn();
+    auto x2 = redXRecipe.spawn();
+    auto x3 = redXRecipe.spawn();
+
+    int counter = 0;
+    reg.view<TransformPosition>()
+        .each([&counter, this](auto e, auto& tpos)
+    {
+        tpos.x = counter * 10;
+        tpos.y = -counter * 10;
+        counter++;
+        reg.patch<TransformPosition>(e);
+    });
 }
 
 Scene::~Scene() 

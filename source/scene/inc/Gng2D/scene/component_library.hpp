@@ -35,7 +35,6 @@ auto ComponentLibrary::registerComponent(entt::hashed_string name)
     using namespace entt::literals;
     return entt::meta<Component>()
         .type(name.value())
-        .ctor()
         .template func<&ComponentLibrary::emplace<Component>>("emplace"_hs);
 }
 }
