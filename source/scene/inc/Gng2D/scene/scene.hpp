@@ -5,6 +5,7 @@
 #include "Gng2D/scene/component_library.hpp"
 #include "Gng2D/scene/entity_renderer.hpp"
 #include "Gng2D/scene/input_handler.hpp"
+#include "Gng2D/scene/relation_system.hpp"
 #include <entt/entt.hpp>
 
 struct SDL_Renderer;
@@ -38,6 +39,7 @@ protected:
     Luna                luna;
     InputHandler        inputHandler{reg};
     ComponentLibrary    componentLibrary{reg};
+    RelationSystem      relationSystem{reg};
 
     EntityRenderer  entityRenderer{reg};
 };
