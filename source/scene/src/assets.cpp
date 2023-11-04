@@ -28,15 +28,15 @@ void Assets::loadGlobalSprite(const std::string& name, const std::string& path, 
     LOG::OK("Loaded sprite:", name);
 }
 
-std::optional<Gng2D::Sprite> Assets::getSprite(const entt::hashed_string name)
+std::optional<Gng2D::Sprite> Assets::getSprite(const entt::hashed_string::value_type id)
 {
-    auto it = globalSprites.find(name);
+    auto it = globalSprites.find(id);
     if (it != globalSprites.end())
     {
         return it->second;
     }
 
-    LOG::WARN("Sprite not found:", name.value());
+    LOG::WARN("Sprite not found:", id);
     return std::nullopt;
 }
 
