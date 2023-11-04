@@ -66,15 +66,11 @@ void RelationSystem::addChildToParent(entt::registry& reg, entt::entity child)
     auto& children = reg.get<Gng2D::Children>(parentEntity).list;
     children.emplace_back(child);
 
-    auto* transformLayer = reg.try_get<Gng2D::TransformLayer>(child);
-    if (not transformLayer) return;
+    bool hasTransformLayer = reg.all_of<Gng2D::TransformLayer>(child);
+    if (hasTransformLayer) setLayerFromTransformLayer(reg, child);
 
-    if (auto* parentLayer = reg.try_get<Gng2D::Layer>(parentEntity))
-    {
-        reg.emplace_or_replace<Layer>(child, 
-                                      static_cast<int16_t>(parentLayer->main + transformLayer->main), 
-                                      static_cast<int16_t>(parentLayer->sub + transformLayer->sub));
-    }
+    bool hasTransformPosition = reg.all_of<Gng2D::TransformPosition>(child);
+    if (hasTransformPosition) setPositionFromTransformPosition(reg, child);
 }
 
 void RelationSystem::removeChildFromParent(entt::registry& reg, entt::entity child)
@@ -119,12 +115,12 @@ void RelationSystem::updateChildrenLayer(entt::registry& reg, entt::entity paren
     auto* children = reg.try_get<Children>(parent);
     if (not children) return;
 
+    auto parentLayer = reg.get<Layer>(parent);
+
     for (const auto child : children->list)
     {
         auto* childTransformLayer = reg.try_get<Gng2D::TransformLayer>(child);
         if (not childTransformLayer) break;
-
-        auto parentLayer = reg.get<Layer>(parent);
         reg.emplace_or_replace<Layer>(child, 
                                       static_cast<int16_t>(parentLayer.main + childTransformLayer->main), 
                                       static_cast<int16_t>(parentLayer.sub + childTransformLayer->sub));
@@ -160,14 +156,13 @@ void RelationSystem::updateChildrenPosition(entt::registry& reg, entt::entity pa
 
     for (const auto child : children->list)
     {
-        if (auto* childTransformPos = reg.try_get<TransformPosition>(child))
+        auto* childTransformPos = reg.try_get<TransformPosition>(child);
+        if (not childTransformPos) return;
+        reg.patch<Position>(child, [&](auto& pos)
         {
-            reg.patch<Position>(child, [&](auto& pos)
-            {
-                pos.x = childTransformPos->x + parentPos.x;
-                pos.y = childTransformPos->y + parentPos.y;
-            });
-        }
+            pos.x = childTransformPos->x + parentPos.x;
+            pos.y = childTransformPos->y + parentPos.y;
+        });
     }
 }
 
