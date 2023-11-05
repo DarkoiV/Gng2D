@@ -7,7 +7,6 @@
 #include "Gng2D/scene/assets.hpp"
 
 using Gng2D::ComponentLibrary;
-using Gng2D::LOG;
 
 ComponentLibrary::ComponentLibrary(entt::registry& r)
     : reg(r)
@@ -25,6 +24,9 @@ void ComponentLibrary::init()
     using namespace entt::literals;
     registerComponent<Gng2D::Sprite>();
     registerComponent<Gng2D::TransformPosition>();
+
+
+    LOG::INFO("Initialized ComponentLibrary");
     initialized = true;
 }
 

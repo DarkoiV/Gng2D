@@ -28,7 +28,7 @@ void Assets::loadGlobalSprite(const std::string& name, const std::string& path, 
     LOG::OK("Loaded sprite:", name);
 }
 
-std::optional<Gng2D::Sprite> Assets::getSprite(const entt::hashed_string::hash_type id)
+Gng2D::Sprite Assets::getSprite(const entt::hashed_string::hash_type id)
 {
     auto it = globalSprites.find(id);
     if (it != globalSprites.end())
@@ -37,6 +37,14 @@ std::optional<Gng2D::Sprite> Assets::getSprite(const entt::hashed_string::hash_t
     }
 
     LOG::WARN("Sprite not found:", id);
-    return std::nullopt;
+    return Gng2D::Sprite{};
+}
+
+Assets::SpriteMap::~SpriteMap()
+{
+    for (auto& [_, sprite] : *this)
+    {
+        SDL_DestroyTexture(sprite.texture);
+    }
 }
 
