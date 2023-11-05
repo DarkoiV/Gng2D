@@ -10,6 +10,6 @@ target_sources(Gng2D PRIVATE
 
 # TESTS
 target_sources(Gng2D_TESTS PRIVATE
-    tst/input_handler.cpp)
-    # tst/relation_system.cpp)
+    tst/input_handler.cpp
+    tst/relation_system.cpp)
 
