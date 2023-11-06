@@ -60,7 +60,7 @@ struct LOG
         out << FATAL_TXT;
         ((out << " " << msg ), ... );
         out << std::endl;
-        throw std::exception();
+        throw std::runtime_error((... + (std::string(msg) + " ")));
     }
 
 private:
