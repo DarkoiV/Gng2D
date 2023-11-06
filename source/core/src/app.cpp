@@ -76,7 +76,8 @@ void Gng2D::runApp()
     try
     {
         MainLoop()();
-    } catch (std::exception& e)
+    }
+    catch (std::exception& e)
     {
         LOG::INFO("Exception caught:", e.what());
         if (SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "EXCEPTION CAUGHT", e.what(),
