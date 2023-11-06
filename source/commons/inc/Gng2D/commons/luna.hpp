@@ -25,14 +25,15 @@ struct Luna
     using   String      = std::string;
     using   Bool        = bool;
     struct  Table;
-    using   TablePtr    = std::shared_ptr<Table>;
     using   TableKey    = std::variant<Integer, String>;
-    using   Type        = std::variant<Nil, Integer, Float, String, Bool, TablePtr>;
+    using   Type        = std::variant<Nil, Integer, Float, String, Bool, Table>;
 
     template<typename T>
     constexpr static bool   is(const Type&);
     template<typename T>
-    static T*               get(Type&);
+    static T&               get(Type&);
+    template<typename T>
+    static T*               try_get(Type&);
 
     struct StackLock;
     void    pushNil();
@@ -81,30 +82,22 @@ public:
     };
 };
 
-template<>
-inline bool Luna::is<Luna::Table>(const Luna::Type& t) 
-{
-    return std::holds_alternative<TablePtr>(t);
-}
-
 template<typename T>
 constexpr bool Luna::is(const Luna::Type& t)
 {
     return std::holds_alternative<T>(t);
 }
 
-template<>
-inline Luna::Table* Luna::get<Luna::Table>(Luna::Type& t)
+template<typename T>
+T& Luna::get(Luna::Type& t)
 {
-    if (not is<Luna::Table>(t)) [[unlikely]] return nullptr;
-    return std::get<Luna::TablePtr>(t).get();
+    return std::get<T>(t);
 }
 
 template<typename T>
-T* Luna::get(Luna::Type& t)
+T* Luna::try_get(Luna::Type& t)
 {
-    if (not is<T>(t)) [[unlikely]] return nullptr;
-    return &(std::get<T>(t));
+    return std::get_if<T>(t);
 }
 
 template<typename T>

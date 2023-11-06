@@ -76,7 +76,7 @@ Luna::Type Luna::readStack(int n)
         case LUA_TBOOLEAN:
             return bool{static_cast<bool>(lua_toboolean(L, n))};
         case LUA_TTABLE:
-            return std::make_unique<Table>(luaToTable(n));
+            return luaToTable(n);
     }
     LOG::DEBUG("Global is of non readable type");
     return Nil{};
@@ -103,7 +103,7 @@ Luna::Type Luna::read(const std::string& name)
         case LUA_TBOOLEAN:
             return bool{static_cast<bool>(lua_toboolean(L, -1))};
         case LUA_TTABLE:
-            return std::make_unique<Table>(luaToTable(-1));
+            return luaToTable(-1);
     }
     LOG::DEBUG("Global is of non readable type");
     return Nil{};

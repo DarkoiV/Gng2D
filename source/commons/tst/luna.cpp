@@ -206,13 +206,13 @@ TEST_F(LunaTest, LunaCanReadTableToCppMap)
     auto tableptr = luna.read("my_table");
 
     ASSERT_TRUE(Luna::is<Luna::Table>(tableptr));
-    auto& table = *Luna::get<Luna::Table>(tableptr);
+    auto& table = Luna::get<Luna::Table>(tableptr);
 
     ASSERT_EQ(table[123], false);
     ASSERT_EQ(table["test"], "testo");
 
     ASSERT_TRUE(Luna::is<Luna::Table>(table["table"]));
-    auto& innerTable = *Luna::get<Luna::Table>(table["table"]);
+    auto& innerTable = Luna::get<Luna::Table>(table["table"]);
 
     ASSERT_EQ(innerTable["float"], 123.0);
     ASSERT_EQ(innerTable["int"], 2ll);
