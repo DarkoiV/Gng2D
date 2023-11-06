@@ -1,27 +1,17 @@
 #pragma once
-#include <map>
-#include <string>
-#include <optional>
-#include <entt/entt.hpp>
-#include "Gng2D/components/sprite.hpp"
 #include "Gng2D/commons/log.hpp"
+#include "Gng2D/core/global_assets.hpp"
+#include <entt/entt.hpp>
+#include <map>
+#include <optional>
+#include <string>
 
 namespace Gng2D
 {
-struct Assets 
+struct Assets : GlobalAssets
 {
-    static void loadGlobalSprite(const std::string& name, 
-                                 const std::string& path = "sprites/",
-                                 const std::string& fileType = ".png");
-    Sprite      getSprite(const entt::hashed_string::hash_type);
-
-private:
-    struct SpriteMap : std::map<entt::hashed_string::hash_type, Sprite>
-    {
-        using std::map<entt::hashed_string::hash_type, Sprite>::map;
-        ~SpriteMap();
-    };
-    inline static SpriteMap globalSprites;
+    // TODO impl loadSprite();
+    Sprite getSprite(const entt::hashed_string::hash_type);
 };
 }
 
