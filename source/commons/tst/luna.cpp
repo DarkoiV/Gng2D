@@ -192,6 +192,13 @@ TEST_F(LunaTest, LunaCanDoStackOpeartions)
     ASSERT_EQ(std::get<Luna::Integer>(readInt2), STACK_INT);
 }
 
+TEST_F(LunaTest, TableBracketAcessIsByDeafaultNilConstucted)
+{
+    Luna::Table table;
+    table["FIRST_ACESS"];
+    ASSERT_EQ(table["FIRST_ACESS"], Luna::Nil{});
+}
+
 constexpr static char TABLE_SCRIPT[] =  
     "my_table = {}                          \n"
     "my_table[123]          = false         \n"
@@ -206,15 +213,43 @@ TEST_F(LunaTest, LunaCanReadTableToCppMap)
     auto tableptr = luna.read("my_table");
 
     ASSERT_TRUE(Luna::is<Luna::Table>(tableptr));
-    auto& table = Luna::get<Luna::Table>(tableptr);
+    auto& table = std::get<Luna::Table>(tableptr);
 
     ASSERT_EQ(table[123], false);
     ASSERT_EQ(table["test"], "testo");
 
     ASSERT_TRUE(Luna::is<Luna::Table>(table["table"]));
-    auto& innerTable = Luna::get<Luna::Table>(table["table"]);
+    auto& innerTable = std::get<Luna::Table>(table["table"]);
 
     ASSERT_EQ(innerTable["float"], 123.0);
     ASSERT_EQ(innerTable["int"], 2ll);
+}
+
+const Luna::Table INNER_TEST_TABLE = {
+    {"INNER_TABLE_FLOAT", Luna::Float{205.0}}
+};
+
+const Luna::Table TEST_TABLE = {
+    {"TABLE_NIL", Luna::Nil{}},
+    {"TABLE_INT", Luna::Integer{123}},
+    {"TABLE_STR", Luna::String{"Hello from table"}},
+    {"TABLE_TABLE", INNER_TEST_TABLE}
+};
+
+TEST_F(LunaTest, LunaCanCreateTables)
+{
+    luna.pushTable(TEST_TABLE);
+
+    auto stackObj = luna.readStack(-1);
+    ASSERT_TRUE(Luna::is<Luna::Table>(stackObj));
+    
+    auto& table = std::get<Luna::Table>(stackObj);
+    ASSERT_EQ(table["TABLE_NIL"], Luna::Nil{});
+    ASSERT_EQ(table["TABLE_INT"], Luna::Integer{123});
+    ASSERT_EQ(table["TABLE_STR"], "Hello from table");
+    ASSERT_TRUE(Luna::is<Luna::Table>(table["TABLE_TABLE"]));
+
+    auto& innerTable = std::get<Luna::Table>(table["TABLE_TABLE"]);
+    ASSERT_EQ(innerTable["INNER_TABLE_FLOAT"], Luna::Float{205.0});
 }
 

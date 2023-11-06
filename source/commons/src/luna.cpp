@@ -3,6 +3,19 @@
 
 using Gng2D::Luna;
 
+namespace // VARIANT HELPER
+{
+template <typename> struct tag { };
+
+template <typename T, typename V>
+struct get_index;
+
+template <typename T, typename... Ts> 
+struct get_index<T, std::variant<Ts...>>
+    : std::integral_constant<size_t, std::variant<tag<Ts>...>(tag<T>()).index()>
+{};
+}
+
 Luna::Luna()
 {
     if (not L) LOG::FATAL("Failed to create lua state");
@@ -58,6 +71,53 @@ void Luna::pushBool(Luna::Bool value)
 void Luna::pushGlobal(const String& name)
 {
     lua_getglobal(L, name.c_str());
+}
+
+void Luna::pushTable(const Table& table)
+{
+    lua_createtable(L, 0, table.size());
+    for (const auto& [k, v] : table)
+    {
+        switch(k.index())
+        {
+            case get_index<Integer, TableKey>():
+                lua_pushnumber(L, std::get<Integer>(k));
+                break;
+
+            case get_index<String, TableKey>():
+                lua_pushstring(L, std::get<String>(k).c_str());
+                break;
+        }
+        push(v);
+        lua_rawset(L, -3);
+    }
+}
+
+void Luna::push(const Type& value)
+{
+    switch(value.index())
+    {
+        case get_index<Nil, Type>():
+            lua_pushnil(L);
+            break;
+        case get_index<Integer, Type>():
+            lua_pushinteger(L, std::get<Integer>(value));
+            break;
+        case get_index<Float, Type>():
+            lua_pushnumber(L, std::get<Float>(value));
+            break;
+        case get_index<String, Type>():
+            lua_pushstring(L, std::get<String>(value).c_str());
+            break;
+        case get_index<Bool, Type>():
+            lua_pushboolean(L, std::get<Bool>(value));
+            break;
+        case get_index<Table, Type>():
+            pushTable(std::get<Table>(value));
+            break;
+        default: [[unlikely]]
+            LOG::ERROR("Fallthrough on push");
+    }
 }
 
 Luna::Type Luna::readStack(int n)

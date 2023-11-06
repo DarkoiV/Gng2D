@@ -30,10 +30,6 @@ struct Luna
 
     template<typename T>
     constexpr static bool   is(const Type&);
-    template<typename T>
-    static T&               get(Type&);
-    template<typename T>
-    static T*               try_get(Type&);
 
     struct StackLock;
     void    pushNil();
@@ -41,6 +37,8 @@ struct Luna
     void    pushFloat(Float);
     void    pushString(const String&);
     void    pushBool(Bool);
+    void    pushTable(const Table&);
+    void    push(const Type&);
     void    pushGlobal(const String&);
     Type    readStack(int n);
     void    popStack(int n);
@@ -86,18 +84,6 @@ template<typename T>
 constexpr bool Luna::is(const Luna::Type& t)
 {
     return std::holds_alternative<T>(t);
-}
-
-template<typename T>
-T& Luna::get(Luna::Type& t)
-{
-    return std::get<T>(t);
-}
-
-template<typename T>
-T* Luna::try_get(Luna::Type& t)
-{
-    return std::get_if<T>(t);
 }
 
 template<typename T>
