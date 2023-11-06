@@ -77,7 +77,16 @@ void Gng2D::initApp()
 void Gng2D::runApp()
 {
     LOG::INFO("Entering main loop");
-    MainLoop()();
+    try {
+        MainLoop()();
+    } catch(std::exception& e) {
+        LOG::INFO("Exception caught:", e.what());
+        if (SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "EXCEPTION CAUGHT", e.what(), GLOBAL::WINDOW) != 0)
+        {
+            LOG::ERROR("Can't show message box:", SDL_GetError());
+        }
+    }
+
 }
 
 void Gng2D::closeApp()

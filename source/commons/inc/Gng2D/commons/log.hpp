@@ -59,8 +59,8 @@ struct LOG
     {
         out << FATAL_TXT;
         ((out << " " << msg ), ... );
-        out << "\n";
-        std::exit(-1);
+        out << std::endl;
+        throw std::exception();
     }
 
 private:
