@@ -5,16 +5,20 @@ using Gng2D::Luna;
 
 namespace // VARIANT HELPER
 {
-template <typename> struct tag { };
+template <typename>
+struct tag
+{
+};
 
 template <typename T, typename V>
 struct get_index;
 
-template <typename T, typename... Ts> 
+template <typename T, typename... Ts>
 struct get_index<T, std::variant<Ts...>>
     : std::integral_constant<size_t, std::variant<tag<Ts>...>(tag<T>()).index()>
-{};
-}
+{
+};
+} // namespace
 
 Luna::Luna()
 {
@@ -37,10 +41,8 @@ void Luna::doString(const std::string& str, const std::string& env)
 {
     luaL_loadstring(L, str.c_str());
     if (not env.empty()) setEnv(env);
-    if (lua_pcall(L, 0, 0, 0) != 0) LOG::ERROR("Issue running script: \n", 
-                                               "-- LUA SCRIPT --\n", 
-                                               str, 
-                                               "\n -- END SCRIPT --");
+    if (lua_pcall(L, 0, 0, 0) != 0)
+        LOG::ERROR("Issue running script: \n", "-- LUA SCRIPT --\n", str, "\n -- END SCRIPT --");
 }
 
 void Luna::pushNil()
@@ -76,17 +78,17 @@ void Luna::pushGlobal(const String& name)
 void Luna::pushTable(const Table& table)
 {
     lua_createtable(L, 0, table.size());
-    for (const auto& [k, v] : table)
+    for (const auto& [k, v]: table)
     {
-        switch(k.index())
+        switch (k.index())
         {
-            case get_index<Integer, TableKey>():
-                lua_pushnumber(L, std::get<Integer>(k));
-                break;
+        case get_index<Integer, TableKey>():
+            lua_pushnumber(L, std::get<Integer>(k));
+            break;
 
-            case get_index<String, TableKey>():
-                lua_pushstring(L, std::get<String>(k).c_str());
-                break;
+        case get_index<String, TableKey>():
+            lua_pushstring(L, std::get<String>(k).c_str());
+            break;
         }
         push(v);
         lua_rawset(L, -3);
@@ -95,48 +97,48 @@ void Luna::pushTable(const Table& table)
 
 void Luna::push(const Type& value)
 {
-    switch(value.index())
+    switch (value.index())
     {
-        case get_index<Nil, Type>():
-            lua_pushnil(L);
-            break;
-        case get_index<Integer, Type>():
-            lua_pushinteger(L, std::get<Integer>(value));
-            break;
-        case get_index<Float, Type>():
-            lua_pushnumber(L, std::get<Float>(value));
-            break;
-        case get_index<String, Type>():
-            lua_pushstring(L, std::get<String>(value).c_str());
-            break;
-        case get_index<Bool, Type>():
-            lua_pushboolean(L, std::get<Bool>(value));
-            break;
-        case get_index<Table, Type>():
-            pushTable(std::get<Table>(value));
-            break;
-        default: [[unlikely]]
-            LOG::ERROR("Fallthrough on push");
+    case get_index<Nil, Type>():
+        lua_pushnil(L);
+        break;
+    case get_index<Integer, Type>():
+        lua_pushinteger(L, std::get<Integer>(value));
+        break;
+    case get_index<Float, Type>():
+        lua_pushnumber(L, std::get<Float>(value));
+        break;
+    case get_index<String, Type>():
+        lua_pushstring(L, std::get<String>(value).c_str());
+        break;
+    case get_index<Bool, Type>():
+        lua_pushboolean(L, std::get<Bool>(value));
+        break;
+    case get_index<Table, Type>():
+        pushTable(std::get<Table>(value));
+        break;
+    default:
+        [[unlikely]] LOG::ERROR("Fallthrough on push");
     }
 }
 
 Luna::Type Luna::readStack(int n)
 {
-    GNG2D_ASSERT(lua_gettop(L) >= abs(n) and n != 0 , "Out of stack access");
+    GNG2D_ASSERT(lua_gettop(L) >= abs(n) and n != 0, "Out of stack access");
     auto type = lua_type(L, n);
     switch (type)
     {
-        case LUA_TNIL:
-            return Nil{};
-        case LUA_TNUMBER:
-            if (lua_isinteger(L, n)) return Integer{lua_tointeger(L, n)};
-            else return Float{lua_tonumber(L, n)};
-        case LUA_TSTRING:
-            return String{lua_tostring(L, n)};
-        case LUA_TBOOLEAN:
-            return bool{static_cast<bool>(lua_toboolean(L, n))};
-        case LUA_TTABLE:
-            return luaToTable(n);
+    case LUA_TNIL:
+        return Nil{};
+    case LUA_TNUMBER:
+        if (lua_isinteger(L, n)) return Integer{lua_tointeger(L, n)};
+        else return Float{lua_tonumber(L, n)};
+    case LUA_TSTRING:
+        return String{lua_tostring(L, n)};
+    case LUA_TBOOLEAN:
+        return bool{static_cast<bool>(lua_toboolean(L, n))};
+    case LUA_TTABLE:
+        return luaToTable(n);
     }
     LOG::DEBUG("Global is of non readable type");
     return Nil{};
@@ -150,20 +152,20 @@ void Luna::popStack(int n)
 Luna::Type Luna::read(const std::string& name)
 {
     StackLock lock(L);
-    auto type = lua_getglobal(L, name.c_str());
+    auto      type = lua_getglobal(L, name.c_str());
     switch (type)
     {
-        case LUA_TNIL:
-            return Nil{};
-        case LUA_TNUMBER:
-            if (lua_isinteger(L, -1)) return Integer{lua_tointeger(L, -1)};
-            else return Float{lua_tonumber(L, -1)};
-        case LUA_TSTRING:
-            return String{lua_tostring(L, -1)};
-        case LUA_TBOOLEAN:
-            return bool{static_cast<bool>(lua_toboolean(L, -1))};
-        case LUA_TTABLE:
-            return luaToTable(-1);
+    case LUA_TNIL:
+        return Nil{};
+    case LUA_TNUMBER:
+        if (lua_isinteger(L, -1)) return Integer{lua_tointeger(L, -1)};
+        else return Float{lua_tonumber(L, -1)};
+    case LUA_TSTRING:
+        return String{lua_tostring(L, -1)};
+    case LUA_TBOOLEAN:
+        return bool{static_cast<bool>(lua_toboolean(L, -1))};
+    case LUA_TTABLE:
+        return luaToTable(-1);
     }
     LOG::DEBUG("Global is of non readable type");
     return Nil{};
@@ -260,7 +262,7 @@ void Luna::createBool(const std::string& name, bool var)
 void Luna::setEnv(const std::string& env)
 {
     auto envType = lua_getglobal(L, env.c_str());
-    if (envType != LUA_TTABLE and envType != LUA_TNIL) [[unlikely]] 
+    if (envType != LUA_TTABLE and envType != LUA_TNIL) [[unlikely]]
     {
         return LOG::ERROR("Cannot create env, name:", env, "is used by another variable");
     }
@@ -278,25 +280,26 @@ void Luna::setEnv(const std::string& env)
 Luna::Table Luna::luaToTable(int n)
 {
     StackLock lock(L);
-    auto tableIndex = lua_gettop(L) + n + 1;
-    Table result;
+    auto      tableIndex = lua_gettop(L) + n + 1;
+    Table     result;
 
     pushNil();
-    while(lua_next(L, tableIndex))
+    while (lua_next(L, tableIndex))
     {
-        auto stackkey = readStack(-2);
+        auto     stackkey = readStack(-2);
         TableKey tkey;
         if (std::holds_alternative<Integer>(stackkey))
         {
             tkey = std::get<Integer>(stackkey);
         }
-        else if(std::holds_alternative<String>(stackkey))
+        else if (std::holds_alternative<String>(stackkey))
         {
             tkey = std::move(std::get<String>(stackkey));
         }
         else [[unlikely]]
         {
-            LOG::WARN("Luna only supports indexes that are Integers or Strings, value will be ignored");
+            LOG::WARN(
+                "Luna only supports indexes that are Integers or Strings, value will be ignored");
             popStack(1);
             continue;
         }
@@ -319,4 +322,3 @@ Luna::StackLock::~StackLock()
     GNG2D_ASSERT(top <= lua_gettop(L), "Stack lock went out of scope!");
     lua_settop(L, top);
 }
-

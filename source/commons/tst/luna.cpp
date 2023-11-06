@@ -4,30 +4,30 @@
 #include <fstream>
 #include <sstream>
 
-constexpr char INT_ID[]         = "TEST_INT";
-constexpr int INT_VALUE         = 129;
-constexpr char FLOAT_ID[]       = "TEST_FLOAT";
-constexpr double FLOAT_VALUE    = 129.389;
-constexpr char BOOL_ID[]        = "TEST_BOOL";
-constexpr bool BOOL_VALUE       = false;
-constexpr char STR_ID[]         = "TEST_STRING";
-constexpr char STR_VALUE[]      = "HELLO LUNA!";
+constexpr char   INT_ID[]    = "TEST_INT";
+constexpr int    INT_VALUE   = 129;
+constexpr char   FLOAT_ID[]  = "TEST_FLOAT";
+constexpr double FLOAT_VALUE = 129.389;
+constexpr char   BOOL_ID[]   = "TEST_BOOL";
+constexpr bool   BOOL_VALUE  = false;
+constexpr char   STR_ID[]    = "TEST_STRING";
+constexpr char   STR_VALUE[] = "HELLO LUNA!";
 
 using Gng2D::Luna;
 
-struct LunaTest : ::testing::Test 
+struct LunaTest : ::testing::Test
 {
-    inline static std::string testFilesDir{TEST_FILES_DIR};
-    inline static std::string testFileName{"test.lua"};
+    inline static std::string           testFilesDir{TEST_FILES_DIR};
+    inline static std::string           testFileName{"test.lua"};
     inline static std::filesystem::path testFile{testFilesDir + "/" + testFileName};
-    static void SetUpTestSuite()
+    static void                         SetUpTestSuite()
     {
         std::fstream file(testFile, std::fstream::out);
         std::boolalpha(file);
-        file << INT_ID      << " = " << INT_VALUE   << "\n";
-        file << FLOAT_ID    << " = " << FLOAT_VALUE << "\n";
-        file << BOOL_ID     << " = " << BOOL_VALUE  << "\n";
-        file << STR_ID      << " = " << std::quoted(STR_VALUE) << std::endl;
+        file << INT_ID << " = " << INT_VALUE << "\n";
+        file << FLOAT_ID << " = " << FLOAT_VALUE << "\n";
+        file << BOOL_ID << " = " << BOOL_VALUE << "\n";
+        file << STR_ID << " = " << std::quoted(STR_VALUE) << std::endl;
     }
 
     Gng2D::Luna luna;
@@ -105,14 +105,14 @@ TEST_F(LunaTest, AfterDoingFile_LunaCanUseReadToVar)
 
 TEST_F(LunaTest, IfVarNotDefinedInLua_LunaReadToVarWontChangeTargetVar)
 {
-    constexpr int       OLD_INT_VALUE{100};
-    constexpr double    OLD_FLOAT_VALUE{231.20};
-    constexpr bool      OLD_BOOL_VALUE{true};
-    constexpr char      OLD_STR_VALUE[]{"TESTO"};
-    int         testInt     = OLD_INT_VALUE;
-    double      testFloat   = OLD_FLOAT_VALUE;
-    bool        testBool    = OLD_BOOL_VALUE;
-    std::string testString  = OLD_STR_VALUE;
+    constexpr int    OLD_INT_VALUE{100};
+    constexpr double OLD_FLOAT_VALUE{231.20};
+    constexpr bool   OLD_BOOL_VALUE{true};
+    constexpr char   OLD_STR_VALUE[]{"TESTO"};
+    int              testInt    = OLD_INT_VALUE;
+    double           testFloat  = OLD_FLOAT_VALUE;
+    bool             testBool   = OLD_BOOL_VALUE;
+    std::string      testString = OLD_STR_VALUE;
 
     ASSERT_FALSE(luna.readToVar(INT_ID, testInt));
     ASSERT_FALSE(luna.readToVar(FLOAT_ID, testFloat));
@@ -127,13 +127,13 @@ TEST_F(LunaTest, IfVarNotDefinedInLua_LunaReadToVarWontChangeTargetVar)
 
 TEST_F(LunaTest, LunaCanRunStringAsScript)
 {
-    constexpr char  SCRIPT_INT_ID[]{"SCRIPT_INT"};
-    constexpr int   SCRIPT_INT_VALUE{120};
-    constexpr char  SCRIPT_STR_ID[]{"SCRIPT_STR"};
-    constexpr char  SCRIPT_STR_VALUE[]{"HELLO LUNA FROM STRING!"};
+    constexpr char SCRIPT_INT_ID[]{"SCRIPT_INT"};
+    constexpr int  SCRIPT_INT_VALUE{120};
+    constexpr char SCRIPT_STR_ID[]{"SCRIPT_STR"};
+    constexpr char SCRIPT_STR_VALUE[]{"HELLO LUNA FROM STRING!"};
 
     std::stringstream script;
-    script << SCRIPT_INT_ID << "=" << SCRIPT_INT_VALUE              << "\n";
+    script << SCRIPT_INT_ID << "=" << SCRIPT_INT_VALUE << "\n";
     script << SCRIPT_STR_ID << "=" << std::quoted(SCRIPT_STR_VALUE) << "\n";
 
     luna.doString(script.str());
@@ -150,10 +150,10 @@ TEST_F(LunaTest, LunaCanRunStringAsScript)
 
 TEST_F(LunaTest, LunaCanDoStackOpeartions)
 {
-    constexpr int   STACK_INT       = 12;
-    constexpr float STACK_FLOAT     = 123.45;
-    constexpr bool  STACK_BOOL      = false;
-    constexpr char  STACK_STRING[]  = "HELLO STACK!";
+    constexpr int   STACK_INT      = 12;
+    constexpr float STACK_FLOAT    = 123.45;
+    constexpr bool  STACK_BOOL     = false;
+    constexpr char  STACK_STRING[] = "HELLO STACK!";
 
     Luna luna;
     luna.pushInt(STACK_INT);
@@ -166,10 +166,10 @@ TEST_F(LunaTest, LunaCanDoStackOpeartions)
     auto readFloat  = luna.readStack(-3);
     auto readInt    = luna.readStack(-4);
 
-    auto readString2    = luna.readStack(4);
-    auto readBool2      = luna.readStack(3);
-    auto readFloat2     = luna.readStack(2);
-    auto readInt2       = luna.readStack(1);
+    auto readString2 = luna.readStack(4);
+    auto readBool2   = luna.readStack(3);
+    auto readFloat2  = luna.readStack(2);
+    auto readInt2    = luna.readStack(1);
 
     ASSERT_TRUE(std::holds_alternative<Luna::String>(readString));
     ASSERT_TRUE(std::holds_alternative<Luna::Bool>(readBool));
@@ -199,7 +199,7 @@ TEST_F(LunaTest, TableBracketAcessIsByDeafaultNilConstucted)
     ASSERT_EQ(table["FIRST_ACESS"], Luna::Nil{});
 }
 
-constexpr static char TABLE_SCRIPT[] =  
+constexpr static char TABLE_SCRIPT[] =
     "my_table = {}                          \n"
     "my_table[123]          = false         \n"
     "my_table[\"test\"]     = \"testo\"     \n"
@@ -230,10 +230,10 @@ const Luna::Table INNER_TEST_TABLE = {
 };
 
 const Luna::Table TEST_TABLE = {
-    {"TABLE_NIL", Luna::Nil{}},
-    {"TABLE_INT", Luna::Integer{123}},
-    {"TABLE_STR", Luna::String{"Hello from table"}},
-    {"TABLE_TABLE", INNER_TEST_TABLE}
+    {  "TABLE_NIL",                      Luna::Nil{}},
+    {  "TABLE_INT",               Luna::Integer{123}},
+    {  "TABLE_STR", Luna::String{"Hello from table"}},
+    {"TABLE_TABLE",                 INNER_TEST_TABLE}
 };
 
 TEST_F(LunaTest, LunaCanCreateTables)
@@ -242,7 +242,7 @@ TEST_F(LunaTest, LunaCanCreateTables)
 
     auto stackObj = luna.readStack(-1);
     ASSERT_TRUE(Luna::is<Luna::Table>(stackObj));
-    
+
     auto& table = std::get<Luna::Table>(stackObj);
     ASSERT_EQ(table["TABLE_NIL"], Luna::Nil{});
     ASSERT_EQ(table["TABLE_INT"], Luna::Integer{123});
@@ -252,4 +252,3 @@ TEST_F(LunaTest, LunaCanCreateTables)
     auto& innerTable = std::get<Luna::Table>(table["TABLE_TABLE"]);
     ASSERT_EQ(innerTable["INNER_TABLE_FLOAT"], Luna::Float{205.0});
 }
-

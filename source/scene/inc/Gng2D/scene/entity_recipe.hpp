@@ -1,15 +1,13 @@
 #pragma once
 #include <entt/entt.hpp>
 
-namespace Gng2D
-{
-struct EntityRecipe 
+namespace Gng2D {
+struct EntityRecipe
 {
     EntityRecipe(entt::registry&);
     entt::entity spawn();
 
-private:
+  private:
     entt::registry& reg;
 };
-}
-
+} // namespace Gng2D

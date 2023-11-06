@@ -1,7 +1,7 @@
 #include "Gng2D/scene/entity_renderer.hpp"
-#include "Gng2D/core/global.hpp"
 #include "Gng2D/commons/log.hpp"
 #include "Gng2D/components/layer.hpp"
+#include "Gng2D/core/global.hpp"
 
 using Gng2D::EntityRenderer;
 
@@ -12,15 +12,15 @@ EntityRenderer::EntityRenderer(entt::registry& r)
 {
     entt::sigh_helper{reg}
         .with<Sprite>()
-            .on_construct<SORT_SIGNAL>(this)
-            .on_destroy<SORT_SIGNAL>(this)
+        .on_construct<SORT_SIGNAL>(this)
+        .on_destroy<SORT_SIGNAL>(this)
         .with<Position>()
-            .on_construct<SORT_SIGNAL>(this)
-            .on_destroy<SORT_SIGNAL>(this)
+        .on_construct<SORT_SIGNAL>(this)
+        .on_destroy<SORT_SIGNAL>(this)
         .with<Layer>()
-            .on_construct<SORT_SIGNAL>(this)
-            .on_update<SORT_SIGNAL>(this)
-            .on_destroy<SORT_SIGNAL>(this);
+        .on_construct<SORT_SIGNAL>(this)
+        .on_update<SORT_SIGNAL>(this)
+        .on_destroy<SORT_SIGNAL>(this);
     LOG::INFO("Created entity renderer");
 }
 
@@ -40,11 +40,12 @@ EntityRenderer::~EntityRenderer()
 void EntityRenderer::operator()(SDL_Renderer* r)
 {
     if (needsSorting) sortRenderables();
-    const int  midXOffset = GLOBAL::RENDER_WIDTH  / 2;
-    const int  midYOffset = GLOBAL::RENDER_HEIGHT / 2;
+    const int midXOffset = GLOBAL::RENDER_WIDTH / 2;
+    const int midYOffset = GLOBAL::RENDER_HEIGHT / 2;
 
-    renderables.each([r, this, midYOffset, midXOffset](Sprite& sprite, Position& pos)
-    {
+    renderables.each(
+        [r, this, midYOffset, midXOffset](Sprite& sprite, Position& pos)
+        {
         SDL_Rect dstRect;
         dstRect.w = sprite.srcRect.w;
         dstRect.h = sprite.srcRect.h;
@@ -61,14 +62,14 @@ void EntityRenderer::markForSorting()
 
 void EntityRenderer::sortRenderables()
 {
-    renderables.sort([&](entt::entity lhs, entt::entity rhs)
-    {
+    renderables.sort(
+        [&](entt::entity lhs, entt::entity rhs)
+        {
         bool leftHasLayer  = reg.all_of<Layer>(lhs);
         bool rightHasLayer = reg.all_of<Layer>(rhs);
         if (not rightHasLayer) return false;
-        if (not leftHasLayer)  return true;
+        if (not leftHasLayer) return true;
         return reg.get<Layer>(lhs) < reg.get<Layer>(rhs);
     });
     needsSorting = false;
 }
-

@@ -12,7 +12,7 @@ using namespace Gng2D::GLOBAL;
 
 static void loadAppSettings()
 {
-    APP_DIRECTORY = SDL_GetBasePath();
+    APP_DIRECTORY  = SDL_GetBasePath();
     DATA_DIRECTORY = APP_DIRECTORY + "data/";
     LOG::INFO("Application directory path:", APP_DIRECTORY);
     LOG::INFO("Data directory path:", APP_DIRECTORY);
@@ -36,12 +36,8 @@ static void createSdlWindow()
     if (err) LOG::FATAL("Could not initialize SDL2 Video", SDL_GetError());
 
     LOG::INFO("Creating SDL2 Window");
-    WINDOW = SDL_CreateWindow(TITLE.c_str(), 
-                                SDL_WINDOWPOS_CENTERED, 
-                                SDL_WINDOWPOS_CENTERED, 
-                                RENDER_WIDTH * RENDER_SCALE, 
-                                RENDER_HEIGHT * RENDER_SCALE, 
-                                0);
+    WINDOW = SDL_CreateWindow(TITLE.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                              RENDER_WIDTH * RENDER_SCALE, RENDER_HEIGHT * RENDER_SCALE, 0);
     if (not WINDOW) LOG::FATAL("Could not create SDL2 Window", SDL_GetError());
     LOG::INFO("Window size set to", RENDER_WIDTH * RENDER_SCALE, "x", RENDER_HEIGHT * RENDER_SCALE);
 
@@ -77,16 +73,18 @@ void Gng2D::initApp()
 void Gng2D::runApp()
 {
     LOG::INFO("Entering main loop");
-    try {
+    try
+    {
         MainLoop()();
-    } catch(std::exception& e) {
+    } catch (std::exception& e)
+    {
         LOG::INFO("Exception caught:", e.what());
-        if (SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "EXCEPTION CAUGHT", e.what(), GLOBAL::WINDOW) != 0)
+        if (SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "EXCEPTION CAUGHT", e.what(),
+                                     GLOBAL::WINDOW) != 0)
         {
             LOG::ERROR("Can't show message box:", SDL_GetError());
         }
     }
-
 }
 
 void Gng2D::closeApp()
@@ -95,4 +93,3 @@ void Gng2D::closeApp()
     GlobalAssets::deleteAllSprites();
     destroySdlWindow();
 }
-

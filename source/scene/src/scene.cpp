@@ -14,14 +14,14 @@ Scene::Scene()
     Assets::loadGlobalSprite("red_x");
 
     auto redXRecipe = EntityRecipe::redXRecipe(reg);
-    auto x1 = redXRecipe.spawn();
-    auto x2 = redXRecipe.spawn();
-    auto x3 = redXRecipe.spawn();
+    auto x1         = redXRecipe.spawn();
+    auto x2         = redXRecipe.spawn();
+    auto x3         = redXRecipe.spawn();
 
     int counter = 0;
-    reg.view<TransformPosition>()
-        .each([&counter, this](auto e, auto& tpos)
-    {
+    reg.view<TransformPosition>().each(
+        [&counter, this](auto e, auto& tpos)
+        {
         tpos.x = counter * 10;
         tpos.y = -counter * 10;
         counter++;
@@ -29,7 +29,7 @@ Scene::Scene()
     });
 }
 
-Scene::~Scene() 
+Scene::~Scene()
 {
     reg.clear();
 }
@@ -44,9 +44,7 @@ void Scene::onExit()
     LOG::INFO("Exiting", name);
 }
 
-void Scene::update()
-{
-}
+void Scene::update() { }
 
 void Scene::render(SDL_Renderer* r)
 {
@@ -58,8 +56,7 @@ void Scene::onKeyPress(SDL_KeyboardEvent& e)
     inputHandler.handleKeyPress(e);
 }
 
-const std::string& Scene::getName() const 
+const std::string& Scene::getName() const
 {
     return name;
 }
-

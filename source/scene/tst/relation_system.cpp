@@ -1,12 +1,12 @@
-#include "gtest/gtest.h"
 #include "Gng2D/scene/relation_system.hpp"
 #include "Gng2D/components/relationship.hpp"
+#include "gtest/gtest.h"
 
 struct RelationSystemTest : ::testing::Test
 {
 
-    entt::registry          reg;
-    Gng2D::RelationSystem   SUT{reg};
+    entt::registry        reg;
+    Gng2D::RelationSystem SUT{reg};
 
     entt::entity parent = reg.create();
     entt::entity child1 = reg.create();
@@ -60,4 +60,3 @@ TEST_F(RelationSystemTest, DestroyingParent_WillDestroyAllItsChildren)
     ASSERT_FALSE(reg.valid(child2));
     ASSERT_FALSE(reg.valid(child3));
 }
-

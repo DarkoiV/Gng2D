@@ -25,8 +25,6 @@ void ComponentLibrary::init()
     registerComponent<Gng2D::Sprite>();
     registerComponent<Gng2D::TransformPosition>();
 
-
     LOG::INFO("Initialized ComponentLibrary");
     initialized = true;
 }
-

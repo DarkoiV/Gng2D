@@ -1,14 +1,13 @@
 #pragma once
 #include <entt/entt.hpp>
 
-namespace Gng2D
-{
+namespace Gng2D {
 struct RelationSystem
 {
     RelationSystem(entt::registry&);
     ~RelationSystem();
 
-private:
+  private:
     entt::registry& reg;
 
     static void addChildToParent(entt::registry&, entt::entity);
@@ -21,5 +20,4 @@ private:
     static void setPositionFromTransformPosition(entt::registry&, entt::entity);
     static void updateChildrenPosition(entt::registry&, entt::entity);
 };
-}
-
+} // namespace Gng2D

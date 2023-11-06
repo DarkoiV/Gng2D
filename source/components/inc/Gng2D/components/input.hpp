@@ -1,18 +1,16 @@
 #pragma once
-#include <vector>
-#include <tuple>
 #include <compare>
 #include <entt/entt.hpp>
+#include <tuple>
+#include <vector>
 
-namespace Gng2D
+namespace Gng2D {
+struct ActionListener
 {
-struct ActionListener 
-{
-    using ActionString  = entt::hashed_string;
-    using Action        = entt::hashed_string::hash_type;
-    using Signal        = entt::sigh<void(entt::entity, Action)>;
+    using ActionString = entt::hashed_string;
+    using Action       = entt::hashed_string::hash_type;
+    using Signal       = entt::sigh<void(entt::entity, Action)>;
     std::vector<Action> actions;
     Signal              signal;
 };
-}
-
+} // namespace Gng2D

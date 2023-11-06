@@ -11,8 +11,5 @@ Sprite Sprite::loadFromAssets(entt::registry* reg, entt::hashed_string::hash_typ
 entt::meta_factory<Sprite> Sprite::createMetaInfo()
 {
     using namespace entt::literals;
-    return entt::meta<Sprite>()
-        .type("Sprite"_hs)
-        .ctor<&Sprite::loadFromAssets>();
+    return entt::meta<Sprite>().type("Sprite"_hs).ctor<&Sprite::loadFromAssets>();
 }
-

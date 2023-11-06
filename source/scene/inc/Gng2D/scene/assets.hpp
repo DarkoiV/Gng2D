@@ -6,12 +6,10 @@
 #include <optional>
 #include <string>
 
-namespace Gng2D
-{
+namespace Gng2D {
 struct Assets : GlobalAssets
 {
     // TODO impl loadSprite();
     Sprite getSprite(const entt::hashed_string::hash_type);
 };
-}
-
+} // namespace Gng2D

@@ -1,9 +1,8 @@
 #pragma once
 #include <entt/entt.hpp>
 
-namespace Gng2D
-{
-struct Position 
+namespace Gng2D {
+struct Position
 {
     float x;
     float y;
@@ -16,5 +15,4 @@ struct TransformPosition
 
     static entt::meta_factory<TransformPosition> createMetaInfo();
 };
-}
-
+} // namespace Gng2D

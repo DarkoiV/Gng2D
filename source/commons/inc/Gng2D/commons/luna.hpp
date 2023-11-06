@@ -9,9 +9,8 @@
 #include <string>
 #include <variant>
 
-namespace Gng2D
-{
-struct Luna 
+namespace Gng2D {
+struct Luna
 {
     Luna();
     ~Luna();
@@ -19,59 +18,59 @@ struct Luna
     void doFile(const std::string& path, const std::string& env = "");
     void doString(const std::string& str, const std::string& env = "");
 
-    using   Nil         = std::monostate;
-    using   Integer     = lua_Integer;
-    using   Float       = lua_Number;
-    using   String      = std::string;
-    using   Bool        = bool;
-    struct  Table;
-    using   TableKey    = std::variant<Integer, String>;
-    using   Type        = std::variant<Nil, Integer, Float, String, Bool, Table>;
+    using Nil     = std::monostate;
+    using Integer = lua_Integer;
+    using Float   = lua_Number;
+    using String  = std::string;
+    using Bool    = bool;
+    struct Table;
+    using TableKey = std::variant<Integer, String>;
+    using Type     = std::variant<Nil, Integer, Float, String, Bool, Table>;
 
-    template<typename T>
-    constexpr static bool   is(const Type&);
+    template <typename T>
+    constexpr static bool is(const Type&);
 
     struct StackLock;
-    void    pushNil();
-    void    pushInt(Integer);
-    void    pushFloat(Float);
-    void    pushString(const String&);
-    void    pushBool(Bool);
-    void    pushTable(const Table&);
-    void    push(const Type&);
-    void    pushGlobal(const String&);
-    Type    readStack(int n);
-    void    popStack(int n);
+    void pushNil();
+    void pushInt(Integer);
+    void pushFloat(Float);
+    void pushString(const String&);
+    void pushBool(Bool);
+    void pushTable(const Table&);
+    void push(const Type&);
+    void pushGlobal(const String&);
+    Type readStack(int n);
+    void popStack(int n);
 
-    Type                        read(const std::string&);
-    std::optional<lua_Integer>  readInt(const std::string&);
-    std::optional<lua_Number>   readFloat(const std::string&);
-    std::optional<std::string>  readString(const std::string&);
-    std::optional<bool>         readBool(const std::string&);
+    Type                       read(const std::string&);
+    std::optional<lua_Integer> readInt(const std::string&);
+    std::optional<lua_Number>  readFloat(const std::string&);
+    std::optional<std::string> readString(const std::string&);
+    std::optional<bool>        readBool(const std::string&);
 
     void createInt(const std::string&, lua_Integer);
     void createFloat(const std::string&, lua_Number);
     void createString(const std::string& name, const std::string& var);
     void createBool(const std::string&, bool);
 
-    template<typename T>
+    template <typename T>
     bool readToVar(const std::string&, T& var);
 
-private:
+  private:
     lua_State* L = luaL_newstate();
 
-    void    setEnv(const std::string& env);
-    Table   luaToTable(int n);
+    void  setEnv(const std::string& env);
+    Table luaToTable(int n);
 
-public:
+  public:
     struct StackLock
     {
         StackLock(lua_State*);
         ~StackLock();
 
-    private:
-        lua_State*  L;
-        int         top;
+      private:
+        lua_State* L;
+        int        top;
     };
 
     struct Table : std::map<TableKey, Type>
@@ -80,13 +79,13 @@ public:
     };
 };
 
-template<typename T>
+template <typename T>
 constexpr bool Luna::is(const Luna::Type& t)
 {
     return std::holds_alternative<T>(t);
 }
 
-template<typename T>
+template <typename T>
 bool Luna::readToVar(const std::string& name, T& var)
 {
     if constexpr (std::is_integral_v<T> and not std::is_same_v<T, bool>)
@@ -120,18 +119,17 @@ constexpr inline bool operator==(const char* lhs, const Luna::Type& rhs)
     else return std::get<Luna::String>(rhs) == lhs;
 }
 
-template<typename T>
-constexpr bool operator== (const T& lhs, const Luna::Type& rhs)
+template <typename T>
+constexpr bool operator==(const T& lhs, const Luna::Type& rhs)
 {
     if (not Luna::is<T>(rhs)) return false;
     else return std::get<T>(rhs) == lhs;
 }
 
-template<typename T>
-constexpr bool operator== (const Luna::Type& lhs, const T& rhs)
+template <typename T>
+constexpr bool operator==(const Luna::Type& lhs, const T& rhs)
 {
     return rhs == lhs;
 }
 
-}
-
+} // namespace Gng2D

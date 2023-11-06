@@ -10,8 +10,6 @@ EntityRecipe::EntityRecipe(entt::registry& r)
 entt::entity EntityRecipe::spawn()
 {
     auto e = reg.create();
-   
 
     return e;
 }
-

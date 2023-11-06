@@ -8,11 +8,11 @@ using Gng2D::Assets;
 
 Gng2D::Sprite Assets::getSprite(const entt::hashed_string::hash_type id)
 {
-//    auto it = sprites.find(id);
-//    if (it != sprites.end())
-//    {
-//        return it->second;
-//    }
-//
+    //    auto it = sprites.find(id);
+    //    if (it != sprites.end())
+    //    {
+    //        return it->second;
+    //    }
+    //
     return getGlobalSprite(id);
 }

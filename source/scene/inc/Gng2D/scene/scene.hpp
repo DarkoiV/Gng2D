@@ -10,9 +10,8 @@
 
 struct SDL_Renderer;
 
-namespace Gng2D
-{
-struct Scene : SceneInterface 
+namespace Gng2D {
+struct Scene : SceneInterface
 {
     Scene();
     Scene(const Scene&) = delete;
@@ -22,26 +21,25 @@ struct Scene : SceneInterface
     auto operator=(Scene&)  = delete;
     auto operator=(Scene&&) = delete;
 
-    virtual void onEnter()  override;
-    virtual void onExit()   override;
-    virtual void update()   override;
+    virtual void onEnter() override;
+    virtual void onExit() override;
+    virtual void update() override;
     virtual void render(SDL_Renderer*) override;
 
     virtual void onKeyPress(SDL_KeyboardEvent&) override;
 
     virtual const std::string& getName() const override;
 
-protected:
-    std::string     name;
-    entt::registry  reg;
+  protected:
+    std::string    name;
+    entt::registry reg;
 
-    Assets              assets;
-    Luna                luna;
-    InputHandler        inputHandler{reg};
-    ComponentLibrary    componentLibrary{reg};
-    RelationSystem      relationSystem{reg};
+    Assets           assets;
+    Luna             luna;
+    InputHandler     inputHandler{reg};
+    ComponentLibrary componentLibrary{reg};
+    RelationSystem   relationSystem{reg};
 
-    EntityRenderer  entityRenderer{reg};
+    EntityRenderer entityRenderer{reg};
 };
-}
-
+} // namespace Gng2D
