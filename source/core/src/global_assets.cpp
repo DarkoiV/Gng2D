@@ -27,7 +27,7 @@ void GlobalAssets::loadGlobalSprite(const std::string& name,
     LOG::OK("Loaded sprite:", name);
 }
 
-Gng2D::Sprite GlobalAssets::getGlobalSprite(const entt::hashed_string::hash_type id)
+Gng2D::Sprite GlobalAssets::getSprite(const entt::hashed_string::hash_type id)
 {
     auto it = sprites.find(id);
     if (it != sprites.end())

@@ -1,7 +1,5 @@
 #pragma once
-#include <compare>
 #include <entt/entt.hpp>
-#include <tuple>
 #include <vector>
 
 namespace Gng2D {

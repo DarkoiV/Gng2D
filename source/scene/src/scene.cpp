@@ -1,4 +1,6 @@
 #include "Gng2D/scene/scene.hpp"
+#include "Gng2D/commons/assert.hpp"
+#include "Gng2D/components/sprite.hpp"
 #include "Gng2D/commons/log.hpp"
 #include "Gng2D/entities/entity_recipe.hpp"
 
@@ -18,14 +20,18 @@ Scene::Scene()
     auto x2         = redXRecipe.spawn();
     auto x3         = redXRecipe.spawn();
 
+    GNG2D_ASSERT((reg.all_of<Sprite>(x1)), "FAILED TO INIT ENTITY");
+    GNG2D_ASSERT((reg.all_of<Sprite>(x2)), "FAILED TO INIT ENTITY");
+    GNG2D_ASSERT((reg.all_of<Sprite>(x3)), "FAILED TO INIT ENTITY");
+
     int counter = 0;
-    reg.view<TransformPosition>().each(
-        [&counter, this](auto e, auto& tpos)
+    reg.view<Transform2d>().each(
+        [&counter, this](auto e, auto& transform)
         {
-        tpos.x = counter * 10;
-        tpos.y = -counter * 10;
+        transform.x = counter * 10;
+        transform.y = -counter * 10;
         counter++;
-        reg.patch<TransformPosition>(e);
+        reg.patch<Transform2d>(e);
     });
 }
 

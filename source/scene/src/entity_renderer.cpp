@@ -1,26 +1,25 @@
 #include "Gng2D/scene/entity_renderer.hpp"
 #include "Gng2D/commons/log.hpp"
-#include "Gng2D/components/layer.hpp"
 #include "Gng2D/core/global.hpp"
 
 using Gng2D::EntityRenderer;
+using Gng2D::detail::Position;
 
 #define SORT_SIGNAL &EntityRenderer::needsSorting
 
 EntityRenderer::EntityRenderer(entt::registry& r)
     : reg(r)
 {
+    // clang-format off
     entt::sigh_helper{reg}
         .with<Sprite>()
-        .on_construct<SORT_SIGNAL>(this)
-        .on_destroy<SORT_SIGNAL>(this)
+            .on_construct<SORT_SIGNAL>(this)
+            .on_destroy<SORT_SIGNAL>(this)
         .with<Position>()
-        .on_construct<SORT_SIGNAL>(this)
-        .on_destroy<SORT_SIGNAL>(this)
-        .with<Layer>()
-        .on_construct<SORT_SIGNAL>(this)
-        .on_update<SORT_SIGNAL>(this)
-        .on_destroy<SORT_SIGNAL>(this);
+            .on_construct<SORT_SIGNAL>(this)
+            .on_update<SORT_SIGNAL>(this)
+            .on_destroy<SORT_SIGNAL>(this);
+    // clang-format on
     LOG::INFO("Created entity renderer");
 }
 
@@ -30,11 +29,8 @@ EntityRenderer::~EntityRenderer()
     reg.on_destroy<Sprite>().disconnect<SORT_SIGNAL>(this);
 
     reg.on_construct<Position>().disconnect<SORT_SIGNAL>(this);
+    reg.on_update<Position>().disconnect<SORT_SIGNAL>(this);
     reg.on_destroy<Position>().disconnect<SORT_SIGNAL>(this);
-
-    reg.on_construct<Layer>().disconnect<SORT_SIGNAL>(this);
-    reg.on_update<Layer>().disconnect<SORT_SIGNAL>(this);
-    reg.on_destroy<Layer>().disconnect<SORT_SIGNAL>(this);
 }
 
 void EntityRenderer::operator()(SDL_Renderer* r)
@@ -45,7 +41,7 @@ void EntityRenderer::operator()(SDL_Renderer* r)
 
     renderables.each(
         [r, this, midYOffset, midXOffset](Sprite& sprite, Position& pos)
-        {
+    {
         SDL_Rect dstRect;
         dstRect.w = sprite.srcRect.w;
         dstRect.h = sprite.srcRect.h;
@@ -64,12 +60,9 @@ void EntityRenderer::sortRenderables()
 {
     renderables.sort(
         [&](entt::entity lhs, entt::entity rhs)
-        {
-        bool leftHasLayer  = reg.all_of<Layer>(lhs);
-        bool rightHasLayer = reg.all_of<Layer>(rhs);
-        if (not rightHasLayer) return false;
-        if (not leftHasLayer) return true;
-        return reg.get<Layer>(lhs) < reg.get<Layer>(rhs);
+    {
+        return renderables.get<detail::Position>(lhs).layer <
+               renderables.get<detail::Position>(rhs).layer;
     });
     needsSorting = false;
 }

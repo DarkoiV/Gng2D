@@ -14,5 +14,5 @@ Gng2D::Sprite Assets::getSprite(const entt::hashed_string::hash_type id)
     //        return it->second;
     //    }
     //
-    return getGlobalSprite(id);
+    return getSprite(id);
 }

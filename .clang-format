@@ -75,6 +75,9 @@ LambdaBodyIndentation:  OuterScope
 
 MaxEmptyLinesToKeep:    1
 
+PenaltyBreakBeforeFirstCallParameter:   200
+PenaltyBreakOpenParenthesis:            200
+
 SortIncludes:           CaseSensitive
 SortUsingDeclarations:  true
 

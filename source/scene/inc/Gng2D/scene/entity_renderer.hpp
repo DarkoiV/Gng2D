@@ -1,6 +1,6 @@
 #pragma once
-#include "Gng2D/components/position.hpp"
 #include "Gng2D/components/sprite.hpp"
+#include "Gng2D/components/transform2d.hpp"
 #include <SDL2/SDL.h>
 #include <entt/entt.hpp>
 
@@ -24,7 +24,7 @@ struct EntityRenderer
     void markForSorting();
     void sortRenderables();
 
-    using Renderables = decltype(reg.group<Sprite, Position>());
-    Renderables renderables{reg.group<Sprite, Position>()};
+    using Renderables = decltype(reg.group<Sprite, detail::Position>());
+    Renderables renderables{reg.group<Sprite, detail::Position>()};
 };
 } // namespace Gng2D
