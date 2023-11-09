@@ -48,3 +48,4 @@ EntityRecipe EntityRecipe::redXRecipe(entt::registry& reg)
 
     return recipe;
 }
+

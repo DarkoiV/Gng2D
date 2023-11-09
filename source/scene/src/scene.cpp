@@ -66,3 +66,4 @@ const std::string& Scene::getName() const
 {
     return name;
 }
+

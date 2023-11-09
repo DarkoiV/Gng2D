@@ -23,3 +23,4 @@ struct SceneInterface
     virtual const std::string& getName() const = 0;
 };
 } // namespace Gng2D
+

@@ -18,3 +18,4 @@ struct MainLoop
     uint32_t logicLag{0};
 };
 } // namespace Gng2D
+

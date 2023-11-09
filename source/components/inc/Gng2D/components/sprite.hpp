@@ -8,3 +8,4 @@ struct Sprite
     SDL_Rect     srcRect{};
 };
 } // namespace Gng2D
+

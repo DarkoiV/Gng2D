@@ -322,3 +322,4 @@ Luna::StackLock::~StackLock()
     GNG2D_ASSERT(top <= lua_gettop(L), "Stack lock went out of scope!");
     lua_settop(L, top);
 }
+

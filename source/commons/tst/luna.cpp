@@ -252,3 +252,4 @@ TEST_F(LunaTest, LunaCanCreateTables)
     auto& innerTable = std::get<Luna::Table>(table["TABLE_TABLE"]);
     ASSERT_EQ(innerTable["INNER_TABLE_FLOAT"], Luna::Float{205.0});
 }
+

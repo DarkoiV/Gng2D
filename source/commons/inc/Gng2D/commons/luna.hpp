@@ -133,3 +133,4 @@ constexpr bool operator==(const Luna::Type& lhs, const T& rhs)
 }
 
 } // namespace Gng2D
+

@@ -19,3 +19,4 @@
         static_assert(flag, "Type not supported");                                                 \
     }                                                                                              \
     ()
+

@@ -18,3 +18,4 @@ struct RelationSystem
     static void updateChildrenPosition(entt::registry&, entt::entity);
 };
 } // namespace Gng2D
+

@@ -24,3 +24,4 @@ struct InputHandler
     std::map<SDL_Scancode, ActionListener::ActionString> keyPressActions;
 };
 } // namespace Gng2D
+

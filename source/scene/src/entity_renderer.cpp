@@ -66,3 +66,4 @@ void EntityRenderer::sortRenderables()
     });
     needsSorting = false;
 }
+

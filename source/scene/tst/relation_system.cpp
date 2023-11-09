@@ -60,3 +60,4 @@ TEST_F(RelationSystemTest, DestroyingParent_WillDestroyAllItsChildren)
     ASSERT_FALSE(reg.valid(child2));
     ASSERT_FALSE(reg.valid(child3));
 }
+

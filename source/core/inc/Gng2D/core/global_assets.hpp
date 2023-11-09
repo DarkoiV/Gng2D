@@ -16,3 +16,4 @@ struct GlobalAssets
     inline static std::map<entt::hashed_string::hash_type, Sprite> sprites;
 };
 } // namespace Gng2D
+

@@ -5,3 +5,4 @@ void initApp();
 void runApp();
 void closeApp();
 } // namespace Gng2D
+
