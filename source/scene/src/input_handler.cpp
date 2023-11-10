@@ -37,4 +37,3 @@ void InputHandler::handleKeyPress(SDL_KeyboardEvent& e)
         k.signal.publish(e, action);
     });
 }
-

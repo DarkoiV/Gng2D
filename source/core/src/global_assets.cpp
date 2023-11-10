@@ -47,4 +47,3 @@ void GlobalAssets::deleteAllSprites()
         SDL_DestroyTexture(sprite.texture);
     }
 }
-

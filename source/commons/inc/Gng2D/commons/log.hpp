@@ -74,4 +74,3 @@ struct LOG
     static constexpr std::string_view FATAL_TXT = " [ FATAL ] ";
 };
 } // namespace Gng2D
-

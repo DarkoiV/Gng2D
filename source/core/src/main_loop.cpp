@@ -70,4 +70,3 @@ void MainLoop::switchScene()
     CURRENT_SCENE->onEnter();
     previousTS = SDL_GetTicks64();
 }
-

@@ -43,4 +43,3 @@ struct Scene : SceneInterface
     EntityRenderer entityRenderer{reg};
 };
 } // namespace Gng2D
-

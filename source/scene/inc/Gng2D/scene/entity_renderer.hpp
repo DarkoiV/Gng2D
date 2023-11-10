@@ -28,4 +28,3 @@ struct EntityRenderer
     Renderables renderables{reg.group<Sprite, detail::Position>()};
 };
 } // namespace Gng2D
-

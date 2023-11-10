@@ -87,9 +87,5 @@ SpaceBeforeRangeBasedForLoopColon:  false
 SpaceBeforeSquareBrackets:          false
 SpaceInEmptyBlock:                  true
 SpacesInAngles:                     false
-
-# END FILE WITH EMPTY LINE
-KeepEmptyLinesAtEOF:  true
-InsertNewlineAtEOF:   true
 ---
 

@@ -17,4 +17,3 @@ struct EntityRecipe
     std::vector<entt::meta_any> components;
 };
 } // namespace Gng2D
-

@@ -32,4 +32,3 @@ struct Position
 };
 } // namespace detail
 } // namespace Gng2D
-

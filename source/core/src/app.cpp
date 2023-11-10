@@ -94,4 +94,3 @@ void Gng2D::closeApp()
     GlobalAssets::deleteAllSprites();
     destroySdlWindow();
 }
-

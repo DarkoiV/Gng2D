@@ -20,4 +20,3 @@ entt::meta_type ComponentLibrary::getMeta(entt::hashed_string name)
 {
     return entt::resolve(name);
 }
-

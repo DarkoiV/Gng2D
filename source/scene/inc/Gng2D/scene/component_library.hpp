@@ -33,4 +33,3 @@ auto ComponentLibrary::registerComponent(entt::hashed_string::hash_type id)
         .template func<&ComponentLibrary::emplace<Component>>("emplace"_hs);
 }
 } // namespace Gng2D
-

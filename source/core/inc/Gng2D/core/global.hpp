@@ -23,4 +23,3 @@ using ScenePtr                = std::unique_ptr<SceneInterface>;
 inline ScenePtr CURRENT_SCENE = nullptr;
 inline ScenePtr NEXT_SCENE    = nullptr;
 } // namespace Gng2D::GLOBAL
-

@@ -104,4 +104,3 @@ void RelationSystem::updateChildrenPosition(entt::registry& reg, entt::entity pa
         });
     }
 }
-

@@ -96,4 +96,3 @@ TEST_F(InputHandlerTest, OnHandledKeyPress_KeyPressComponentsWillPublishToSinks)
     SUT.handleKeyPress(KEY_UP_PRESSED);
     SUT.handleKeyPress(KEY_DOWN_PRESSED);
 }
-

@@ -12,4 +12,3 @@ struct ActionListener
     Signal              signal;
 };
 } // namespace Gng2D
-

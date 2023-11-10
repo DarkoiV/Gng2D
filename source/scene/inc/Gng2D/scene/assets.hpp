@@ -9,4 +9,3 @@ struct Assets : GlobalAssets
     Sprite getSprite(const entt::hashed_string::hash_type);
 };
 } // namespace Gng2D
-
