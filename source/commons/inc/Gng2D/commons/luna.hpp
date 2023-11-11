@@ -1,6 +1,4 @@
 #pragma once
-#include "Gng2D/commons/assert.hpp"
-#include "Gng2D/commons/log.hpp"
 #include "lua.hpp"
 #include <map>
 #include <optional>
@@ -13,9 +11,6 @@ struct Luna
     Luna();
     ~Luna();
 
-    void doFile(const std::string& path, const std::string& env = "");
-    void doString(const std::string& str, const std::string& env = "");
-
     using Nil     = std::monostate;
     using Integer = lua_Integer;
     using Float   = lua_Number;
@@ -23,7 +18,11 @@ struct Luna
     using Bool    = bool;
     struct Table;
     using TableKey = std::variant<Integer, String>;
-    using Type     = std::variant<Nil, Integer, Float, String, Bool, Table>;
+    struct Type;
+
+    void  doFile(const std::string& path, const std::string& env = "");
+    void  doString(const std::string& str, const std::string& env = "");
+    Table readFileAsTable(const std::string& path);
 
     template <typename T>
     constexpr static bool is(const Type&);
@@ -51,9 +50,6 @@ struct Luna
     void createString(const std::string& name, const std::string& var);
     void createBool(const std::string&, bool);
 
-    template <typename T>
-    bool readToVar(const std::string&, T& var);
-
   private:
     lua_State* L = luaL_newstate();
 
@@ -76,40 +72,30 @@ struct Luna
         using Base = std::map<TableKey, Type>;
         using Base::Base;
     };
+
+    struct Type : std::variant<Nil, Integer, Float, String, Bool, Table>
+    {
+        using std::variant<Nil, Integer, Float, String, Bool, Table>::variant;
+
+        operator bool() const { return not std::holds_alternative<Nil>(*this); }
+        constexpr bool isNil() { return std::holds_alternative<Nil>(*this); }
+        constexpr bool isInteger() { return std::holds_alternative<Integer>(*this); }
+        constexpr bool isFloat() { return std::holds_alternative<Float>(*this); }
+        constexpr bool isString() { return std::holds_alternative<String>(*this); }
+        constexpr bool isBool() { return std::holds_alternative<Bool>(*this); }
+        constexpr bool isTable() { return std::holds_alternative<Table>(*this); }
+        auto&          toInteger() { return std::get<Integer>(*this); };
+        auto&          toFloat() { return std::get<Float>(*this); };
+        auto&          toString() { return std::get<String>(*this); };
+        auto&          toBool() { return std::get<Bool>(*this); };
+        auto&          toTable() { return std::get<Table>(*this); };
+    };
 };
 
 template <typename T>
 constexpr bool Luna::is(const Luna::Type& t)
 {
     return std::holds_alternative<T>(t);
-}
-
-template <typename T>
-bool Luna::readToVar(const std::string& name, T& var)
-{
-    if constexpr (std::is_integral_v<T> and not std::is_same_v<T, bool>)
-    {
-        if (auto value = readInt(name); value) var = *value;
-        else return false;
-    }
-    else if constexpr (std::is_floating_point_v<T>)
-    {
-        if (auto value = readFloat(name); value) var = *value;
-        else return false;
-    }
-    else if constexpr (std::is_same_v<T, std::string>)
-    {
-        if (auto value = readString(name); value) var = std::move(*value);
-        else return false;
-    }
-    else if constexpr (std::is_same_v<T, bool>)
-    {
-        if (auto value = readBool(name); value) var = *value;
-        else return false;
-    }
-    else GNG2D_ASSERT_CONSTEXPR("Type not supported");
-    LOG::DEBUG(name, "=", var);
-    return true;
 }
 
 constexpr inline bool operator==(const char* lhs, const Luna::Type& rhs)

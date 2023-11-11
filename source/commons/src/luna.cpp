@@ -1,4 +1,5 @@
 #include "Gng2D/commons/luna.hpp"
+#include "Gng2D/commons/assert.hpp"
 #include "Gng2D/commons/log.hpp"
 
 using Gng2D::Luna;
@@ -32,17 +33,33 @@ Luna::~Luna()
 
 void Luna::doFile(const std::string& path, const std::string& env)
 {
-    luaL_loadfile(L, path.c_str());
+    if (luaL_loadfile(L, path.c_str()) != 0) LOG::ERROR(lua_tostring(L, 1));
     if (not env.empty()) setEnv(env);
-    if (lua_pcall(L, 0, 0, 0) != 0) LOG::ERROR("Issue running dofile", path);
+    if (lua_pcall(L, 0, 0, 0) != 0) LOG::ERROR(lua_tostring(L, -1));
 }
 
 void Luna::doString(const std::string& str, const std::string& env)
 {
-    luaL_loadstring(L, str.c_str());
+    if (luaL_loadstring(L, str.c_str()) != 0) LOG::ERROR(lua_tostring(L, -1));
     if (not env.empty()) setEnv(env);
-    if (lua_pcall(L, 0, 0, 0) != 0)
-        LOG::ERROR("Issue running script: \n", "-- LUA SCRIPT --\n", str, "\n -- END SCRIPT --");
+    if (lua_pcall(L, 0, 0, 0) != 0) LOG::ERROR(lua_tostring(L, -1));
+}
+
+Luna::Table Luna::readFileAsTable(const std::string& path)
+{
+    Table          t;
+    constexpr char TMP_TABLE_NAME[] = "TMP-TABLE";
+    StackLock      lock(L);
+
+    if (luaL_loadfile(L, path.c_str()) != 0) LOG::ERROR(lua_tostring(L, 1));
+    setEnv(TMP_TABLE_NAME);
+    if (lua_pcall(L, 0, 0, 0) != 0) LOG::ERROR(lua_tostring(L, -1));
+    pushGlobal(TMP_TABLE_NAME);
+    t = luaToTable(-1);
+    pushNil();
+    lua_setglobal(L, TMP_TABLE_NAME);
+
+    return t;
 }
 
 void Luna::pushNil()
@@ -99,26 +116,26 @@ void Luna::push(const Type& value)
 {
     switch (value.index())
     {
-    case get_index<Nil, Type>():
+    case 0:
         lua_pushnil(L);
         break;
-    case get_index<Integer, Type>():
+    case 1:
         lua_pushinteger(L, std::get<Integer>(value));
         break;
-    case get_index<Float, Type>():
+    case 2:
         lua_pushnumber(L, std::get<Float>(value));
         break;
-    case get_index<String, Type>():
+    case 3:
         lua_pushstring(L, std::get<String>(value).c_str());
         break;
-    case get_index<Bool, Type>():
+    case 4:
         lua_pushboolean(L, std::get<Bool>(value));
         break;
-    case get_index<Table, Type>():
+    case 5:
         pushTable(std::get<Table>(value));
         break;
-    default:
-        [[unlikely]] LOG::ERROR("Fallthrough on push");
+    [[unlikely]] default:
+        LOG::ERROR("Fallthrough on push");
     }
 }
 

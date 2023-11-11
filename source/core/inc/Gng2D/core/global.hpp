@@ -1,4 +1,5 @@
 #pragma once
+#include "Gng2D/commons/luna.hpp"
 #include "Gng2D/commons/scene_interface.hpp"
 #include <SDL2/SDL.h>
 #include <memory>
@@ -18,6 +19,7 @@ inline SDL_Renderer* RENDERER;
 inline std::string   APP_DIRECTORY;
 inline std::string   DATA_DIRECTORY;
 inline bool          APP_RUNNING = true;
+inline Luna          LUNA_STATE;
 
 using ScenePtr                = std::unique_ptr<SceneInterface>;
 inline ScenePtr CURRENT_SCENE = nullptr;

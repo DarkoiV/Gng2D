@@ -1,13 +1,11 @@
 #include "Gng2D/core/app.hpp"
 #include "Gng2D/commons/log.hpp"
-#include "Gng2D/commons/luna.hpp"
 #include "Gng2D/core/global.hpp"
 #include "Gng2D/core/main_loop.hpp"
 #include "Gng2D/core/repository.hpp"
 #include <SDL2/SDL_image.h>
 
 using Gng2D::LOG;
-using Gng2D::Luna;
 using namespace Gng2D::GLOBAL;
 
 static void loadAppSettings()
@@ -18,13 +16,32 @@ static void loadAppSettings()
     LOG::INFO("Data directory path:", APP_DIRECTORY);
 
     LOG::INFO("Loading config");
-    Luna configReader;
-    configReader.doFile(APP_DIRECTORY + "config.lua");
-    configReader.readToVar("TITLE", TITLE);
-    configReader.readToVar("RENDER_WIDTH", RENDER_WIDTH);
-    configReader.readToVar("RENDER_HEIGHT", RENDER_HEIGHT);
-    configReader.readToVar("RENDER_SCALE", RENDER_SCALE);
-    configReader.readToVar("LOGIC_TICK", LOGIC_TICK);
+    auto config = LUNA_STATE.readFileAsTable(APP_DIRECTORY + "config.lua");
+    if (auto title = config["TITLE"]; title.isString())
+    {
+        TITLE = title.toString();
+        LOG::INFO("Title:", TITLE);
+    }
+    if (auto rwidth = config["RENDER_WIDTH"]; rwidth.isInteger())
+    {
+        RENDER_WIDTH = rwidth.toInteger();
+        LOG::INFO("Render width:", RENDER_WIDTH);
+    }
+    if (auto rheight = config["RENDER_HEIGHT"]; rheight.isInteger())
+    {
+        RENDER_HEIGHT = rheight.toInteger();
+        LOG::INFO("Render height:", RENDER_HEIGHT);
+    }
+    if (auto rscale = config["RENDER_SCALE"]; rscale.isInteger())
+    {
+        RENDER_SCALE = rscale.toInteger();
+        LOG::INFO("Render scale:", RENDER_SCALE);
+    }
+    if (auto ltick = config["LOGIC_TICK"]; ltick.isInteger())
+    {
+        LOGIC_TICK = ltick.toInteger();
+        LOG::INFO("Logic tick:", LOGIC_TICK);
+    }
 
     LOG::OK("Config loaded");
 }
