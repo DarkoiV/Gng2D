@@ -17,9 +17,9 @@ void MainLoop::loop()
     if (NEXT_SCENE) switchScene();
     if (not CURRENT_SCENE) LOG::FATAL("No scene set");
 
-    uint64_t currentTS = SDL_GetTicks64();
-    uint32_t elapsed   = currentTS - previousTS;
-    previousTS         = currentTS;
+    uint64_t currentTS  = SDL_GetTicks64();
+    uint32_t elapsed    = currentTS - previousTS;
+    previousTS          = currentTS;
     logicLag           += elapsed;
 
     eventsProcessing();

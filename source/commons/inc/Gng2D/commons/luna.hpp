@@ -2,9 +2,7 @@
 #include "Gng2D/commons/assert.hpp"
 #include "Gng2D/commons/log.hpp"
 #include "lua.hpp"
-#include <functional>
 #include <map>
-#include <memory>
 #include <optional>
 #include <string>
 #include <variant>
@@ -75,7 +73,8 @@ struct Luna
 
     struct Table : std::map<TableKey, Type>
     {
-        using std::map<TableKey, Type>::map;
+        using Base = std::map<TableKey, Type>;
+        using Base::Base;
     };
 };
 
