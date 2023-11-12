@@ -1,4 +1,4 @@
-#include "Gng2D/core/repository.hpp"
+#include "Gng2D/commons/repository.hpp"
 #include "Gng2D/commons/log.hpp"
 #include "Gng2D/core/global.hpp"
 #include <SDL2/SDL_image.h>
