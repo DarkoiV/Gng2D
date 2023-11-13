@@ -16,14 +16,10 @@ void Repository::loadSprite(const std::string& name,
 {
     const auto fullPath       = GLOBAL::DATA_DIRECTORY + path + name + fileType;
     const auto spriteNameHash = entt::hashed_string{name.c_str()};
-    if (sprites.contains(spriteNameHash))
+    if (auto it = spriteNames.find(spriteNameHash); it != spriteNames.end())
     {
-        if (spriteNames[spriteNameHash] == name) return LOG::WARN("Sprite already loaded");
-        else
-        {
-            LOG::ERROR("Sprite collision", name, " has the same hash as ",
-                       spriteNames[spriteNameHash]);
-        }
+        if (it->second == name) return LOG::WARN("Sprite already loaded");
+        else LOG::ERROR("Sprite collision", name, " has the same hash as ", it->second);
         return;
     }
 
@@ -54,13 +50,13 @@ Gng2D::Sprite Repository::getSprite(const std::string& name)
     return getSprite(entt::hashed_string::value(name.c_str()));
 }
 
-std::string Repository::getSpriteName(const StringHash hash)
+const std::string& Repository::spriteNameFromHash(const StringHash hash)
 {
     if (auto it = spriteNames.find(hash); it != spriteNames.end())
     {
         return it->second;
     }
-    else [[unlikely]] return "ERROR";
+    else [[unlikely]] return UNKNOWN_HASH;
 }
 
 void Repository::registerDefaultComponents()
@@ -82,6 +78,15 @@ void Repository::registerDefaultComponents()
         .data<&Transform2d::y>("y"_hs)
         .data<&Transform2d::layer>("layer"_hs);
     // clang-format on
+}
+
+const std::string& Repository::componentNameFromHash(const StringHash hash)
+{
+    if (auto it = componentNames.find(hash); it != componentNames.end())
+    {
+        return it->second;
+    }
+    else [[unlikely]] return UNKNOWN_HASH;
 }
 
 void Repository::freeResources()
