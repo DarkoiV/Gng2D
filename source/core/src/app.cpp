@@ -19,27 +19,27 @@ static void loadAppSettings()
     auto config = LUNA_STATE.readFileAsTable(APP_DIRECTORY + "config.lua");
     if (auto title = config["TITLE"]; title.isString())
     {
-        TITLE = title.toString();
+        TITLE = title.asString();
         LOG::INFO("Title:", TITLE);
     }
     if (auto rwidth = config["RENDER_WIDTH"]; rwidth.isInteger())
     {
-        RENDER_WIDTH = rwidth.toInteger();
+        RENDER_WIDTH = rwidth.asInteger();
         LOG::INFO("Render width:", RENDER_WIDTH);
     }
     if (auto rheight = config["RENDER_HEIGHT"]; rheight.isInteger())
     {
-        RENDER_HEIGHT = rheight.toInteger();
+        RENDER_HEIGHT = rheight.asInteger();
         LOG::INFO("Render height:", RENDER_HEIGHT);
     }
     if (auto rscale = config["RENDER_SCALE"]; rscale.isInteger())
     {
-        RENDER_SCALE = rscale.toInteger();
+        RENDER_SCALE = rscale.asInteger();
         LOG::INFO("Render scale:", RENDER_SCALE);
     }
     if (auto ltick = config["LOGIC_TICK"]; ltick.isInteger())
     {
-        LOGIC_TICK = ltick.toInteger();
+        LOGIC_TICK = ltick.asInteger();
         LOG::INFO("Logic tick:", LOGIC_TICK);
     }
 

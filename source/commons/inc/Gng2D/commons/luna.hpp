@@ -9,6 +9,8 @@ namespace Gng2D {
 struct Luna
 {
     Luna();
+    Luna(const Luna&) = delete;
+    Luna(Luna&&)      = delete;
     ~Luna();
 
     using Nil     = std::monostate;
@@ -44,14 +46,18 @@ struct Luna
     std::optional<lua_Number>  readFloat(const std::string&);
     std::optional<std::string> readString(const std::string&);
     std::optional<bool>        readBool(const std::string&);
+    std::optional<Table>       readTable(const std::string&);
 
     void createInt(const std::string&, lua_Integer);
     void createFloat(const std::string&, lua_Number);
     void createString(const std::string& name, const std::string& var);
     void createBool(const std::string&, bool);
+    void createTable(const std::string&, const Table&);
 
   private:
-    lua_State* L = luaL_newstate();
+    lua_State*             L{};
+    const uint32_t         LThreadNo{};
+    inline static uint32_t LThreads;
 
     void  setEnv(const std::string& env);
     Table luaToTable(int n);
@@ -77,18 +83,17 @@ struct Luna
     {
         using std::variant<Nil, Integer, Float, String, Bool, Table>::variant;
 
-        operator bool() const { return not std::holds_alternative<Nil>(*this); }
         constexpr bool isNil() { return std::holds_alternative<Nil>(*this); }
         constexpr bool isInteger() { return std::holds_alternative<Integer>(*this); }
         constexpr bool isFloat() { return std::holds_alternative<Float>(*this); }
         constexpr bool isString() { return std::holds_alternative<String>(*this); }
         constexpr bool isBool() { return std::holds_alternative<Bool>(*this); }
         constexpr bool isTable() { return std::holds_alternative<Table>(*this); }
-        auto&          toInteger() { return std::get<Integer>(*this); };
-        auto&          toFloat() { return std::get<Float>(*this); };
-        auto&          toString() { return std::get<String>(*this); };
-        auto&          toBool() { return std::get<Bool>(*this); };
-        auto&          toTable() { return std::get<Table>(*this); };
+        auto&          asInteger() { return std::get<Integer>(*this); };
+        auto&          asFloat() { return std::get<Float>(*this); };
+        auto&          asString() { return std::get<String>(*this); };
+        auto&          asBool() { return std::get<Bool>(*this); };
+        auto&          asTable() { return std::get<Table>(*this); };
     };
 };
 

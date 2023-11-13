@@ -22,6 +22,7 @@ struct get_index<T, std::variant<Ts...>>
 } // namespace
 
 Luna::Luna()
+    : L(luaL_newstate())
 {
     if (not L) LOG::FATAL("Failed to create lua state");
 }
@@ -248,6 +249,20 @@ std::optional<bool> Luna::readBool(const std::string& name)
     }
 }
 
+std::optional<Luna::Table> Luna::readTable(const std::string& name)
+{
+    StackLock lock(L);
+    if (LUA_TTABLE == lua_getglobal(L, name.c_str()))
+    {
+        return luaToTable(-1);
+    }
+    else [[unlikely]]
+    {
+        LOG::DEBUG(name, "is not a bool");
+        return std::nullopt;
+    }
+}
+
 void Luna::createInt(const std::string& name, lua_Integer var)
 {
     StackLock lock(L);
@@ -273,6 +288,13 @@ void Luna::createBool(const std::string& name, bool var)
 {
     StackLock lock(L);
     lua_pushboolean(L, var);
+    lua_setglobal(L, name.c_str());
+}
+
+void Luna::createTable(const std::string& name, const Table& table)
+{
+    StackLock lock(L);
+    pushTable(table);
     lua_setglobal(L, name.c_str());
 }
 
@@ -321,7 +343,8 @@ Luna::Table Luna::luaToTable(int n)
             continue;
         }
 
-        result[tkey] = readStack(-1);
+        auto val = readStack(-1);
+        if (not val.isNil()) result[tkey] = val;
         popStack(1);
     }
 
