@@ -1,5 +1,7 @@
 #include "Gng2D/scene/scene.hpp"
 #include "Gng2D/commons/log.hpp"
+#include "Gng2D/commons/repository.hpp"
+#include "Gng2D/entities/red_x.hpp"
 
 using Gng2D::Scene;
 
@@ -13,6 +15,9 @@ Scene::~Scene()
 void Scene::onEnter()
 {
     LOG::INFO("Entering", name);
+    Repository::loadSprite("red_x");
+    RedX spawner(reg);
+    spawner.spawn();
 }
 
 void Scene::onExit()

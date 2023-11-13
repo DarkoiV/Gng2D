@@ -6,13 +6,13 @@ namespace Gng2D {
 
 struct Transform2d
 {
-    float x;
-    float y;
+    float x{};
+    float y{};
 
     struct Layer
     {
-        int8_t main;
-        int8_t sub;
+        int8_t main{};
+        int8_t sub{};
     } layer;
 };
 
