@@ -32,7 +32,7 @@ using namespace entt::literals;
 
 struct InputHandlerTest : ::testing::Test
 {
-    using ActionCallback = testing::MockFunction<void(entt::entity, Gng2D::ActionListener::Action)>;
+    using ActionCallback = testing::MockFunction<void(entt::entity, Gng2D::InputListener::Action)>;
 
     InputHandlerTest()
     {
@@ -44,7 +44,7 @@ struct InputHandlerTest : ::testing::Test
     {
         entity_one = registry.create();
 
-        auto& kphandler = registry.emplace<Gng2D::ActionListener>(entity_one);
+        auto& kphandler = registry.emplace<Gng2D::InputListener>(entity_one);
         kphandler.actions.emplace_back("up"_hs);
         kphandler.actions.emplace_back("down"_hs);
 
@@ -56,17 +56,14 @@ struct InputHandlerTest : ::testing::Test
     {
         entity_two = registry.create();
 
-        auto& kphandler = registry.emplace<Gng2D::ActionListener>(entity_two);
+        auto& kphandler = registry.emplace<Gng2D::InputListener>(entity_two);
         kphandler.actions.emplace_back("down"_hs);
 
         entt::sink sink{kphandler.signal};
         sink.connect<&InputHandlerTest::callCallback>(this);
     }
 
-    void callCallback(entt::entity e, Gng2D::ActionListener::Action a)
-    {
-        actionCallback.Call(e, a);
-    }
+    void callCallback(entt::entity e, Gng2D::InputListener::Action a) { actionCallback.Call(e, a); }
 
     entt::registry      registry;
     entt::entity        entity_one;

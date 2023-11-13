@@ -3,11 +3,10 @@
 #include <vector>
 
 namespace Gng2D {
-struct ActionListener
+struct InputListener
 {
-    using ActionString = entt::hashed_string;
-    using Action       = entt::hashed_string::hash_type;
-    using Signal       = entt::sigh<void(entt::entity, Action)>;
+    using Action = entt::hashed_string::hash_type;
+    using Signal = entt::sigh<void(entt::entity, Action)>;
     std::vector<Action> actions;
     Signal              signal;
 };

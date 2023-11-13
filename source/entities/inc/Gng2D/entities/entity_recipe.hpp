@@ -1,6 +1,5 @@
 #pragma once
 #include <entt/entt.hpp>
-#include <tuple>
 #include <vector>
 
 namespace Gng2D {
@@ -10,9 +9,7 @@ struct EntityRecipe
 
     entt::entity spawn();
 
-    static EntityRecipe redXRecipe(entt::registry&);
-
-  private:
+  protected:
     entt::registry&             reg;
     std::vector<entt::meta_any> components;
 };

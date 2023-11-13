@@ -85,6 +85,7 @@ void Gng2D::initApp()
     LOG::INFO("App init");
     loadAppSettings();
     createSdlWindow();
+    Repository::registerDefaultComponents();
 }
 
 void Gng2D::runApp()

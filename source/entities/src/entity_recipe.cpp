@@ -24,27 +24,3 @@ entt::entity EntityRecipe::spawn()
 
     return e;
 }
-
-EntityRecipe EntityRecipe::redXRecipe(entt::registry& reg)
-{
-    using namespace entt::literals;
-
-    EntityRecipe recipe(reg);
-
-    auto spriteType = entt::resolve("Sprite"_hs);
-    GNG2D_ASSERT(spriteType, "Cannot resolve sprite");
-
-    auto sprite = spriteType.construct("red_x"_hs.value());
-    GNG2D_ASSERT(sprite, "Cannot construct sprite");
-
-    auto tPosType = entt::resolve("Transform2d"_hs);
-    GNG2D_ASSERT(tPosType, "Cannot resolve tPosType");
-
-    auto transformPos = tPosType.construct(0.0f, 0.0f, 0, 0);
-    GNG2D_ASSERT(transformPos, "Cannot construct transformPos");
-
-    recipe.components.emplace_back(std::move(sprite));
-    recipe.components.emplace_back(std::move(transformPos));
-
-    return recipe;
-}

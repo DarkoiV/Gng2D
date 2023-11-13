@@ -15,12 +15,12 @@ struct InputHandler
     auto operator=(InputHandler&)  = delete;
     auto operator=(InputHandler&&) = delete;
 
-    void registerKeyPressAction(SDL_Scancode, const ActionListener::ActionString&);
+    void registerKeyPressAction(SDL_Scancode, const InputListener::Action);
 
     void handleKeyPress(SDL_KeyboardEvent&);
 
   private:
-    entt::registry&                                      reg;
-    std::map<SDL_Scancode, ActionListener::ActionString> keyPressActions;
+    entt::registry&                               reg;
+    std::map<SDL_Scancode, InputListener::Action> keyPressActions;
 };
 } // namespace Gng2D
