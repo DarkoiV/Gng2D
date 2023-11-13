@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include <sstream>
 #include <string_view>
 
 namespace Gng2D {
@@ -56,10 +57,11 @@ struct LOG
     template <typename... T>
     static void FATAL(T... msg)
     {
+        std::stringstream out;
         out << FATAL_TXT;
         ((out << " " << msg), ...);
         out << std::endl;
-        throw std::runtime_error((... + (std::string(msg) + " ")));
+        throw std::runtime_error(out.str());
     }
 
   private:
