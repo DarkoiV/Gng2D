@@ -14,20 +14,24 @@ Sprite Sprite::fromArgs(const Gng2D::ArgsVector& args)
     {
         switch (id)
         {
-        case "spriteId"_hs:
+        case "sprite"_hs:
+            if (arg.type().info() == entt::type_id<StringHash>())
             {
-                auto data = arg.try_cast<Gng2D::StringHash>();
-                GNG2D_ASSERT(data, "spriteId has to be StringHash");
-                sprite = Repository::getSprite(*data);
+                const auto& data = arg.cast<StringHash>();
+                sprite           = Repository::getSprite(data);
             }
-            break;
-        case "spriteName"_hs:
+            else if (arg.type().info() == entt::type_id<std::string>())
             {
-                auto data = arg.try_cast<std::string>();
-                GNG2D_ASSERT(data, "spriteName has to be std::string");
-                sprite = Repository::getSprite(*data);
+                const auto& data = arg.cast<std::string>();
+                sprite           = Repository::getSprite(data);
             }
-            break;
+            else [[unlikely]]
+            {
+                GNG2D_ASSERT(true, "sprite has to be either StringHash or std::string, actual:",
+                             arg.type().info().name());
+            }
+        [[unlikely]] default:
+            LOG::WARN("Unnecesary argument:", id, "with type:", arg.type().info().name());
         }
     }
 

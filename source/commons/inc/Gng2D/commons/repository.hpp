@@ -11,6 +11,7 @@ struct Repository
     enum COMPONENT_PROPERTIES : StringHash {
         NAME = entt::hashed_string::value("name"),
         ID   = entt::hashed_string::value("id"),
+        ARGS = entt::hashed_string::value("args"),
     };
 
     static void               loadSprite(const std::string& name,

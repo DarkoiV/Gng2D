@@ -5,7 +5,8 @@
     case ARG_NAME##_hs:                                                                            \
         {                                                                                          \
             auto data = arg.allow_cast<ARG_TYPE>().try_cast<ARG_TYPE>();                           \
-            GNG2D_ASSERT(data, #ARG_NAME "has to be" #ARG_TYPE);                                   \
+            GNG2D_ASSERT(data, #ARG_NAME "has to be: " #ARG_TYPE ", actual type:",                 \
+                         arg.type().info().name());                                                \
             ASSIGN_TO = *data;                                                                     \
         }                                                                                          \
         break

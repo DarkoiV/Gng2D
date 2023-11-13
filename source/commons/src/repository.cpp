@@ -98,5 +98,6 @@ void Repository::freeResources()
     }
     sprites.clear();
     spriteNames.clear();
+    componentNames.clear();
     entt::meta_reset();
 }
