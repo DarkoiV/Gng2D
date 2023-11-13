@@ -14,8 +14,8 @@ struct RedX : EntityRecipe
         });
 
         addComponent("Transform2d"_hs, {
-                                           Arg{"x"_hs, 10.0f},
-                                           Arg{"y"_hs, 23.0f}
+                                           Arg{"x"_hs, 10},
+                                           Arg{"y"_hs, 23}
         });
     }
 };

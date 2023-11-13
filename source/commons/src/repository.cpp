@@ -88,14 +88,14 @@ static Gng2D::Transform2d transformCtor(const Gng2D::ArgsVector& args)
         {
         case "x"_hs:
             {
-                auto data = arg.try_cast<float>();
+                auto data = arg.allow_cast<float>().try_cast<float>();
                 GNG2D_ASSERT(data, "x has to be float");
                 transform.x = *(float*)data;
                 break;
             }
         case "y"_hs:
             {
-                auto data = arg.try_cast<float>();
+                auto data = arg.allow_cast<float>().try_cast<float>();
                 GNG2D_ASSERT(data, "y has to be float");
                 transform.y = *(float*)data;
             }
