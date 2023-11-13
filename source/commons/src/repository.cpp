@@ -1,6 +1,5 @@
 #include "Gng2D/commons/repository.hpp"
-#include "Gng2D/commons/args_vector.hpp"
-#include "Gng2D/commons/assert.hpp"
+#include "Gng2D/commons/args_vector.hpp" // required for template
 #include "Gng2D/commons/log.hpp"
 #include "Gng2D/components/input.hpp"
 #include "Gng2D/components/relationship.hpp"
@@ -50,6 +49,11 @@ Gng2D::Sprite Repository::getSprite(const entt::hashed_string::hash_type id)
     return Gng2D::Sprite{};
 }
 
+Gng2D::Sprite Repository::getSprite(const std::string& name)
+{
+    return getSprite(entt::hashed_string::value(name.c_str()));
+}
+
 std::string Repository::getSpriteName(const StringHash hash)
 {
     if (auto it = spriteNames.find(hash); it != spriteNames.end())
@@ -57,53 +61,6 @@ std::string Repository::getSpriteName(const StringHash hash)
         return it->second;
     }
     else [[unlikely]] return "ERROR";
-}
-
-static Gng2D::Sprite spriteConstructor(const Gng2D::ArgsVector& args)
-{
-    using namespace entt::literals;
-    Gng2D::Sprite sprite;
-    for (auto&& [id, arg]: args)
-    {
-        switch (id)
-        {
-        case "spriteId"_hs:
-            auto data = arg.try_cast<Gng2D::StringHash>();
-            GNG2D_ASSERT(data, "spriteId has to be StringHash");
-            sprite = Repository::getSprite(*(Gng2D::StringHash*)data);
-            break;
-        }
-    }
-
-    return sprite;
-}
-
-static Gng2D::Transform2d transformCtor(const Gng2D::ArgsVector& args)
-{
-    using namespace entt::literals;
-    Gng2D::Transform2d transform;
-    for (auto&& [id, arg]: args)
-    {
-        switch (id)
-        {
-        case "x"_hs:
-            {
-                auto data = arg.allow_cast<float>().try_cast<float>();
-                GNG2D_ASSERT(data, "x has to be float");
-                transform.x = *(float*)data;
-                break;
-            }
-        case "y"_hs:
-            {
-                auto data = arg.allow_cast<float>().try_cast<float>();
-                GNG2D_ASSERT(data, "y has to be float");
-                transform.y = *(float*)data;
-            }
-            break;
-        }
-    }
-
-    return transform;
 }
 
 void Repository::registerDefaultComponents()
@@ -118,10 +75,9 @@ void Repository::registerDefaultComponents()
     registerComponent<Parent>("Parent")
         .data<&Parent::id>("id"_hs);
     registerComponent<Sprite>("Sprite")
-        .ctor<&spriteConstructor>();
+        .ctor<&Sprite::fromArgs>();
     registerComponent<Transform2d>("Transform2d")
-        .ctor<&transformCtor>()
-        .ctor<float, float>()
+        .ctor<&Transform2d::fromArgs>()
         .data<&Transform2d::x>("x"_hs)
         .data<&Transform2d::y>("y"_hs)
         .data<&Transform2d::layer>("layer"_hs);

@@ -11,7 +11,7 @@ EntityRecipe::EntityRecipe(entt::registry& r)
 void EntityRecipe::addComponent(StringHash id, const ArgsVector& args)
 {
     auto type = entt::resolve(id);
-    GNG2D_ASSERT(type, "ve:", id);
+    GNG2D_ASSERT(type, "Cannot resolve:", id);
     auto component = type.construct(args);
     GNG2D_ASSERT(component, "Cannot construct", id);
     components.push_back(std::move(component));

@@ -17,6 +17,7 @@ struct Repository
                                   const std::string& path     = "sprites/",
                                   const std::string& fileType = ".png");
     static Sprite      getSprite(const StringHash);
+    static Sprite      getSprite(const std::string&);
     static std::string getSpriteName(const StringHash);
 
     template <typename Component>

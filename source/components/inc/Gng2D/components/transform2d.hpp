@@ -3,7 +3,7 @@
 #include <cstdint>
 
 namespace Gng2D {
-
+struct ArgsVector;
 struct Transform2d
 {
     float x{};
@@ -14,6 +14,8 @@ struct Transform2d
         int8_t main{};
         int8_t sub{};
     } layer;
+
+    static Transform2d fromArgs(const Gng2D::ArgsVector&);
 };
 
 namespace detail {

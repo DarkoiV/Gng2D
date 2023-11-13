@@ -10,7 +10,7 @@ struct RedX : EntityRecipe
         using namespace entt::literals;
         using Arg = ArgsVector::NamedArg;
         addComponent("Sprite"_hs, {
-                                      Arg{"spriteId"_hs, "red_x"_hs.value()}
+                                      Arg{"spriteName"_hs, std::string("red_x")}
         });
 
         addComponent("Transform2d"_hs, {
