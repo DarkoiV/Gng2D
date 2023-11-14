@@ -61,6 +61,23 @@ TEST_F(LunaTest, WhenReadingNotDefinedGlobal_LunaWillReturnNullopt)
     ASSERT_EQ(luna.readString("NOT_DEF_4"), std::nullopt);
 }
 
+TEST_F(LunaTest, WhenReadingValueOfWrongType_LunaWillReturnNullopt)
+{
+    luna.doFile(testFile.string());
+    ASSERT_EQ(luna.readInt(BOOL_ID), std::nullopt);
+    ASSERT_EQ(luna.readFloat(STR_ID), std::nullopt);
+    ASSERT_EQ(luna.readBool(STR_ID), std::nullopt);
+    ASSERT_EQ(luna.readString(INT_ID), std::nullopt);
+}
+
+TEST_F(LunaTest, ReadFloatCanReadIntegerValues_OppositeHoweverIsNotTrue)
+{
+    luna.doFile(testFile.string());
+    ASSERT_TRUE(luna.readFloat(INT_ID));
+    ASSERT_FALSE(luna.readInt(FLOAT_ID));
+    ASSERT_EQ(*luna.readFloat(INT_ID), static_cast<Luna::Integer>(INT_VALUE));
+}
+
 TEST_F(LunaTest, ReadGlobalCanBeUsedToReadVarOfUnknownType)
 {
     luna.doFile(testFile);
@@ -72,15 +89,45 @@ TEST_F(LunaTest, ReadGlobalCanBeUsedToReadVarOfUnknownType)
     auto readNotDef = luna.read("NOT_DEF_VALUE");
 
     ASSERT_TRUE(std::holds_alternative<Luna::Integer>(readInt));
+    ASSERT_TRUE(readInt.isInteger());
     ASSERT_TRUE(std::holds_alternative<Luna::Float>(readFloat));
+    ASSERT_TRUE(readFloat.isFloat());
     ASSERT_TRUE(std::holds_alternative<Luna::String>(readString));
+    ASSERT_TRUE(readString.isString());
     ASSERT_TRUE(std::holds_alternative<bool>(readBool));
+    ASSERT_TRUE(readBool.isBool());
     ASSERT_TRUE(std::holds_alternative<Luna::Nil>(readNotDef));
+    ASSERT_TRUE(readNotDef.isNil());
 
     ASSERT_EQ(std::get<Luna::Integer>(readInt), INT_VALUE);
+    ASSERT_EQ(readInt.asInteger(), INT_VALUE);
     ASSERT_EQ(std::get<Luna::Float>(readFloat), FLOAT_VALUE);
+    ASSERT_EQ(readFloat.asFloat(), FLOAT_VALUE);
     ASSERT_EQ(std::get<bool>(readBool), BOOL_VALUE);
+    ASSERT_EQ(readBool.asBool(), BOOL_VALUE);
     ASSERT_EQ(std::get<Luna::String>(readString), STR_VALUE);
+    ASSERT_EQ(readString.asString(), STR_VALUE);
+}
+
+TEST_F(LunaTest, LunaTypeCanBeComparedAgainstUnderlyingTypes)
+{
+    luna.doFile(testFile.string());
+    ASSERT_EQ(luna.read(INT_ID), INT_VALUE);
+    ASSERT_EQ(luna.read(FLOAT_ID), FLOAT_VALUE);
+    ASSERT_EQ(luna.read(STR_ID), STR_VALUE);
+    ASSERT_EQ(luna.read(BOOL_ID), BOOL_VALUE);
+    ASSERT_EQ(luna.read("NOT_DEF_VALUE"), Luna::Nil{});
+
+    ASSERT_NE(luna.read(INT_ID), FLOAT_VALUE);
+    ASSERT_NE(luna.read(FLOAT_ID), STR_VALUE);
+    ASSERT_NE(luna.read(STR_ID), BOOL_VALUE);
+    ASSERT_NE(luna.read(BOOL_ID), INT_VALUE);
+    ASSERT_NE(luna.read("NOT_DEF_VALUE"), 33.0);
+
+    ASSERT_NE(luna.read(INT_ID), Luna::Nil{});
+    ASSERT_NE(luna.read(FLOAT_ID), Luna::Nil{});
+    ASSERT_NE(luna.read(STR_ID), Luna::Nil{});
+    ASSERT_NE(luna.read(BOOL_ID), Luna::Nil{});
 }
 
 TEST_F(LunaTest, LunaCanRunStringAsScript)
@@ -150,7 +197,7 @@ TEST_F(LunaTest, LunaCanDoStackOpeartions)
     ASSERT_EQ(std::get<Luna::Integer>(readInt2), STACK_INT);
 }
 
-TEST_F(LunaTest, TableBracketAcessIsByDeafaultNilConstucted)
+TEST_F(LunaTest, TableBracketAcessToUndefinedVariables_ReturnsNil)
 {
     Luna::Table table;
     table["FIRST_ACESS"];
@@ -160,6 +207,7 @@ TEST_F(LunaTest, TableBracketAcessIsByDeafaultNilConstucted)
 constexpr static char TABLE_SCRIPT[] =
     "my_table = {}                          \n"
     "my_table[123]          = false         \n"
+    "my_table[12.07]        = \"float!\"    \n"
     "my_table[\"test\"]     = \"testo\"     \n"
     "my_table[\"table\"]    = {}            \n"
     "my_table.table[\"float\"]  = 123.0     \n"
@@ -175,6 +223,7 @@ TEST_F(LunaTest, LunaCanReadTableToCppMap)
 
     ASSERT_EQ(table[123], false);
     ASSERT_EQ(table["test"], "testo");
+    ASSERT_EQ(table[12.07], "float!");
 
     ASSERT_TRUE(Luna::is<Luna::Table>(table["table"]));
     auto& innerTable = std::get<Luna::Table>(table["table"]);
@@ -184,14 +233,16 @@ TEST_F(LunaTest, LunaCanReadTableToCppMap)
 }
 
 const Luna::Table INNER_TEST_TABLE = {
-    {"INNER_TABLE_FLOAT", Luna::Float{205.0}}
+    {"INNER_TABLE_FLOAT", Luna::Float{205.0}},
+    {  Luna::Float(3.23), Luna::Float{33.33}},
 };
 
 const Luna::Table TEST_TABLE = {
     {  "TABLE_NIL",                      Luna::Nil{}},
     {  "TABLE_INT",               Luna::Integer{123}},
     {  "TABLE_STR", Luna::String{"Hello from table"}},
-    {"TABLE_TABLE",                 INNER_TEST_TABLE}
+    {"TABLE_TABLE",                 INNER_TEST_TABLE},
+    {          900,                "THIS IS INTEGER"},
 };
 
 TEST_F(LunaTest, LunaCanCreateTables)
@@ -205,8 +256,10 @@ TEST_F(LunaTest, LunaCanCreateTables)
     ASSERT_EQ(table["TABLE_NIL"], Luna::Nil{});
     ASSERT_EQ(table["TABLE_INT"], Luna::Integer{123});
     ASSERT_EQ(table["TABLE_STR"], "Hello from table");
+    ASSERT_EQ(table[900], "THIS IS INTEGER");
     ASSERT_TRUE(Luna::is<Luna::Table>(table["TABLE_TABLE"]));
 
     auto& innerTable = std::get<Luna::Table>(table["TABLE_TABLE"]);
     ASSERT_EQ(innerTable["INNER_TABLE_FLOAT"], Luna::Float{205.0});
+    ASSERT_EQ(innerTable[3.23], Luna::Float{33.33});
 }

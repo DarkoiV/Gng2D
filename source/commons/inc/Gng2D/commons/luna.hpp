@@ -19,7 +19,7 @@ struct Luna
     using String  = std::string;
     using Bool    = bool;
     struct Table;
-    using TableKey = std::variant<Integer, String>;
+    using TableKey = std::variant<Integer, Float, String>;
     struct Type;
 
     void  doFile(const std::string& path, const std::string& env = "");
@@ -83,17 +83,22 @@ struct Luna
     {
         using std::variant<Nil, Integer, Float, String, Bool, Table>::variant;
 
-        constexpr bool isNil() { return std::holds_alternative<Nil>(*this); }
-        constexpr bool isInteger() { return std::holds_alternative<Integer>(*this); }
-        constexpr bool isFloat() { return std::holds_alternative<Float>(*this); }
-        constexpr bool isString() { return std::holds_alternative<String>(*this); }
-        constexpr bool isBool() { return std::holds_alternative<Bool>(*this); }
-        constexpr bool isTable() { return std::holds_alternative<Table>(*this); }
+        constexpr bool isNil() const { return std::holds_alternative<Nil>(*this); }
+        constexpr bool isInteger() const { return std::holds_alternative<Integer>(*this); }
+        constexpr bool isFloat() const { return std::holds_alternative<Float>(*this); }
+        constexpr bool isString() const { return std::holds_alternative<String>(*this); }
+        constexpr bool isBool() const { return std::holds_alternative<Bool>(*this); }
+        constexpr bool isTable() const { return std::holds_alternative<Table>(*this); }
         auto&          asInteger() { return std::get<Integer>(*this); };
         auto&          asFloat() { return std::get<Float>(*this); };
         auto&          asString() { return std::get<String>(*this); };
         auto&          asBool() { return std::get<Bool>(*this); };
         auto&          asTable() { return std::get<Table>(*this); };
+        const auto&    asInteger() const { return std::get<Integer>(*this); };
+        const auto&    asFloat() const { return std::get<Float>(*this); };
+        const auto&    asString() const { return std::get<String>(*this); };
+        const auto&    asBool() const { return std::get<Bool>(*this); };
+        const auto&    asTable() const { return std::get<Table>(*this); };
     };
 };
 
@@ -103,17 +108,34 @@ constexpr bool Luna::is(const Luna::Type& t)
     return std::holds_alternative<T>(t);
 }
 
-constexpr inline bool operator==(const char* lhs, const Luna::Type& rhs)
-{
-    if (not Luna::is<Luna::String>(rhs)) return false;
-    else return std::get<Luna::String>(rhs) == lhs;
-}
-
 template <typename T>
 constexpr bool operator==(const T& lhs, const Luna::Type& rhs)
 {
-    if (not Luna::is<T>(rhs)) return false;
-    else return std::get<T>(rhs) == lhs;
+    if constexpr (std::is_same_v<T, Luna::Nil>)
+    {
+        if (rhs.isNil()) return true;
+    }
+    else if constexpr (std::is_same_v<T, Luna::Bool>)
+    {
+        if (rhs.isBool()) return rhs.asBool() == lhs;
+    }
+    else if constexpr (std::is_floating_point_v<T>)
+    {
+        if (rhs.isFloat()) return rhs.asFloat() == lhs;
+    }
+    else if constexpr (std::is_integral_v<T>)
+    {
+        if (rhs.isInteger()) return rhs.asInteger() == lhs;
+    }
+    else if constexpr (std::is_convertible_v<T, Luna::String>)
+    {
+        if (rhs.isString()) return rhs.asString() == lhs;
+    }
+    else if constexpr (std::is_convertible_v<T, Luna::Table>)
+    {
+        if (rhs.isTable()) return rhs.asTable() == lhs;
+    }
+    return false;
 }
 
 template <typename T>

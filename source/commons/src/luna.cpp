@@ -101,7 +101,11 @@ void Luna::pushTable(const Table& table)
         switch (k.index())
         {
         case get_index<Integer, TableKey>():
-            lua_pushnumber(L, std::get<Integer>(k));
+            lua_pushinteger(L, std::get<Integer>(k));
+            break;
+
+        case get_index<Float, TableKey>():
+            lua_pushnumber(L, std::get<Float>(k));
             break;
 
         case get_index<String, TableKey>():
@@ -192,14 +196,14 @@ Luna::Type Luna::read(const std::string& name)
 std::optional<lua_Integer> Luna::readInt(const std::string& name)
 {
     StackLock lock(L);
-    if (LUA_TNUMBER == lua_getglobal(L, name.c_str()))
+    if (LUA_TNUMBER == lua_getglobal(L, name.c_str()) and lua_isinteger(L, -1))
     {
-        int ret = lua_tointeger(L, -1);
+        lua_Integer ret = lua_tointeger(L, -1);
         return ret;
     }
     else [[unlikely]]
     {
-        LOG::DEBUG(name, "is not a number");
+        LOG::DEBUG(name, "is not a integer");
         return std::nullopt;
     }
 }
@@ -209,7 +213,7 @@ std::optional<lua_Number> Luna::readFloat(const std::string& name)
     StackLock lock(L);
     if (LUA_TNUMBER == lua_getglobal(L, name.c_str()))
     {
-        double ret = lua_tonumber(L, -1);
+        lua_Number ret = lua_tonumber(L, -1);
         return ret;
     }
     else [[unlikely]]
@@ -330,6 +334,10 @@ Luna::Table Luna::luaToTable(int n)
         if (std::holds_alternative<Integer>(stackkey))
         {
             tkey = std::get<Integer>(stackkey);
+        }
+        else if (std::holds_alternative<Float>(stackkey))
+        {
+            tkey = std::get<Float>(stackkey);
         }
         else if (std::holds_alternative<String>(stackkey))
         {
