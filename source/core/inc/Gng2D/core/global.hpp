@@ -8,8 +8,8 @@
 namespace Gng2D::GLOBAL {
 // CONFIFG
 inline std::string TITLE         = "Gng2D";
-inline int         RENDER_WIDTH  = 100;
-inline int         RENDER_HEIGHT = 100;
+inline int         RENDER_WIDTH  = 640;
+inline int         RENDER_HEIGHT = 400;
 inline int         RENDER_SCALE  = 2;
 inline uint32_t    LOGIC_TICK    = 10;
 

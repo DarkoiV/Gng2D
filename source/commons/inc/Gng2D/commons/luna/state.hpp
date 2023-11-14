@@ -1,4 +1,5 @@
 #pragma once
+#include "Gng2D/commons/luna/stack.hpp"
 #include "Gng2D/commons/luna/type.hpp"
 #include "lua.hpp"
 #include <optional>
@@ -12,18 +13,9 @@ struct State
     State(State&&)      = delete;
     ~State();
 
-    void  doFile(const std::string& path, const std::string& env = "");
-    void  doString(const std::string& str, const std::string& env = "");
-    Table readFileAsTable(const std::string& path);
+    void doFile(const std::string& path, const std::string& env = "");
+    void doString(const std::string& str, const std::string& env = "");
 
-    struct StackLock;
-    void pushNil();
-    void pushInt(Integer);
-    void pushFloat(Float);
-    void pushString(const String&);
-    void pushBool(Bool);
-    void pushTable(const Table&);
-    void push(const Type&);
     void pushGlobal(const String&);
     Type readStack(int n);
     void popStack(int n);
@@ -42,22 +34,10 @@ struct State
     void createTable(const std::string&, const Table&);
 
   private:
-    lua_State*             L{};
-    const uint32_t         LThreadNo{};
-    inline static uint32_t LThreads;
+    lua_State* L{};
+    Stack      stack;
 
     void  setEnv(const std::string& env);
     Table luaToTable(int n);
-
-  public:
-    struct StackLock
-    {
-        StackLock(lua_State*);
-        ~StackLock();
-
-      private:
-        lua_State* L;
-        int        top;
-    };
 };
 } // namespace Gng2D::Luna
