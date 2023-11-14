@@ -2,7 +2,7 @@ target_include_directories(Gng2D PUBLIC
     inc/)
 target_sources(Gng2D PRIVATE 
     src/args_vector.cpp
-    src/luna.cpp
+    src/luna_state.cpp
     src/repository.cpp)
 
 # TESTS
