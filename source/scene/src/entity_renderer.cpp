@@ -5,32 +5,26 @@
 using Gng2D::EntityRenderer;
 using Gng2D::detail::Position;
 
-#define SORT_SIGNAL &EntityRenderer::needsSorting
+#define SORT_SIGNAL &EntityRenderer::markForSorting
 
 EntityRenderer::EntityRenderer(entt::registry& r)
     : reg(r)
 {
     // clang-format off
     entt::sigh_helper{reg}
-        .with<Sprite>()
-            .on_construct<SORT_SIGNAL>(this)
-            .on_destroy<SORT_SIGNAL>(this)
         .with<Position>()
             .on_construct<SORT_SIGNAL>(this)
             .on_update<SORT_SIGNAL>(this)
             .on_destroy<SORT_SIGNAL>(this);
     // clang-format on
-    LOG::INFO("Created entity renderer");
+    LOG::INFO("Entity renderer started");
 }
 
 EntityRenderer::~EntityRenderer()
 {
-    reg.on_construct<Sprite>().disconnect<SORT_SIGNAL>(this);
-    reg.on_destroy<Sprite>().disconnect<SORT_SIGNAL>(this);
-
-    reg.on_construct<Position>().disconnect<SORT_SIGNAL>(this);
-    reg.on_update<Position>().disconnect<SORT_SIGNAL>(this);
-    reg.on_destroy<Position>().disconnect<SORT_SIGNAL>(this);
+    reg.on_construct<Position>().disconnect(this);
+    reg.on_update<Position>().disconnect(this);
+    reg.on_destroy<Position>().disconnect(this);
 }
 
 void EntityRenderer::operator()(SDL_Renderer* r)

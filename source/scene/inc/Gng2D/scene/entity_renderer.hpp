@@ -19,8 +19,8 @@ struct EntityRenderer
 
   private:
     entt::registry& reg;
-    bool            needsSorting{false};
 
+    bool needsSorting{false};
     void markForSorting();
     void sortRenderables();
 
