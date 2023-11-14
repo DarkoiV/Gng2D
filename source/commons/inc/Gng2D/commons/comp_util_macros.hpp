@@ -10,3 +10,8 @@
             ASSIGN_TO = *data;                                                                     \
         }                                                                                          \
         break
+
+#define UNKNOWN_ARG_CASE                                                                           \
+    [[unlikely]] default:                                                                          \
+        LOG::WARN("Unknown argument:", id, "with type:", arg.type().info().name());                \
+        break

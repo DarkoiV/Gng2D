@@ -1,6 +1,7 @@
 #pragma once
 #include "Gng2D/commons/log.hpp"
 #include "Gng2D/commons/types.hpp"
+#include "Gng2D/components/concept.hpp" // "Concept is required here!"
 #include "Gng2D/components/sprite.hpp"
 #include <entt/entt.hpp>
 #include <string>
@@ -21,12 +22,12 @@ struct Repository
     static Sprite             getSprite(const std::string&);
     static const std::string& spriteNameFromHash(const StringHash);
 
-    template <typename Component>
+    template <Concepts::Component C>
     static auto               registerComponent(const std::string&);
     static void               registerDefaultComponents();
     static const std::string& componentNameFromHash(const StringHash);
 
-    template <typename Component>
+    template <Concepts::Component C>
     static void emplaceComponent(entt::registry*, entt::entity, entt::meta_any&);
 
     static void freeResources();
@@ -40,15 +41,15 @@ struct Repository
     inline const static std::string UNKNOWN_HASH{"UNKNOWN HASH"};
 };
 
-template <typename Component>
+template <Concepts::Component C>
 void Repository::emplaceComponent(entt::registry* r, entt::entity e, entt::meta_any& c)
 {
-    LOG::INFO("Emplacing:",
-              c.type().prop(COMPONENT_PROPERTIES::NAME).value().template cast<std::string>());
-    r->emplace<Component>(e, c.cast<Component>());
+    LOG::TRACE("Emplacing:",
+               c.type().prop(COMPONENT_PROPERTIES::NAME).value().template cast<std::string>());
+    r->emplace<C>(e, c.cast<C>());
 }
 
-template <typename Component>
+template <Concepts::Component Comp>
 auto Repository::registerComponent(const std::string& name)
 {
     using namespace entt::literals;
@@ -63,11 +64,13 @@ auto Repository::registerComponent(const std::string& name)
         LOG::INFO("Registering component:", name, "with id:", id);
         componentNames[id] = name;
     }
-    return entt::meta<Component>()
+    return entt::meta<Comp>()
         .type(id)
         .prop(COMPONENT_PROPERTIES::NAME, name)
         .prop(COMPONENT_PROPERTIES::ID, id)
-        .template func<&Repository::emplaceComponent<Component>>("emplace"_hs);
+        .prop(COMPONENT_PROPERTIES::ARGS, Comp::argsInfo())
+        .template ctor<&Comp::fromArgs>()
+        .template func<&Repository::emplaceComponent<Comp>>("emplace"_hs);
 }
 
 } // namespace Gng2D

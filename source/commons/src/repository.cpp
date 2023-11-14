@@ -63,17 +63,8 @@ void Repository::registerDefaultComponents()
 {
     using namespace entt::literals;
     // clang-format off
-    registerComponent<InputListener>("InputListener")
-        .data<&InputListener::actions>("actions"_hs)
-        .data<&InputListener::signal>("signal"_hs);
-    registerComponent<Children>("Children")
-        .data<&Children::list>("childrenList"_hs);
-    registerComponent<Parent>("Parent")
-        .data<&Parent::id>("id"_hs);
-    registerComponent<Sprite>("Sprite")
-        .ctor<&Sprite::fromArgs>();
+    registerComponent<Sprite>("Sprite");
     registerComponent<Transform2d>("Transform2d")
-        .ctor<&Transform2d::fromArgs>()
         .data<&Transform2d::x>("x"_hs)
         .data<&Transform2d::y>("y"_hs)
         .data<&Transform2d::layer>("layer"_hs);
