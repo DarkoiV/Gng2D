@@ -1,36 +1,150 @@
+#include "Gng2D/commons/luna.hpp"
 #include "Gng2D/commons/assert.hpp"
 #include "Gng2D/commons/log.hpp"
-#include "Gng2D/commons/luna/state.hpp"
 
-using namespace Gng2D::Luna;
+using Gng2D::Luna;
 
-State::State()
+namespace // VARIANT HELPER
+{
+template <typename>
+struct tag
+{
+};
+
+template <typename T, typename V>
+struct get_index;
+
+template <typename T, typename... Ts>
+struct get_index<T, std::variant<Ts...>>
+    : std::integral_constant<size_t, std::variant<tag<Ts>...>(tag<T>()).index()>
+{
+};
+} // namespace
+
+Luna::Luna()
     : L(luaL_newstate())
-    , stack(L)
 {
     if (not L) LOG::FATAL("Failed to create lua state");
 }
 
-State::~State()
+Luna::~Luna()
 {
     lua_close(L);
 }
 
-void State::doFile(const std::string& path, const std::string& env)
+void Luna::doFile(const std::string& path, const std::string& env)
 {
     if (luaL_loadfile(L, path.c_str()) != 0) LOG::ERROR(lua_tostring(L, 1));
     if (not env.empty()) setEnv(env);
     if (lua_pcall(L, 0, 0, 0) != 0) LOG::ERROR(lua_tostring(L, -1));
 }
 
-void State::doString(const std::string& str, const std::string& env)
+void Luna::doString(const std::string& str, const std::string& env)
 {
     if (luaL_loadstring(L, str.c_str()) != 0) LOG::ERROR(lua_tostring(L, -1));
     if (not env.empty()) setEnv(env);
     if (lua_pcall(L, 0, 0, 0) != 0) LOG::ERROR(lua_tostring(L, -1));
 }
 
-Type State::readStack(int n)
+Luna::Table Luna::readFileAsTable(const std::string& path)
+{
+    Table          t;
+    constexpr char TMP_TABLE_NAME[] = "TMP-TABLE";
+    StackLock      lock(L);
+
+    if (luaL_loadfile(L, path.c_str()) != 0) LOG::ERROR(lua_tostring(L, 1));
+    setEnv(TMP_TABLE_NAME);
+    if (lua_pcall(L, 0, 0, 0) != 0) LOG::ERROR(lua_tostring(L, -1));
+    pushGlobal(TMP_TABLE_NAME);
+    t = luaToTable(-1);
+    pushNil();
+    lua_setglobal(L, TMP_TABLE_NAME);
+
+    return t;
+}
+
+void Luna::pushNil()
+{
+    lua_pushnil(L);
+}
+
+void Luna::pushInt(Luna::Integer value)
+{
+    lua_pushinteger(L, value);
+}
+
+void Luna::pushFloat(Luna::Float value)
+{
+    lua_pushnumber(L, value);
+}
+
+void Luna::pushString(const Luna::String& value)
+{
+    lua_pushstring(L, value.c_str());
+}
+
+void Luna::pushBool(Luna::Bool value)
+{
+    lua_pushboolean(L, value);
+}
+
+void Luna::pushGlobal(const String& name)
+{
+    lua_getglobal(L, name.c_str());
+}
+
+void Luna::pushTable(const Table& table)
+{
+    lua_createtable(L, 0, table.size());
+    for (const auto& [k, v]: table)
+    {
+        switch (k.index())
+        {
+        case get_index<Integer, TableKey>():
+            lua_pushinteger(L, std::get<Integer>(k));
+            break;
+
+        case get_index<Float, TableKey>():
+            lua_pushnumber(L, std::get<Float>(k));
+            break;
+
+        case get_index<String, TableKey>():
+            lua_pushstring(L, std::get<String>(k).c_str());
+            break;
+        }
+        push(v);
+        lua_rawset(L, -3);
+    }
+}
+
+void Luna::push(const Type& value)
+{
+    switch (value.index())
+    {
+    case 0:
+        lua_pushnil(L);
+        break;
+    case 1:
+        lua_pushinteger(L, std::get<Integer>(value));
+        break;
+    case 2:
+        lua_pushnumber(L, std::get<Float>(value));
+        break;
+    case 3:
+        lua_pushstring(L, std::get<String>(value).c_str());
+        break;
+    case 4:
+        lua_pushboolean(L, std::get<Bool>(value));
+        break;
+    case 5:
+        pushTable(std::get<Table>(value));
+        break;
+    [[unlikely]] default:
+        LOG::ERROR("Fallthrough on push");
+    }
+}
+
+Luna::Type Luna::readStack(int n)
 {
     GNG2D_ASSERT(lua_gettop(L) >= abs(n) and n != 0, "Out of stack access");
     auto type = lua_type(L, n);
@@ -52,15 +166,15 @@ Type State::readStack(int n)
     return Nil{};
 }
 
-void State::popStack(int n)
+void Luna::popStack(int n)
 {
     lua_pop(L, n);
 }
 
-Type State::read(const std::string& name)
+Luna::Type Luna::read(const std::string& name)
 {
-    Stack::Lock lock(L);
-    auto        type = lua_getglobal(L, name.c_str());
+    StackLock lock(L);
+    auto      type = lua_getglobal(L, name.c_str());
     switch (type)
     {
     case LUA_TNIL:
@@ -79,9 +193,9 @@ Type State::read(const std::string& name)
     return Nil{};
 }
 
-std::optional<lua_Integer> State::readInt(const std::string& name)
+std::optional<lua_Integer> Luna::readInt(const std::string& name)
 {
-    Stack::Lock lock(L);
+    StackLock lock(L);
     if (LUA_TNUMBER == lua_getglobal(L, name.c_str()) and lua_isinteger(L, -1))
     {
         lua_Integer ret = lua_tointeger(L, -1);
@@ -94,9 +208,9 @@ std::optional<lua_Integer> State::readInt(const std::string& name)
     }
 }
 
-std::optional<lua_Number> State::readFloat(const std::string& name)
+std::optional<lua_Number> Luna::readFloat(const std::string& name)
 {
-    Stack::Lock lock(L);
+    StackLock lock(L);
     if (LUA_TNUMBER == lua_getglobal(L, name.c_str()))
     {
         lua_Number ret = lua_tonumber(L, -1);
@@ -109,9 +223,9 @@ std::optional<lua_Number> State::readFloat(const std::string& name)
     }
 }
 
-std::optional<std::string> State::readString(const std::string& name)
+std::optional<std::string> Luna::readString(const std::string& name)
 {
-    Stack::Lock lock(L);
+    StackLock lock(L);
     if (LUA_TSTRING == lua_getglobal(L, name.c_str()))
     {
         std::string ret{lua_tostring(L, -1)};
@@ -124,9 +238,9 @@ std::optional<std::string> State::readString(const std::string& name)
     }
 }
 
-std::optional<bool> State::readBool(const std::string& name)
+std::optional<bool> Luna::readBool(const std::string& name)
 {
-    Stack::Lock lock(L);
+    StackLock lock(L);
     if (LUA_TBOOLEAN == lua_getglobal(L, name.c_str()))
     {
         bool ret = lua_toboolean(L, -1);
@@ -139,9 +253,9 @@ std::optional<bool> State::readBool(const std::string& name)
     }
 }
 
-std::optional<Table> State::readTable(const std::string& name)
+std::optional<Luna::Table> Luna::readTable(const std::string& name)
 {
-    Stack::Lock lock(L);
+    StackLock lock(L);
     if (LUA_TTABLE == lua_getglobal(L, name.c_str()))
     {
         return luaToTable(-1);
@@ -153,42 +267,42 @@ std::optional<Table> State::readTable(const std::string& name)
     }
 }
 
-void State::createInt(const std::string& name, lua_Integer var)
+void Luna::createInt(const std::string& name, lua_Integer var)
 {
-    Stack::Lock lock(L);
+    StackLock lock(L);
     lua_pushinteger(L, var);
     lua_setglobal(L, name.c_str());
 }
 
-void State::createFloat(const std::string& name, lua_Number var)
+void Luna::createFloat(const std::string& name, lua_Number var)
 {
-    Stack::Lock lock(L);
+    StackLock lock(L);
     lua_pushnumber(L, var);
     lua_setglobal(L, name.c_str());
 }
 
-void State::createString(const std::string& name, const std::string& var)
+void Luna::createString(const std::string& name, const std::string& var)
 {
-    Stack::Lock lock(L);
+    StackLock lock(L);
     lua_pushstring(L, var.c_str());
     lua_setglobal(L, name.c_str());
 }
 
-void State::createBool(const std::string& name, bool var)
+void Luna::createBool(const std::string& name, bool var)
 {
-    Stack::Lock lock(L);
+    StackLock lock(L);
     lua_pushboolean(L, var);
     lua_setglobal(L, name.c_str());
 }
 
-void State::createTable(const std::string& name, const Table& table)
+void Luna::createTable(const std::string& name, const Table& table)
 {
-    Stack::Lock lock(L);
-    stack.push(table);
+    StackLock lock(L);
+    pushTable(table);
     lua_setglobal(L, name.c_str());
 }
 
-void State::setEnv(const std::string& env)
+void Luna::setEnv(const std::string& env)
 {
     auto envType = lua_getglobal(L, env.c_str());
     if (envType != LUA_TTABLE and envType != LUA_TNIL) [[unlikely]]
@@ -206,13 +320,13 @@ void State::setEnv(const std::string& env)
     lua_setupvalue(L, -2, 1);
 }
 
-Table State::luaToTable(int n)
+Luna::Table Luna::luaToTable(int n)
 {
-    Stack::Lock lock(L);
-    auto        tableIndex = lua_gettop(L) + n + 1;
-    Table       result;
+    StackLock lock(L);
+    auto      tableIndex = lua_gettop(L) + n + 1;
+    Table     result;
 
-    stack.pushNil();
+    pushNil();
     while (lua_next(L, tableIndex))
     {
         auto     stackkey = readStack(-2);
@@ -243,4 +357,16 @@ Table State::luaToTable(int n)
     }
 
     return result;
+}
+
+Luna::StackLock::StackLock(lua_State* L)
+    : L(L)
+{
+    top = lua_gettop(L);
+}
+
+Luna::StackLock::~StackLock()
+{
+    GNG2D_ASSERT(top <= lua_gettop(L), "Stack lock went out of scope!");
+    lua_settop(L, top);
 }

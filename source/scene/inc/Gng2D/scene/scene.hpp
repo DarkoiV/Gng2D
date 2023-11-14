@@ -1,5 +1,5 @@
 #pragma once
-#include "Gng2D/commons/luna/state.hpp"
+#include "Gng2D/commons/luna.hpp"
 #include "Gng2D/commons/scene_interface.hpp"
 #include "Gng2D/scene/entity_renderer.hpp"
 #include "Gng2D/scene/input_handler.hpp"
@@ -32,7 +32,7 @@ struct Scene : SceneInterface
     std::string    name;
     entt::registry reg;
 
-    Luna::State    luna;
+    Luna           luna;
     InputHandler   inputHandler{reg};
     RelationSystem relationSystem{reg};
 

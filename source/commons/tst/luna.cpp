@@ -1,4 +1,4 @@
-#include "Gng2D/commons/luna/state.hpp"
+#include "Gng2D/commons/luna.hpp"
 #include "gtest/gtest.h"
 #include <filesystem>
 #include <fstream>
@@ -12,6 +12,8 @@ constexpr char   BOOL_ID[]   = "TEST_BOOL";
 constexpr bool   BOOL_VALUE  = false;
 constexpr char   STR_ID[]    = "TEST_STRING";
 constexpr char   STR_VALUE[] = "HELLO LUNA!";
+
+using Gng2D::Luna;
 
 struct LunaTest : ::testing::Test
 {
@@ -28,7 +30,7 @@ struct LunaTest : ::testing::Test
         file << STR_ID << " = " << std::quoted(STR_VALUE) << std::endl;
     }
 
-    Gng2D::Luna::State luna;
+    Gng2D::Luna luna;
 };
 
 TEST_F(LunaTest, AfterDoingFile_LunaCanReadGlobalVariables)
@@ -73,7 +75,7 @@ TEST_F(LunaTest, ReadFloatCanReadIntegerValues_OppositeHoweverIsNotTrue)
     luna.doFile(testFile.string());
     ASSERT_TRUE(luna.readFloat(INT_ID));
     ASSERT_FALSE(luna.readInt(FLOAT_ID));
-    ASSERT_EQ(*luna.readFloat(INT_ID), static_cast<Gng2D::Luna::Integer>(INT_VALUE));
+    ASSERT_EQ(*luna.readFloat(INT_ID), static_cast<Luna::Integer>(INT_VALUE));
 }
 
 TEST_F(LunaTest, ReadGlobalCanBeUsedToReadVarOfUnknownType)
@@ -86,24 +88,24 @@ TEST_F(LunaTest, ReadGlobalCanBeUsedToReadVarOfUnknownType)
     auto readBool   = luna.read(BOOL_ID);
     auto readNotDef = luna.read("NOT_DEF_VALUE");
 
-    ASSERT_TRUE(std::holds_alternative<Gng2D::Luna::Integer>(readInt));
+    ASSERT_TRUE(std::holds_alternative<Luna::Integer>(readInt));
     ASSERT_TRUE(readInt.isInteger());
-    ASSERT_TRUE(std::holds_alternative<Gng2D::Luna::Float>(readFloat));
+    ASSERT_TRUE(std::holds_alternative<Luna::Float>(readFloat));
     ASSERT_TRUE(readFloat.isFloat());
-    ASSERT_TRUE(std::holds_alternative<Gng2D::Luna::String>(readString));
+    ASSERT_TRUE(std::holds_alternative<Luna::String>(readString));
     ASSERT_TRUE(readString.isString());
     ASSERT_TRUE(std::holds_alternative<bool>(readBool));
     ASSERT_TRUE(readBool.isBool());
-    ASSERT_TRUE(std::holds_alternative<Gng2D::Luna::Nil>(readNotDef));
+    ASSERT_TRUE(std::holds_alternative<Luna::Nil>(readNotDef));
     ASSERT_TRUE(readNotDef.isNil());
 
-    ASSERT_EQ(std::get<Gng2D::Luna::Integer>(readInt), INT_VALUE);
+    ASSERT_EQ(std::get<Luna::Integer>(readInt), INT_VALUE);
     ASSERT_EQ(readInt.asInteger(), INT_VALUE);
-    ASSERT_EQ(std::get<Gng2D::Luna::Float>(readFloat), FLOAT_VALUE);
+    ASSERT_EQ(std::get<Luna::Float>(readFloat), FLOAT_VALUE);
     ASSERT_EQ(readFloat.asFloat(), FLOAT_VALUE);
     ASSERT_EQ(std::get<bool>(readBool), BOOL_VALUE);
     ASSERT_EQ(readBool.asBool(), BOOL_VALUE);
-    ASSERT_EQ(std::get<Gng2D::Luna::String>(readString), STR_VALUE);
+    ASSERT_EQ(std::get<Luna::String>(readString), STR_VALUE);
     ASSERT_EQ(readString.asString(), STR_VALUE);
 }
 
@@ -114,7 +116,7 @@ TEST_F(LunaTest, LunaTypeCanBeComparedAgainstUnderlyingTypes)
     ASSERT_EQ(luna.read(FLOAT_ID), FLOAT_VALUE);
     ASSERT_EQ(luna.read(STR_ID), STR_VALUE);
     ASSERT_EQ(luna.read(BOOL_ID), BOOL_VALUE);
-    ASSERT_EQ(luna.read("NOT_DEF_VALUE"), Gng2D::Luna::Nil{});
+    ASSERT_EQ(luna.read("NOT_DEF_VALUE"), Luna::Nil{});
 
     ASSERT_NE(luna.read(INT_ID), FLOAT_VALUE);
     ASSERT_NE(luna.read(FLOAT_ID), STR_VALUE);
@@ -122,10 +124,10 @@ TEST_F(LunaTest, LunaTypeCanBeComparedAgainstUnderlyingTypes)
     ASSERT_NE(luna.read(BOOL_ID), INT_VALUE);
     ASSERT_NE(luna.read("NOT_DEF_VALUE"), 33.0);
 
-    ASSERT_NE(luna.read(INT_ID), Gng2D::Luna::Nil{});
-    ASSERT_NE(luna.read(FLOAT_ID), Gng2D::Luna::Nil{});
-    ASSERT_NE(luna.read(STR_ID), Gng2D::Luna::Nil{});
-    ASSERT_NE(luna.read(BOOL_ID), Gng2D::Luna::Nil{});
+    ASSERT_NE(luna.read(INT_ID), Luna::Nil{});
+    ASSERT_NE(luna.read(FLOAT_ID), Luna::Nil{});
+    ASSERT_NE(luna.read(STR_ID), Luna::Nil{});
+    ASSERT_NE(luna.read(BOOL_ID), Luna::Nil{});
 }
 
 TEST_F(LunaTest, LunaCanRunStringAsScript)
@@ -158,7 +160,7 @@ TEST_F(LunaTest, LunaCanDoStackOpeartions)
     constexpr bool  STACK_BOOL     = false;
     constexpr char  STACK_STRING[] = "HELLO STACK!";
 
-    Gng2D::Luna::State luna;
+    Luna luna;
     luna.pushInt(STACK_INT);
     luna.pushFloat(STACK_FLOAT);
     luna.pushBool(STACK_BOOL);
@@ -174,32 +176,32 @@ TEST_F(LunaTest, LunaCanDoStackOpeartions)
     auto readFloat2  = luna.readStack(2);
     auto readInt2    = luna.readStack(1);
 
-    ASSERT_TRUE(std::holds_alternative<Gng2D::Luna::String>(readString));
-    ASSERT_TRUE(std::holds_alternative<Gng2D::Luna::Bool>(readBool));
-    ASSERT_TRUE(std::holds_alternative<Gng2D::Luna::Float>(readFloat));
-    ASSERT_TRUE(std::holds_alternative<Gng2D::Luna::Integer>(readInt));
+    ASSERT_TRUE(std::holds_alternative<Luna::String>(readString));
+    ASSERT_TRUE(std::holds_alternative<Luna::Bool>(readBool));
+    ASSERT_TRUE(std::holds_alternative<Luna::Float>(readFloat));
+    ASSERT_TRUE(std::holds_alternative<Luna::Integer>(readInt));
 
-    ASSERT_TRUE(std::holds_alternative<Gng2D::Luna::String>(readString2));
-    ASSERT_TRUE(std::holds_alternative<Gng2D::Luna::Bool>(readBool2));
-    ASSERT_TRUE(std::holds_alternative<Gng2D::Luna::Float>(readFloat2));
-    ASSERT_TRUE(std::holds_alternative<Gng2D::Luna::Integer>(readInt2));
+    ASSERT_TRUE(std::holds_alternative<Luna::String>(readString2));
+    ASSERT_TRUE(std::holds_alternative<Luna::Bool>(readBool2));
+    ASSERT_TRUE(std::holds_alternative<Luna::Float>(readFloat2));
+    ASSERT_TRUE(std::holds_alternative<Luna::Integer>(readInt2));
 
-    ASSERT_EQ(std::get<Gng2D::Luna::String>(readString), STACK_STRING);
-    ASSERT_EQ(std::get<Gng2D::Luna::Bool>(readBool), STACK_BOOL);
-    ASSERT_EQ(std::get<Gng2D::Luna::Float>(readFloat), STACK_FLOAT);
-    ASSERT_EQ(std::get<Gng2D::Luna::Integer>(readInt), STACK_INT);
+    ASSERT_EQ(std::get<Luna::String>(readString), STACK_STRING);
+    ASSERT_EQ(std::get<Luna::Bool>(readBool), STACK_BOOL);
+    ASSERT_EQ(std::get<Luna::Float>(readFloat), STACK_FLOAT);
+    ASSERT_EQ(std::get<Luna::Integer>(readInt), STACK_INT);
 
-    ASSERT_EQ(std::get<Gng2D::Luna::String>(readString2), STACK_STRING);
-    ASSERT_EQ(std::get<Gng2D::Luna::Bool>(readBool2), STACK_BOOL);
-    ASSERT_EQ(std::get<Gng2D::Luna::Float>(readFloat2), STACK_FLOAT);
-    ASSERT_EQ(std::get<Gng2D::Luna::Integer>(readInt2), STACK_INT);
+    ASSERT_EQ(std::get<Luna::String>(readString2), STACK_STRING);
+    ASSERT_EQ(std::get<Luna::Bool>(readBool2), STACK_BOOL);
+    ASSERT_EQ(std::get<Luna::Float>(readFloat2), STACK_FLOAT);
+    ASSERT_EQ(std::get<Luna::Integer>(readInt2), STACK_INT);
 }
 
 TEST_F(LunaTest, TableBracketAcessToUndefinedVariables_ReturnsNil)
 {
-    Gng2D::Luna::Table table;
+    Luna::Table table;
     table["FIRST_ACESS"];
-    ASSERT_EQ(table["FIRST_ACESS"], Gng2D::Luna::Nil{});
+    ASSERT_EQ(table["FIRST_ACESS"], Luna::Nil{});
 }
 
 constexpr static char TABLE_SCRIPT[] =
@@ -214,33 +216,33 @@ constexpr static char TABLE_SCRIPT[] =
 TEST_F(LunaTest, LunaCanReadTableToCppMap)
 {
     luna.doString(TABLE_SCRIPT);
-    auto tableref = luna.read("my_table");
+    auto tableptr = luna.read("my_table");
 
-    ASSERT_TRUE(tableref.isTable());
-    auto& table = tableref.asTable();
+    ASSERT_TRUE(Luna::is<Luna::Table>(tableptr));
+    auto& table = std::get<Luna::Table>(tableptr);
 
     ASSERT_EQ(table[123], false);
     ASSERT_EQ(table["test"], "testo");
     ASSERT_EQ(table[12.07], "float!");
 
-    ASSERT_TRUE(table["table"].isTable());
-    auto& innerTable = table["table"].asTable();
+    ASSERT_TRUE(Luna::is<Luna::Table>(table["table"]));
+    auto& innerTable = std::get<Luna::Table>(table["table"]);
 
     ASSERT_EQ(innerTable["float"], 123.0);
     ASSERT_EQ(innerTable["int"], 2ll);
 }
 
-const Gng2D::Luna::Table INNER_TEST_TABLE = {
-    {     "INNER_TABLE_FLOAT", Gng2D::Luna::Float{205.0}},
-    {Gng2D::Luna::Float(3.23), Gng2D::Luna::Float{33.33}},
+const Luna::Table INNER_TEST_TABLE = {
+    {"INNER_TABLE_FLOAT", Luna::Float{205.0}},
+    {  Luna::Float(3.23), Luna::Float{33.33}},
 };
 
-const Gng2D::Luna::Table TEST_TABLE = {
-    {  "TABLE_NIL",                      Gng2D::Luna::Nil{}},
-    {  "TABLE_INT",               Gng2D::Luna::Integer{123}},
-    {  "TABLE_STR", Gng2D::Luna::String{"Hello from table"}},
-    {"TABLE_TABLE",                        INNER_TEST_TABLE},
-    {          900,                       "THIS IS INTEGER"},
+const Luna::Table TEST_TABLE = {
+    {  "TABLE_NIL",                      Luna::Nil{}},
+    {  "TABLE_INT",               Luna::Integer{123}},
+    {  "TABLE_STR", Luna::String{"Hello from table"}},
+    {"TABLE_TABLE",                 INNER_TEST_TABLE},
+    {          900,                "THIS IS INTEGER"},
 };
 
 TEST_F(LunaTest, LunaCanCreateTables)
@@ -248,16 +250,16 @@ TEST_F(LunaTest, LunaCanCreateTables)
     luna.pushTable(TEST_TABLE);
 
     auto stackObj = luna.readStack(-1);
-    ASSERT_TRUE(stackObj.isTable());
+    ASSERT_TRUE(Luna::is<Luna::Table>(stackObj));
 
-    auto& table = stackObj.asTable();
-    ASSERT_EQ(table["TABLE_NIL"], Gng2D::Luna::Nil{});
-    ASSERT_EQ(table["TABLE_INT"], Gng2D::Luna::Integer{123});
+    auto& table = std::get<Luna::Table>(stackObj);
+    ASSERT_EQ(table["TABLE_NIL"], Luna::Nil{});
+    ASSERT_EQ(table["TABLE_INT"], Luna::Integer{123});
     ASSERT_EQ(table["TABLE_STR"], "Hello from table");
     ASSERT_EQ(table[900], "THIS IS INTEGER");
-    ASSERT_TRUE(table["TABLE_TABLE"].isTable());
+    ASSERT_TRUE(Luna::is<Luna::Table>(table["TABLE_TABLE"]));
 
-    auto& innerTable = std::get<Gng2D::Luna::Table>(table["TABLE_TABLE"]);
-    ASSERT_EQ(innerTable["INNER_TABLE_FLOAT"], Gng2D::Luna::Float{205.0});
-    ASSERT_EQ(innerTable[3.23], Gng2D::Luna::Float{33.33});
+    auto& innerTable = std::get<Luna::Table>(table["TABLE_TABLE"]);
+    ASSERT_EQ(innerTable["INNER_TABLE_FLOAT"], Luna::Float{205.0});
+    ASSERT_EQ(innerTable[3.23], Luna::Float{33.33});
 }
