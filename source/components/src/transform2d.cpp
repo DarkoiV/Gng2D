@@ -19,11 +19,11 @@ const static Gng2D::ComponentArgs TRANSFORM2D_ARGS{
         .required      = false},
     Arg{.name          = "layerMain",
         .description   = "Position on main layer, 0 by default",
-        .acceptedTypes = {type_id<float>()},
+        .acceptedTypes = {type_id<int8_t>()},
         .required      = false},
     Arg{.name          = "layerSub",
         .description   = "Position on sub layer, 0 by default",
-        .acceptedTypes = {type_id<float>()},
+        .acceptedTypes = {type_id<int8_t>()},
         .required      = false}
 };
 // clang-format on
