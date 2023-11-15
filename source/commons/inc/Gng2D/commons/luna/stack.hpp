@@ -18,7 +18,7 @@ struct Stack
     void push(Float);
     void push(const String&);
     void push(Bool);
-    void push(const Table&);
+    void push(const TableRef&);
 
     void push(const Type&);
     void pushGlobal(const String&);

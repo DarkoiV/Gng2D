@@ -107,6 +107,7 @@ TEST_F(LunaTest, ReadGlobalCanBeUsedToReadVarOfUnknownType)
     ASSERT_EQ(readString.asString(), STR_VALUE);
 }
 
+// TODO move to to LunaType test
 TEST_F(LunaTest, LunaTypeCanBeComparedAgainstUnderlyingTypes)
 {
     luna.doFile(testFile.string());
@@ -149,115 +150,4 @@ TEST_F(LunaTest, LunaCanRunStringAsScript)
 
     ASSERT_EQ(readInt, SCRIPT_INT_VALUE);
     ASSERT_EQ(readStr, SCRIPT_STR_VALUE);
-}
-
-TEST_F(LunaTest, LunaCanDoStackOpeartions)
-{
-    constexpr int   STACK_INT      = 12;
-    constexpr float STACK_FLOAT    = 123.45;
-    constexpr bool  STACK_BOOL     = false;
-    constexpr char  STACK_STRING[] = "HELLO STACK!";
-
-    Gng2D::Luna::State luna;
-    luna.pushInt(STACK_INT);
-    luna.pushFloat(STACK_FLOAT);
-    luna.pushBool(STACK_BOOL);
-    luna.pushString(STACK_STRING);
-
-    auto readString = luna.readStack(-1);
-    auto readBool   = luna.readStack(-2);
-    auto readFloat  = luna.readStack(-3);
-    auto readInt    = luna.readStack(-4);
-
-    auto readString2 = luna.readStack(4);
-    auto readBool2   = luna.readStack(3);
-    auto readFloat2  = luna.readStack(2);
-    auto readInt2    = luna.readStack(1);
-
-    ASSERT_TRUE(std::holds_alternative<Gng2D::Luna::String>(readString));
-    ASSERT_TRUE(std::holds_alternative<Gng2D::Luna::Bool>(readBool));
-    ASSERT_TRUE(std::holds_alternative<Gng2D::Luna::Float>(readFloat));
-    ASSERT_TRUE(std::holds_alternative<Gng2D::Luna::Integer>(readInt));
-
-    ASSERT_TRUE(std::holds_alternative<Gng2D::Luna::String>(readString2));
-    ASSERT_TRUE(std::holds_alternative<Gng2D::Luna::Bool>(readBool2));
-    ASSERT_TRUE(std::holds_alternative<Gng2D::Luna::Float>(readFloat2));
-    ASSERT_TRUE(std::holds_alternative<Gng2D::Luna::Integer>(readInt2));
-
-    ASSERT_EQ(std::get<Gng2D::Luna::String>(readString), STACK_STRING);
-    ASSERT_EQ(std::get<Gng2D::Luna::Bool>(readBool), STACK_BOOL);
-    ASSERT_EQ(std::get<Gng2D::Luna::Float>(readFloat), STACK_FLOAT);
-    ASSERT_EQ(std::get<Gng2D::Luna::Integer>(readInt), STACK_INT);
-
-    ASSERT_EQ(std::get<Gng2D::Luna::String>(readString2), STACK_STRING);
-    ASSERT_EQ(std::get<Gng2D::Luna::Bool>(readBool2), STACK_BOOL);
-    ASSERT_EQ(std::get<Gng2D::Luna::Float>(readFloat2), STACK_FLOAT);
-    ASSERT_EQ(std::get<Gng2D::Luna::Integer>(readInt2), STACK_INT);
-}
-
-TEST_F(LunaTest, TableBracketAcessToUndefinedVariables_ReturnsNil)
-{
-    Gng2D::Luna::Table table;
-    table["FIRST_ACESS"];
-    ASSERT_EQ(table["FIRST_ACESS"], Gng2D::Luna::Nil{});
-}
-
-constexpr static char TABLE_SCRIPT[] =
-    "my_table = {}                          \n"
-    "my_table[123]          = false         \n"
-    "my_table[12.07]        = \"float!\"    \n"
-    "my_table[\"test\"]     = \"testo\"     \n"
-    "my_table[\"table\"]    = {}            \n"
-    "my_table.table[\"float\"]  = 123.0     \n"
-    "my_table.table[\"int\"]    = 2         \n";
-
-TEST_F(LunaTest, LunaCanReadTableToCppMap)
-{
-    luna.doString(TABLE_SCRIPT);
-    auto tableref = luna.read("my_table");
-
-    ASSERT_TRUE(tableref.isTable());
-    auto& table = tableref.asTable();
-
-    ASSERT_EQ(table[123], false);
-    ASSERT_EQ(table["test"], "testo");
-    ASSERT_EQ(table[12.07], "float!");
-
-    ASSERT_TRUE(table["table"].isTable());
-    auto& innerTable = table["table"].asTable();
-
-    ASSERT_EQ(innerTable["float"], 123.0);
-    ASSERT_EQ(innerTable["int"], 2ll);
-}
-
-const Gng2D::Luna::Table INNER_TEST_TABLE = {
-    {     "INNER_TABLE_FLOAT", Gng2D::Luna::Float{205.0}},
-    {Gng2D::Luna::Float(3.23), Gng2D::Luna::Float{33.33}},
-};
-
-const Gng2D::Luna::Table TEST_TABLE = {
-    {  "TABLE_NIL",                      Gng2D::Luna::Nil{}},
-    {  "TABLE_INT",               Gng2D::Luna::Integer{123}},
-    {  "TABLE_STR", Gng2D::Luna::String{"Hello from table"}},
-    {"TABLE_TABLE",                        INNER_TEST_TABLE},
-    {          900,                       "THIS IS INTEGER"},
-};
-
-TEST_F(LunaTest, LunaCanCreateTables)
-{
-    luna.pushTable(TEST_TABLE);
-
-    auto stackObj = luna.readStack(-1);
-    ASSERT_TRUE(stackObj.isTable());
-
-    auto& table = stackObj.asTable();
-    ASSERT_EQ(table["TABLE_NIL"], Gng2D::Luna::Nil{});
-    ASSERT_EQ(table["TABLE_INT"], Gng2D::Luna::Integer{123});
-    ASSERT_EQ(table["TABLE_STR"], "Hello from table");
-    ASSERT_EQ(table[900], "THIS IS INTEGER");
-    ASSERT_TRUE(table["TABLE_TABLE"].isTable());
-
-    auto& innerTable = std::get<Gng2D::Luna::Table>(table["TABLE_TABLE"]);
-    ASSERT_EQ(innerTable["INNER_TABLE_FLOAT"], Gng2D::Luna::Float{205.0});
-    ASSERT_EQ(innerTable[3.23], Gng2D::Luna::Float{33.33});
 }

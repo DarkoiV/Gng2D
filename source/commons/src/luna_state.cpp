@@ -30,33 +30,6 @@ void State::doString(const std::string& str, const std::string& env)
     if (lua_pcall(L, 0, 0, 0) != 0) LOG::ERROR(lua_tostring(L, -1));
 }
 
-Type State::readStack(int n)
-{
-    GNG2D_ASSERT(lua_gettop(L) >= abs(n) and n != 0, "Out of stack access");
-    auto type = lua_type(L, n);
-    switch (type)
-    {
-    case LUA_TNIL:
-        return Nil{};
-    case LUA_TNUMBER:
-        if (lua_isinteger(L, n)) return Integer{lua_tointeger(L, n)};
-        else return Float{lua_tonumber(L, n)};
-    case LUA_TSTRING:
-        return String{lua_tostring(L, n)};
-    case LUA_TBOOLEAN:
-        return bool{static_cast<bool>(lua_toboolean(L, n))};
-    case LUA_TTABLE:
-        return luaToTable(n);
-    }
-    LOG::DEBUG("Global is of non readable type");
-    return Nil{};
-}
-
-void State::popStack(int n)
-{
-    lua_pop(L, n);
-}
-
 Type State::read(const std::string& name)
 {
     Stack::Lock lock(L);
@@ -72,8 +45,6 @@ Type State::read(const std::string& name)
         return String{lua_tostring(L, -1)};
     case LUA_TBOOLEAN:
         return bool{static_cast<bool>(lua_toboolean(L, -1))};
-    case LUA_TTABLE:
-        return luaToTable(-1);
     }
     LOG::DEBUG("Global is of non readable type");
     return Nil{};
@@ -139,20 +110,6 @@ std::optional<bool> State::readBool(const std::string& name)
     }
 }
 
-std::optional<Table> State::readTable(const std::string& name)
-{
-    Stack::Lock lock(L);
-    if (LUA_TTABLE == lua_getglobal(L, name.c_str()))
-    {
-        return luaToTable(-1);
-    }
-    else [[unlikely]]
-    {
-        LOG::DEBUG(name, "is not a bool");
-        return std::nullopt;
-    }
-}
-
 void State::createInt(const std::string& name, lua_Integer var)
 {
     Stack::Lock lock(L);
@@ -181,13 +138,6 @@ void State::createBool(const std::string& name, bool var)
     lua_setglobal(L, name.c_str());
 }
 
-void State::createTable(const std::string& name, const Table& table)
-{
-    Stack::Lock lock(L);
-    stack.push(table);
-    lua_setglobal(L, name.c_str());
-}
-
 void State::setEnv(const std::string& env)
 {
     auto envType = lua_getglobal(L, env.c_str());
@@ -204,43 +154,4 @@ void State::setEnv(const std::string& env)
         lua_getglobal(L, env.c_str());
     }
     lua_setupvalue(L, -2, 1);
-}
-
-Table State::luaToTable(int n)
-{
-    Stack::Lock lock(L);
-    auto        tableIndex = lua_gettop(L) + n + 1;
-    Table       result;
-
-    stack.pushNil();
-    while (lua_next(L, tableIndex))
-    {
-        auto     stackkey = readStack(-2);
-        TableKey tkey;
-        if (std::holds_alternative<Integer>(stackkey))
-        {
-            tkey = std::get<Integer>(stackkey);
-        }
-        else if (std::holds_alternative<Float>(stackkey))
-        {
-            tkey = std::get<Float>(stackkey);
-        }
-        else if (std::holds_alternative<String>(stackkey))
-        {
-            tkey = std::move(std::get<String>(stackkey));
-        }
-        else [[unlikely]]
-        {
-            LOG::WARN(
-                "Luna only supports indexes that are Integers or Strings, value will be ignored");
-            popStack(1);
-            continue;
-        }
-
-        auto val = readStack(-1);
-        if (not val.isNil()) result[tkey] = val;
-        popStack(1);
-    }
-
-    return result;
 }

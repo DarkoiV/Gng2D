@@ -45,33 +45,14 @@ void Stack::push(Bool value)
     lua_pushboolean(L, value);
 }
 
+void Stack::push(const TableRef& tr)
+{
+    lua_rawgeti(L, LUA_REGISTRYINDEX, tr.regRef);
+}
+
 void Stack::pushGlobal(const String& name)
 {
     lua_getglobal(L, name.c_str());
-}
-
-void Stack::push(const Table& table)
-{
-    lua_createtable(L, 0, table.size());
-    for (const auto& [k, v]: table)
-    {
-        switch (k.index())
-        {
-        case get_index<Integer, TableKey>():
-            lua_pushinteger(L, std::get<Integer>(k));
-            break;
-
-        case get_index<Float, TableKey>():
-            lua_pushnumber(L, std::get<Float>(k));
-            break;
-
-        case get_index<String, TableKey>():
-            lua_pushstring(L, std::get<String>(k).c_str());
-            break;
-        }
-        push(v);
-        lua_rawset(L, -3);
-    }
 }
 
 void Stack::push(const Type& value)
@@ -82,19 +63,19 @@ void Stack::push(const Type& value)
         lua_pushnil(L);
         break;
     case 1:
-        lua_pushinteger(L, std::get<Integer>(value));
+        push(value.asInteger());
         break;
     case 2:
-        lua_pushnumber(L, std::get<Float>(value));
+        push(value.asFloat());
         break;
     case 3:
-        lua_pushstring(L, std::get<String>(value).c_str());
+        push(value.asString());
         break;
     case 4:
-        lua_pushboolean(L, std::get<Bool>(value));
+        push(value.asBool());
         break;
     case 5:
-        push(std::get<Table>(value));
+        push(value.asTable());
         break;
     [[unlikely]] default:
         LOG::ERROR("Fallthrough on push");
