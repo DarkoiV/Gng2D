@@ -4,6 +4,14 @@
 #include <variant>
 
 namespace Gng2D::Luna {
+enum TYPE {
+    NIL,
+    INT,
+    FLOAT,
+    STRING,
+    BOOL,
+    TABLE,
+};
 using Nil     = std::monostate;
 using Integer = lua_Integer;
 using Float   = lua_Number;
@@ -14,6 +22,9 @@ struct Type;
 struct TableRef
 {
     ~TableRef();
+
+    void set(const Type& key, const Type& value);
+    Type get(const Type& key);
 
   private:
     TableRef(lua_State*, int idx);

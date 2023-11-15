@@ -82,6 +82,75 @@ void Stack::push(const Type& value)
     }
 }
 
+Type Stack::read(int n)
+{
+    auto type = lua_type(L, n);
+    switch (type)
+    {
+    case LUA_TNIL:
+        return Nil{};
+    case LUA_TNUMBER:
+        if (lua_isinteger(L, n)) return Integer{lua_tointeger(L, n)};
+        else return Float{lua_tonumber(L, n)};
+    case LUA_TSTRING:
+        return String{lua_tostring(L, n)};
+    case LUA_TBOOLEAN:
+        return bool{static_cast<bool>(lua_toboolean(L, n))};
+    case LUA_TTABLE:
+        return TableRef(L, n);
+    }
+
+    LOG::DEBUG("Global is of non readable type");
+    return Nil{};
+}
+
+TYPE Stack::is(int n)
+{
+    auto t = lua_type(L, n);
+    switch (t)
+    {
+    case LUA_TNIL:
+        return TYPE::NIL;
+    case LUA_TNUMBER:
+        if (lua_isinteger(L, n)) return TYPE::INT;
+        else return TYPE::FLOAT;
+    case LUA_TSTRING:
+        return TYPE::STRING;
+    case LUA_TBOOLEAN:
+        return TYPE::BOOL;
+    case LUA_TTABLE:
+        return TYPE::TABLE;
+    };
+
+    LOG::DEBUG("Var is of non readable type");
+    return TYPE::NIL;
+}
+
+void Stack::pop(int n)
+{
+    lua_pop(L, n);
+}
+
+void Stack::newTable()
+{
+    lua_newtable(L);
+}
+
+void Stack::setTableField(const Type& key, const Type& value)
+{
+    GNG2D_ASSERT(lua_istable(L, -1), "setttable requies table at index -1");
+    push(key);
+    push(value);
+    lua_rawset(L, -2);
+}
+
+void Stack::pushTableField(const Type& key)
+{
+    GNG2D_ASSERT(lua_istable(L, -1), "setttable requies table at index -1");
+    push(key);
+    lua_rawget(L, -2);
+}
+
 Stack::Lock::Lock(lua_State* state)
     : L(state)
 {

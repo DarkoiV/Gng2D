@@ -1,4 +1,3 @@
-#include "Gng2D/commons/assert.hpp"
 #include "Gng2D/commons/log.hpp"
 #include "Gng2D/commons/luna/state.hpp"
 

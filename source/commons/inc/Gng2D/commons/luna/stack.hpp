@@ -19,12 +19,16 @@ struct Stack
     void push(const String&);
     void push(Bool);
     void push(const TableRef&);
-
     void push(const Type&);
     void pushGlobal(const String&);
 
     Type read(int n);
+    TYPE is(int n);
     void pop(int n);
+
+    void newTable();
+    void setTableField(const Type& key, const Type& value);
+    void pushTableField(const Type& key);
 
   private:
     lua_State* L;
