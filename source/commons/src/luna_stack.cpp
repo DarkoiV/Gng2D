@@ -25,27 +25,27 @@ void Stack::pushNil()
     lua_pushnil(L);
 }
 
-void Stack::push(Integer value)
+void Stack::pushInt(Integer value)
 {
     lua_pushinteger(L, value);
 }
 
-void Stack::push(Float value)
+void Stack::pushFloat(Float value)
 {
     lua_pushnumber(L, value);
 }
 
-void Stack::push(const String& value)
+void Stack::pushString(const String& value)
 {
     lua_pushstring(L, value.c_str());
 }
 
-void Stack::push(Bool value)
+void Stack::pushBool(Bool value)
 {
     lua_pushboolean(L, value);
 }
 
-void Stack::push(const TableRef& tr)
+void Stack::pushTable(const TableRef& tr)
 {
     lua_rawgeti(L, LUA_REGISTRYINDEX, tr.regRef);
 }
@@ -59,23 +59,23 @@ void Stack::push(const Type& value)
 {
     switch (value.index())
     {
-    case 0:
+    case TYPE::NIL:
         lua_pushnil(L);
         break;
-    case 1:
-        push(value.asInteger());
+    case TYPE::INT:
+        pushInt(value.asInteger());
         break;
-    case 2:
-        push(value.asFloat());
+    case TYPE::FLOAT:
+        pushFloat(value.asFloat());
         break;
-    case 3:
-        push(value.asString());
+    case TYPE::STRING:
+        pushString(value.asString());
         break;
-    case 4:
-        push(value.asBool());
+    case TYPE::BOOL:
+        pushBool(value.asBool());
         break;
-    case 5:
-        push(value.asTable());
+    case TYPE::TABLE:
+        pushTable(value.asTable());
         break;
     [[unlikely]] default:
         LOG::ERROR("Fallthrough on push");
@@ -106,8 +106,8 @@ Type Stack::read(int n)
 
 TYPE Stack::is(int n)
 {
-    auto t = lua_type(L, n);
-    switch (t)
+    auto type = lua_type(L, n);
+    switch (type)
     {
     case LUA_TNIL:
         return TYPE::NIL;
@@ -136,19 +136,21 @@ void Stack::newTable()
     lua_newtable(L);
 }
 
-void Stack::setTableField(const Type& key, const Type& value)
+void Stack::setTableField(const Type& key, const Type& value, int tableIndx)
 {
-    GNG2D_ASSERT(lua_istable(L, -1), "setttable requies table at index -1");
+    GNG2D_ASSERT(lua_istable(L, tableIndx), "setttable requies table at index", tableIndx);
+    tableIndx = tableIndx < 0 ? tableIndx - 2 : tableIndx;
     push(key);
     push(value);
-    lua_rawset(L, -2);
+    lua_rawset(L, tableIndx);
 }
 
-void Stack::pushTableField(const Type& key)
+void Stack::pushTableField(const Type& key, int tableIndx)
 {
-    GNG2D_ASSERT(lua_istable(L, -1), "setttable requies table at index -1");
+    GNG2D_ASSERT(lua_istable(L, -1), "setttable requies table at index", tableIndx);
+    tableIndx = tableIndx < 0 ? tableIndx - 1 : tableIndx;
     push(key);
-    lua_rawget(L, -2);
+    lua_rawget(L, tableIndx);
 }
 
 StackLock::StackLock(lua_State* state)

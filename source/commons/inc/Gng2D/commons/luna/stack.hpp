@@ -13,11 +13,12 @@ struct Stack
     ~Stack()            = default;
 
     void pushNil();
-    void push(Integer);
-    void push(Float);
-    void push(const String&);
-    void push(Bool);
-    void push(const TableRef&);
+    void pushInt(Integer);
+    void pushFloat(Float);
+    void pushString(const String&);
+    void pushBool(Bool);
+    void pushTable(const TableRef&);
+
     void push(const Type&);
     void pushGlobal(const String&);
 
@@ -26,8 +27,8 @@ struct Stack
     void pop(int n);
 
     void newTable();
-    void setTableField(const Type& key, const Type& value);
-    void pushTableField(const Type& key);
+    void setTableField(const Type& key, const Type& value, int tableIndx = -1);
+    void pushTableField(const Type& key, int tableIndx = -1);
 
   private:
     lua_State* L;

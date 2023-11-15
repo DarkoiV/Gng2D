@@ -9,4 +9,5 @@ target_sources(Gng2D PRIVATE
 
 # TESTS
 target_sources(Gng2D_TESTS PRIVATE
+    tst/luna_stack.cpp
     tst/luna_state.cpp)
