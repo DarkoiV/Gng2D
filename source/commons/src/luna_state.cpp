@@ -1,11 +1,11 @@
 #include "Gng2D/commons/log.hpp"
+#include "Gng2D/commons/luna/stack.hpp"
 #include "Gng2D/commons/luna/state.hpp"
 
 using namespace Gng2D::Luna;
 
 State::State()
     : L(luaL_newstate())
-    , stack(L)
 {
     if (not L) LOG::FATAL("Failed to create lua state");
 }
@@ -31,8 +31,8 @@ void State::doString(const std::string& str, const std::string& env)
 
 Type State::read(const std::string& name)
 {
-    Stack::Lock lock(L);
-    auto        type = lua_getglobal(L, name.c_str());
+    StackLock lock(L);
+    auto      type = lua_getglobal(L, name.c_str());
     switch (type)
     {
     case LUA_TNIL:
@@ -51,7 +51,7 @@ Type State::read(const std::string& name)
 
 std::optional<lua_Integer> State::readInt(const std::string& name)
 {
-    Stack::Lock lock(L);
+    StackLock lock(L);
     if (LUA_TNUMBER == lua_getglobal(L, name.c_str()) and lua_isinteger(L, -1))
     {
         lua_Integer ret = lua_tointeger(L, -1);
@@ -66,7 +66,7 @@ std::optional<lua_Integer> State::readInt(const std::string& name)
 
 std::optional<lua_Number> State::readFloat(const std::string& name)
 {
-    Stack::Lock lock(L);
+    StackLock lock(L);
     if (LUA_TNUMBER == lua_getglobal(L, name.c_str()))
     {
         lua_Number ret = lua_tonumber(L, -1);
@@ -81,7 +81,7 @@ std::optional<lua_Number> State::readFloat(const std::string& name)
 
 std::optional<std::string> State::readString(const std::string& name)
 {
-    Stack::Lock lock(L);
+    StackLock lock(L);
     if (LUA_TSTRING == lua_getglobal(L, name.c_str()))
     {
         std::string ret{lua_tostring(L, -1)};
@@ -96,7 +96,7 @@ std::optional<std::string> State::readString(const std::string& name)
 
 std::optional<bool> State::readBool(const std::string& name)
 {
-    Stack::Lock lock(L);
+    StackLock lock(L);
     if (LUA_TBOOLEAN == lua_getglobal(L, name.c_str()))
     {
         bool ret = lua_toboolean(L, -1);
@@ -111,28 +111,28 @@ std::optional<bool> State::readBool(const std::string& name)
 
 void State::createInt(const std::string& name, lua_Integer var)
 {
-    Stack::Lock lock(L);
+    StackLock lock(L);
     lua_pushinteger(L, var);
     lua_setglobal(L, name.c_str());
 }
 
 void State::createFloat(const std::string& name, lua_Number var)
 {
-    Stack::Lock lock(L);
+    StackLock lock(L);
     lua_pushnumber(L, var);
     lua_setglobal(L, name.c_str());
 }
 
 void State::createString(const std::string& name, const std::string& var)
 {
-    Stack::Lock lock(L);
+    StackLock lock(L);
     lua_pushstring(L, var.c_str());
     lua_setglobal(L, name.c_str());
 }
 
 void State::createBool(const std::string& name, bool var)
 {
-    Stack::Lock lock(L);
+    StackLock lock(L);
     lua_pushboolean(L, var);
     lua_setglobal(L, name.c_str());
 }

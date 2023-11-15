@@ -151,13 +151,13 @@ void Stack::pushTableField(const Type& key)
     lua_rawget(L, -2);
 }
 
-Stack::Lock::Lock(lua_State* state)
+StackLock::StackLock(lua_State* state)
     : L(state)
 {
     top = lua_gettop(L);
 }
 
-Stack::Lock::~Lock()
+StackLock::~StackLock()
 {
     GNG2D_ASSERT(top <= lua_gettop(L), "Stack lock went out of scope!");
     lua_settop(L, top);

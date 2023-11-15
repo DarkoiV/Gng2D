@@ -12,7 +12,6 @@ struct Stack
     Stack(Stack&&)      = delete;
     ~Stack()            = default;
 
-    struct Lock;
     void pushNil();
     void push(Integer);
     void push(Float);
@@ -34,13 +33,25 @@ struct Stack
     lua_State* L;
 };
 
-struct Stack::Lock
+struct StackLock
 {
-    Lock(lua_State*);
-    ~Lock();
+    StackLock(lua_State*);
+    ~StackLock();
 
   private:
     lua_State* L;
     int        top;
 };
+
+struct ScopedStack
+    : Stack
+    , StackLock
+{
+    ScopedStack(lua_State* s)
+        : Stack(s)
+        , StackLock(s)
+    {
+    }
+};
+
 } // namespace Gng2D::Luna

@@ -1,5 +1,4 @@
 #pragma once
-#include "Gng2D/commons/luna/stack.hpp"
 #include "Gng2D/commons/luna/type.hpp"
 #include "lua.hpp"
 #include <optional>
@@ -29,7 +28,6 @@ struct State
 
   private:
     lua_State* L{};
-    Stack      stack;
 
     void setEnv(const std::string& env);
 };
