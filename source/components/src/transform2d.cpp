@@ -1,6 +1,6 @@
 #include "Gng2D/components/transform2d.hpp"
 #include "Gng2D/commons/args_vector.hpp"
-#include "Gng2D/commons/comp_util_macros.hpp"
+#include "util_macros.hpp"
 #include <entt/entt.hpp>
 
 using Gng2D::Transform2d;

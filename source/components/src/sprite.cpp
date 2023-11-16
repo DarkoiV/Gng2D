@@ -1,8 +1,8 @@
 #include "Gng2D/components/sprite.hpp"
 #include "Gng2D/commons/args_vector.hpp"
 #include "Gng2D/commons/assert.hpp"
-#include "Gng2D/commons/comp_util_macros.hpp"
 #include "Gng2D/commons/repository.hpp"
+#include "util_macros.hpp"
 #include <entt/entt.hpp>
 
 using Gng2D::Sprite;

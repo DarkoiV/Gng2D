@@ -27,18 +27,18 @@ struct Repository
     static void               registerDefaultComponents();
     static const std::string& componentNameFromHash(const StringHash);
 
-    template <Concepts::Component C>
-    static void emplaceComponent(entt::registry*, entt::entity, entt::meta_any&);
-
     static void freeResources();
 
   private:
+    inline const static std::string UNKNOWN_HASH{"UNKNOWN HASH"};
+
     inline static std::map<StringHash, Sprite>      sprites;
     inline static std::map<StringHash, std::string> spriteNames;
 
     inline static std::map<StringHash, std::string> componentNames;
 
-    inline const static std::string UNKNOWN_HASH{"UNKNOWN HASH"};
+    template <Concepts::Component C>
+    static void emplaceComponent(entt::registry*, entt::entity, entt::meta_any&);
 };
 
 template <Concepts::Component C>
