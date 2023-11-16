@@ -131,6 +131,11 @@ void Stack::pop(int n)
     lua_pop(L, n);
 }
 
+int Stack::top()
+{
+    return lua_gettop(L);
+}
+
 void Stack::newTable()
 {
     lua_newtable(L);
@@ -138,18 +143,30 @@ void Stack::newTable()
 
 void Stack::setTableField(const Type& key, const Type& value, int tableIndx)
 {
-    GNG2D_ASSERT(lua_istable(L, tableIndx), "setttable requies table at index", tableIndx);
+    GNG2D_ASSERT(lua_istable(L, tableIndx), "setTableField requies table at index", tableIndx);
     tableIndx = tableIndx < 0 ? tableIndx - 2 : tableIndx;
     push(key);
     push(value);
     lua_rawset(L, tableIndx);
 }
 
+void Stack::setTableFieldFS(int tableIndx)
+{
+    GNG2D_ASSERT(lua_istable(L, tableIndx), "setTableField requies table at index", tableIndx);
+    lua_rawset(L, tableIndx);
+}
+
 void Stack::pushTableField(const Type& key, int tableIndx)
 {
-    GNG2D_ASSERT(lua_istable(L, -1), "setttable requies table at index", tableIndx);
+    GNG2D_ASSERT(lua_istable(L, tableIndx), "pushTableField requies table at index", tableIndx);
     tableIndx = tableIndx < 0 ? tableIndx - 1 : tableIndx;
     push(key);
+    lua_rawget(L, tableIndx);
+}
+
+void Stack::pushTableFieldFS(int tableIndx)
+{
+    GNG2D_ASSERT(lua_istable(L, tableIndx), "pushTableField requies table at index", tableIndx);
     lua_rawget(L, tableIndx);
 }
 

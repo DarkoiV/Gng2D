@@ -67,3 +67,54 @@ TEST_F(LunaStackTest, CanDoBasicStackOperations)
     ASSERT_EQ(nilValue, Nil{});
     ASSERT_TRUE(lua_gettop(L) == 0);
 }
+
+TEST_F(LunaStackTest, CanPushGlobalVariable)
+{
+    luaL_dostring(L,
+                  "GLOBAL_VAR = 332.33 \n"
+                  "OTHER_GLOBAL = 'Hello Lua String'");
+    Stack stack(L);
+    stack.pushGlobal("GLOBAL_VAR");
+    stack.pushGlobal("OTHER_GLOBAL");
+
+    ASSERT_EQ(stack.read(-2), 332.33);
+    ASSERT_EQ(stack.read(-1), "Hello Lua String");
+}
+
+TEST_F(LunaStackTest, CanDoOperationsOnLuaTables)
+{
+    Stack stack(L);
+    ASSERT_EQ(lua_gettop(L), 0);
+    stack.newTable();
+    ASSERT_EQ(lua_gettop(L), 1);
+
+    constexpr char STRING_KEY[]     = "KEY";
+    constexpr int  STRING_KEY_VALUE = 123;
+    stack.setTableField(STRING_KEY, STRING_KEY_VALUE);
+    ASSERT_EQ(lua_gettop(L), 1);
+
+    constexpr float FLOAT_KEY         = 33.3;
+    constexpr char  FLOAT_KEY_VALUE[] = "hey ho";
+    stack.setTableField(FLOAT_KEY, FLOAT_KEY_VALUE);
+    ASSERT_EQ(lua_gettop(L), 1);
+
+    stack.pushTableField(FLOAT_KEY);
+    ASSERT_EQ(stack.read(-1), FLOAT_KEY_VALUE);
+
+    stack.pushTableField(STRING_KEY, -2);
+    ASSERT_EQ(stack.read(-1), STRING_KEY_VALUE);
+
+    stack.pushTableField("UNDEFINED_KEY", -3);
+    ASSERT_EQ(stack.read(-1), Nil{});
+
+    luaL_dostring(L, "globalTable = {}");
+    constexpr char GLOBAL_TABLE_KEY_VALUE[] = "TABLE CAN BE USED AS KEY!";
+    stack.pushGlobal("globalTable");
+    stack.push(GLOBAL_TABLE_KEY_VALUE);
+    stack.setTableFieldFS(-6);
+
+    stack.pop(3);
+    stack.pushGlobal("globalTable");
+    stack.pushTableFieldFS(-2);
+    ASSERT_EQ(stack.read(-1), GLOBAL_TABLE_KEY_VALUE);
+}

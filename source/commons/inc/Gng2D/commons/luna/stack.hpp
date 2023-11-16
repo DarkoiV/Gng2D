@@ -25,10 +25,13 @@ struct Stack
     Type read(int n);
     TYPE is(int n);
     void pop(int n);
+    int  top();
 
     void newTable();
     void setTableField(const Type& key, const Type& value, int tableIndx = -1);
+    void setTableFieldFS(int tableIndx = -3);
     void pushTableField(const Type& key, int tableIndx = -1);
+    void pushTableFieldFS(int tableIndx = -2);
 
   private:
     lua_State* L;
