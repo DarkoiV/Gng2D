@@ -35,6 +35,7 @@ struct TableRef
   private:
     TableRef(lua_State*, int idx);
     friend struct Stack;
+    friend struct State;
 
     lua_State*  L;
     int         regRef;

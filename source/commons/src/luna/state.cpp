@@ -1,6 +1,7 @@
+#include "Gng2D/commons/luna/state.hpp"
+#include "Gng2D/commons/assert.hpp"
 #include "Gng2D/commons/log.hpp"
 #include "Gng2D/commons/luna/stack.hpp"
-#include "Gng2D/commons/luna/state.hpp"
 
 using namespace Gng2D::Luna;
 
@@ -15,38 +16,40 @@ State::~State()
     lua_close(L);
 }
 
-void State::doFile(const std::string& path, const std::string& env)
+void State::doFile(const std::string& path)
 {
-    if (luaL_loadfile(L, path.c_str()) != 0) LOG::ERROR(lua_tostring(L, 1));
-    if (not env.empty()) setEnv(env);
+    GNG2D_ASSERT(luaL_dofile(L, path.c_str()) == LUA_OK, lua_tostring(L, -1));
+}
+
+void State::doFile(const std::string& path, const TableRef& env)
+{
+    if (luaL_loadfile(L, path.c_str()) != 0) LOG::ERROR(lua_tostring(L, -1));
+    setEnv(env);
     if (lua_pcall(L, 0, 0, 0) != 0) LOG::ERROR(lua_tostring(L, -1));
 }
 
-void State::doString(const std::string& str, const std::string& env)
+void State::doString(const std::string& str, const TableRef& env)
 {
     if (luaL_loadstring(L, str.c_str()) != 0) LOG::ERROR(lua_tostring(L, -1));
-    if (not env.empty()) setEnv(env);
+    setEnv(env);
     if (lua_pcall(L, 0, 0, 0) != 0) LOG::ERROR(lua_tostring(L, -1));
+}
+
+void State::doString(const std::string& str)
+{
+    GNG2D_ASSERT(luaL_dostring(L, str.c_str()) == LUA_OK, lua_tostring(L, -1));
+}
+
+ScopedStack State::getStack()
+{
+    return ScopedStack(L);
 }
 
 Type State::read(const std::string& name)
 {
-    StackLock lock(L);
-    auto      type = lua_getglobal(L, name.c_str());
-    switch (type)
-    {
-    case LUA_TNIL:
-        return Nil{};
-    case LUA_TNUMBER:
-        if (lua_isinteger(L, -1)) return Integer{lua_tointeger(L, -1)};
-        else return Float{lua_tonumber(L, -1)};
-    case LUA_TSTRING:
-        return String{lua_tostring(L, -1)};
-    case LUA_TBOOLEAN:
-        return bool{static_cast<bool>(lua_toboolean(L, -1))};
-    }
-    LOG::DEBUG("Global is of non readable type");
-    return Nil{};
+    ScopedStack stack(L);
+    auto        type = lua_getglobal(L, name.c_str());
+    return stack.read(-1);
 }
 
 std::optional<lua_Integer> State::readInt(const std::string& name)
@@ -109,6 +112,20 @@ std::optional<bool> State::readBool(const std::string& name)
     }
 }
 
+std::optional<TableRef> State::readTable(const std::string& name)
+{
+    ScopedStack stack(L);
+    if (LUA_TTABLE == lua_getglobal(L, name.c_str()))
+    {
+        return TableRef(L, -1);
+    }
+    else [[unlikely]]
+    {
+        LOG::DEBUG(name, "is not a table");
+        return std::nullopt;
+    }
+}
+
 void State::createInt(const std::string& name, lua_Integer var)
 {
     StackLock lock(L);
@@ -137,20 +154,17 @@ void State::createBool(const std::string& name, bool var)
     lua_setglobal(L, name.c_str());
 }
 
-void State::setEnv(const std::string& env)
+void State::createTable(const std::string& name)
 {
-    auto envType = lua_getglobal(L, env.c_str());
-    if (envType != LUA_TTABLE and envType != LUA_TNIL) [[unlikely]]
-    {
-        return LOG::ERROR("Cannot create env, name:", env, "is used by another variable");
-    }
-    if (envType == LUA_TNIL)
-    {
-        LOG::INFO("Creating new env:", env);
-        lua_pop(L, 1);
-        lua_newtable(L);
-        lua_setglobal(L, env.c_str());
-        lua_getglobal(L, env.c_str());
-    }
-    lua_setupvalue(L, -2, 1);
+    StackLock lock(L);
+    lua_newtable(L);
+    lua_setglobal(L, name.c_str());
+}
+
+void State::setEnv(const TableRef& env)
+{
+    GNG2D_ASSERT(lua_isfunction(L, -1), "setEnv requires function at -1 index");
+    ScopedStack stack(L);
+    stack.push(env);
+    LOG::INFO("ENV set:", lua_setupvalue(L, -2, 1));
 }

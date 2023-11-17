@@ -151,3 +151,24 @@ TEST_F(LunaTest, LunaCanRunStringAsScript)
     ASSERT_EQ(readInt, SCRIPT_INT_VALUE);
     ASSERT_EQ(readStr, SCRIPT_STR_VALUE);
 }
+
+TEST_F(LunaTest, CanUseTablesAsEnvsForFiles)
+{
+    luna.createTable("ENV_TABLE");
+    auto table = luna.readTable("ENV_TABLE");
+    ASSERT_TRUE(table);
+    luna.doString(
+        "x = 12 \n"
+        "y = 33 \n"
+        "z = 31.03 \n"
+        "envTable = _ENV",
+        *table);
+    ASSERT_EQ(table->get("x"), 12);
+    ASSERT_EQ(table->get("y"), 33);
+    ASSERT_EQ(table->get("z"), 31.03);
+    ASSERT_EQ(*table, table->get("envTable"));
+    ASSERT_FALSE(luna.readInt("x"));
+    ASSERT_FALSE(luna.readInt("y"));
+    ASSERT_FALSE(luna.readFloat("z"));
+    ASSERT_FALSE(luna.readTable("envTable"));
+}
