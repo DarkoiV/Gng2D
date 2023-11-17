@@ -24,8 +24,8 @@ struct TableRef
     ~TableRef();
     TableRef(const TableRef&);
     TableRef(TableRef&&);
-    auto operator=(const TableRef&);
-    auto operator=(TableRef&&);
+    TableRef& operator=(const TableRef&);
+    TableRef& operator=(TableRef&&);
 
     void set(const Type& key, const Type& value);
     Type get(const Type& key);

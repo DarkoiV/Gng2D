@@ -1,5 +1,6 @@
-#include "Gng2D/commons/luna/stack.hpp"
 #include "Gng2D/commons/luna/type.hpp"
+#include "Gng2D/commons/assert.hpp"
+#include "Gng2D/commons/luna/stack.hpp"
 
 using namespace Gng2D::Luna;
 
@@ -27,18 +28,26 @@ TableRef::TableRef(TableRef&& from)
     from.markAsMovedFrom();
 }
 
-auto TableRef::operator=(const TableRef& from)
+TableRef& TableRef::operator=(const TableRef& from)
 {
+    GNG2D_ASSERT(L == from.L,
+                 "Assigment operator for TableRef "
+                 "only allowed for Refs belonging to the same Lua state");
     lua_rawgeti(L, LUA_REGISTRYINDEX, from.regRef);
     regRef = luaL_ref(L, LUA_REGISTRYINDEX);
     ptr    = from.ptr;
+    return *this;
 }
 
-auto TableRef::operator=(TableRef&& from)
+TableRef& TableRef::operator=(TableRef&& from)
 {
+    GNG2D_ASSERT(L == from.L,
+                 "Assigment operator for TableRef "
+                 "only allowed for Refs belonging to the same Lua state");
     regRef = from.regRef;
     ptr    = from.ptr;
     from.markAsMovedFrom();
+    return *this;
 }
 
 TableRef::~TableRef()

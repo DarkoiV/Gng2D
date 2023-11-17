@@ -1,5 +1,5 @@
-#include "Gng2D/commons/luna/stack.hpp"
 #include "Gng2D/commons/luna/type.hpp"
+#include "Gng2D/commons/luna/stack.hpp"
 #include <gtest/gtest.h>
 
 using namespace Gng2D::Luna;
