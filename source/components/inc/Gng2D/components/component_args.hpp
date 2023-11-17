@@ -1,5 +1,6 @@
 #pragma once
 #include "entt/core/type_info.hpp"
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -14,4 +15,15 @@ struct ComponentArg
     bool          required;
 };
 using ComponentArgs = std::vector<ComponentArg>;
+
+inline std::ostream& operator<<(std::ostream& o, const ComponentArgs& args)
+{
+    for (const auto& arg: args)
+    {
+        o << "\n"
+          << arg.name << ": " << '"' << arg.description << '"'
+          << (arg.required ? " (required)" : " (optional)");
+    }
+    return o;
+}
 } // namespace Gng2D

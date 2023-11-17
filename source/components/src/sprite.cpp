@@ -9,7 +9,7 @@ using Gng2D::Sprite;
 using Arg = Gng2D::ComponentArg;
 using entt::type_id;
 
-const static Gng2D::ComponentArgs SPRITE_ARGS{
+const inline static Gng2D::ComponentArgs SPRITE_ARGS{
     Arg{.name          = "sprite",
         .description   = "Name or numeric hash of loaded sprite to display",
         .acceptedTypes = {type_id<Gng2D::StringHash>(), type_id<std::string>()},
