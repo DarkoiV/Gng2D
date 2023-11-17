@@ -44,7 +44,7 @@ struct StackLock
 
   private:
     lua_State* L;
-    int        top;
+    int        top_;
 };
 
 struct ScopedStack

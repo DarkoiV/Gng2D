@@ -47,7 +47,8 @@ void Stack::pushBool(Bool value)
 
 void Stack::pushTable(const TableRef& tr)
 {
-    lua_rawgeti(L, LUA_REGISTRYINDEX, tr.regRef);
+    GNG2D_ASSERT(lua_rawgeti(L, LUA_REGISTRYINDEX, tr.regRef) == LUA_TTABLE,
+                 "No table at stored ref in TableRed");
 }
 
 void Stack::pushGlobal(const String& name)
@@ -173,11 +174,11 @@ void Stack::pushTableFieldFS(int tableIndx)
 StackLock::StackLock(lua_State* state)
     : L(state)
 {
-    top = lua_gettop(L);
+    top_ = lua_gettop(L);
 }
 
 StackLock::~StackLock()
 {
-    GNG2D_ASSERT(top <= lua_gettop(L), "Stack lock went out of scope!");
-    lua_settop(L, top);
+    GNG2D_ASSERT(top_ <= lua_gettop(L), "Stack lock went out of scope!");
+    lua_settop(L, top_);
 }

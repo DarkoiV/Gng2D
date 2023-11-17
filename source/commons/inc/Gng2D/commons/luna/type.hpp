@@ -22,9 +22,15 @@ struct Type;
 struct TableRef
 {
     ~TableRef();
+    TableRef(const TableRef&);
+    TableRef(TableRef&&);
+    auto operator=(const TableRef&);
+    auto operator=(TableRef&&);
 
     void set(const Type& key, const Type& value);
     Type get(const Type& key);
+
+    friend bool operator==(const TableRef& lhs, const TableRef& rhs) { return lhs.ptr == rhs.ptr; }
 
   private:
     TableRef(lua_State*, int idx);
@@ -33,6 +39,9 @@ struct TableRef
     lua_State*  L;
     int         regRef;
     const void* ptr;
+
+    inline void markAsMovedFrom();
+    inline bool ownsRef();
 };
 
 struct Type : std::variant<Nil, Integer, Float, String, Bool, TableRef>
