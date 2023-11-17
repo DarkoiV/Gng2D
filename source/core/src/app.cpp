@@ -4,20 +4,55 @@
 #include "Gng2D/core/global.hpp"
 #include "Gng2D/core/main_loop.hpp"
 #include <SDL2/SDL_image.h>
+#include <filesystem>
 
 using Gng2D::LOG;
 using namespace Gng2D::GLOBAL;
+namespace Luna = Gng2D::Luna;
+namespace fs   = std::filesystem;
+
+static Luna::TableRef loadConfigToTable(const fs::path& path)
+{
+    auto stack = LUNA_STATE.getStack();
+    stack.pushGlobal("Gng2D");
+    GNG2D_ASSERT(stack.is(-1) == Luna::TYPE::TABLE, "");
+
+    stack.pushString("config");
+    stack.newTable();
+    stack.setTableFieldFS();
+    stack.pushTableField("config");
+    GNG2D_ASSERT(stack.is(-1) == Luna::TYPE::TABLE, "");
+
+    auto cfgTable = stack.read(-1).asTable();
+    LUNA_STATE.doFile(path, cfgTable);
+    return cfgTable;
+}
 
 static void loadAppSettings()
 {
     APP_DIRECTORY  = SDL_GetBasePath();
-    DATA_DIRECTORY = APP_DIRECTORY + "data/";
+    DATA_DIRECTORY = APP_DIRECTORY / "data/";
     LOG::INFO("Application directory path:", APP_DIRECTORY);
-    LOG::INFO("Data directory path:", APP_DIRECTORY);
+    LOG::INFO("Data directory path:", DATA_DIRECTORY);
 
-    LOG::INFO("Loading config");
-    LOG::WARN("Using defaults for now : (");
-    LOG::OK("Config loaded");
+    LUNA_STATE.createTable("Gng2D");
+    LOG::INFO("Created global lua table Gng2D");
+
+    fs::path configPath = DATA_DIRECTORY / "config.lua";
+    if (fs::exists(configPath))
+    {
+        LOG::INFO("Loading config from", configPath);
+        auto cfgTable = loadConfigToTable(configPath);
+        cfgTable.get("TITLE").tryAssignTo(TITLE);
+        cfgTable.get("RENDER_WIDTH").tryAssignTo(RENDER_WIDTH);
+        cfgTable.get("RENDER_HEIGHT").tryAssignTo(RENDER_HEIGHT);
+        cfgTable.get("RENDER_SCALE").tryAssignTo(RENDER_SCALE);
+        cfgTable.get("LOGIC_TICK").tryAssignTo(LOGIC_TICK);
+    }
+    else
+    {
+        LOG::INFO("No config, using default settings");
+    }
 }
 
 static void createSdlWindow()

@@ -1,4 +1,5 @@
 #pragma once
+#include "Gng2D/commons/assert.hpp"
 #include "lua.hpp"
 #include <string>
 #include <variant>
@@ -65,6 +66,39 @@ struct Type : std::variant<Nil, Integer, Float, String, Bool, TableRef>
     const auto&    asString() const { return std::get<String>(*this); };
     const auto&    asBool() const { return std::get<Bool>(*this); };
     const auto&    asTable() const { return std::get<TableRef>(*this); };
+
+    template <typename T>
+    bool tryAssignTo(T& target)
+    {
+        if constexpr (std::is_same_v<T, Bool>)
+        {
+            if (this->isBool()) target = this->asBool();
+            else return false;
+        }
+        else if constexpr (std::is_floating_point_v<T>)
+        {
+            if (this->isFloat()) target = this->asFloat();
+            else return false;
+        }
+        else if constexpr (std::is_integral_v<T>)
+        {
+            if (this->isInteger()) target = this->asInteger();
+            else return false;
+        }
+        else if constexpr (std::is_convertible_v<T, String>)
+        {
+            if (this->isString()) target = this->asString();
+            else return false;
+        }
+        else if constexpr (std::is_same_v<T, TableRef>)
+        {
+            if (this->isTable()) target = this->asTable();
+            else return false;
+        }
+        else GNG2D_ASSERT_CONSTEXPR("Target type not supported");
+
+        return true;
+    }
 };
 
 template <typename T>

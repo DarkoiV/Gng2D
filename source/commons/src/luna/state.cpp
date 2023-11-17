@@ -23,16 +23,16 @@ void State::doFile(const std::string& path)
 
 void State::doFile(const std::string& path, const TableRef& env)
 {
-    if (luaL_loadfile(L, path.c_str()) != 0) LOG::ERROR(lua_tostring(L, -1));
+    if (luaL_loadfile(L, path.c_str()) != LUA_OK) LOG::ERROR(lua_tostring(L, -1));
     setEnv(env);
-    if (lua_pcall(L, 0, 0, 0) != 0) LOG::ERROR(lua_tostring(L, -1));
+    if (lua_pcall(L, 0, 0, 0) != LUA_OK) LOG::ERROR(lua_tostring(L, -1));
 }
 
 void State::doString(const std::string& str, const TableRef& env)
 {
-    if (luaL_loadstring(L, str.c_str()) != 0) LOG::ERROR(lua_tostring(L, -1));
+    if (luaL_loadstring(L, str.c_str()) != LUA_OK) LOG::ERROR(lua_tostring(L, -1));
     setEnv(env);
-    if (lua_pcall(L, 0, 0, 0) != 0) LOG::ERROR(lua_tostring(L, -1));
+    if (lua_pcall(L, 0, 0, 0) != LUA_OK) LOG::ERROR(lua_tostring(L, -1));
 }
 
 void State::doString(const std::string& str)
@@ -166,5 +166,5 @@ void State::setEnv(const TableRef& env)
     GNG2D_ASSERT(lua_isfunction(L, -1), "setEnv requires function at -1 index");
     ScopedStack stack(L);
     stack.push(env);
-    LOG::INFO("ENV set:", lua_setupvalue(L, -2, 1));
+    GNG2D_ASSERT(std::string("_ENV") == lua_setupvalue(L, -2, 1), "setupvalue did not set env");
 }

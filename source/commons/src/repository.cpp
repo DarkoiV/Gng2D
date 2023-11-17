@@ -1,8 +1,6 @@
 #include "Gng2D/commons/repository.hpp"
 #include "Gng2D/commons/args_vector.hpp" // required for template
 #include "Gng2D/commons/log.hpp"
-#include "Gng2D/components/input.hpp"
-#include "Gng2D/components/relationship.hpp"
 #include "Gng2D/components/sprite.hpp"
 #include "Gng2D/components/transform2d.hpp"
 #include "Gng2D/core/global.hpp"
@@ -11,10 +9,10 @@
 using Gng2D::Repository;
 
 void Repository::loadSprite(const std::string& name,
-                            const std::string& path,
+                            const std::string& directory,
                             const std::string& fileType)
 {
-    const auto fullPath       = GLOBAL::DATA_DIRECTORY + path + name + fileType;
+    const auto fullPath       = GLOBAL::DATA_DIRECTORY / directory / (name + fileType);
     const auto spriteNameHash = entt::hashed_string{name.c_str()};
     if (auto it = spriteNames.find(spriteNameHash); it != spriteNames.end())
     {
