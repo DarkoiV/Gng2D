@@ -1,7 +1,7 @@
 #pragma once
 #include "Gng2D/commons/log.hpp"
 #include "Gng2D/commons/types.hpp"
-#include "Gng2D/components/concept.hpp" // "Concept is required here!"
+#include "Gng2D/components/concepts.hpp" // IWYU pragma: keep
 #include "Gng2D/components/sprite.hpp"
 #include <entt/entt.hpp>
 #include <string>
@@ -16,8 +16,8 @@ struct Repository
     };
 
     static void               loadSprite(const std::string& name,
-                                         const std::string& path     = "sprites/",
-                                         const std::string& fileType = ".png");
+                                         const std::string& directory = "sprites",
+                                         const std::string& fileType  = ".png");
     static Sprite             getSprite(const StringHash);
     static Sprite             getSprite(const std::string&);
     static const std::string& spriteNameFromHash(const StringHash);

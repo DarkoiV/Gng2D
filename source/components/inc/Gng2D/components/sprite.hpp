@@ -1,5 +1,5 @@
 #pragma once
-#include "Gng2D/commons/component_args.hpp"
+#include "Gng2D/components/component_args.hpp"
 #include <SDL2/SDL.h>
 
 namespace Gng2D {

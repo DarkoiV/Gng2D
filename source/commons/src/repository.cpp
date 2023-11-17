@@ -1,5 +1,5 @@
 #include "Gng2D/commons/repository.hpp"
-#include "Gng2D/commons/args_vector.hpp" // required for template
+#include "Gng2D/commons/args_vector.hpp" // IWYU pragma: keep
 #include "Gng2D/commons/log.hpp"
 #include "Gng2D/components/sprite.hpp"
 #include "Gng2D/components/transform2d.hpp"
