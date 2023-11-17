@@ -36,6 +36,7 @@ static void loadAppSettings()
     LOG::INFO("Data directory path:", DATA_DIRECTORY);
 
     LUNA_STATE.createTable("Gng2D");
+    GNG2D_ASSERT(LUNA_STATE.read("Gng2D").isTable());
     LOG::INFO("Created global lua table Gng2D");
 
     fs::path configPath = DATA_DIRECTORY / "config.lua";

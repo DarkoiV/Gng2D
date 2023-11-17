@@ -4,8 +4,8 @@
 #define GNG2D_ALWAYS_ASSERT(condition, ...)                                                        \
     if (not(condition))                                                                            \
     {                                                                                              \
-        ::Gng2D::LOG::FATAL("[ Assertion", __FILE__, __LINE__, #condition,                         \
-                            "] failed:", __VA_ARGS__);                                             \
+        ::Gng2D::LOG::FATAL("[ Assertion", __FILE__ ":", __LINE__, "(" #condition ")",             \
+                            "failed]\n" __VA_OPT__(, ) __VA_ARGS__);                               \
     }
 
 #ifdef NDEBUG
