@@ -18,6 +18,8 @@ void Scene::onEnter()
     Repository::loadSprite("red_x");
     RedX spawner(reg);
     spawner.spawn();
+    spawner.spawn();
+    spawner.spawn();
 }
 
 void Scene::onExit()

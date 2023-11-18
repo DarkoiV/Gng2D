@@ -43,6 +43,13 @@ void MainLoop::eventsProcessing()
         case SDL_KEYDOWN:
             CURRENT_SCENE->onKeyPress(event.key);
             break;
+        case SDL_MOUSEMOTION:
+            CURRENT_SCENE->onMouseMotion(event.motion);
+            break;
+        case SDL_MOUSEBUTTONDOWN:
+        case SDL_MOUSEBUTTONUP:
+            CURRENT_SCENE->onMouseButton(event.button);
+            break;
         }
 }
 

@@ -1,6 +1,5 @@
 #pragma once
 #include "entt/core/type_info.hpp"
-#include <climits>
 #include <iomanip>
 #include <iostream>
 #include <string>

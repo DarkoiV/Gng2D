@@ -3,7 +3,6 @@
 #include "Gng2D/commons/scene_interface.hpp"
 #include <SDL2/SDL.h>
 #include <filesystem>
-#include <memory>
 #include <string>
 
 namespace Gng2D::GLOBAL {
@@ -22,7 +21,6 @@ inline std::filesystem::path DATA_DIRECTORY;
 inline bool                  APP_RUNNING = true;
 inline Luna::State           LUNA_STATE;
 
-using ScenePtr                = std::unique_ptr<SceneInterface>;
 inline ScenePtr CURRENT_SCENE = nullptr;
 inline ScenePtr NEXT_SCENE    = nullptr;
 } // namespace Gng2D::GLOBAL

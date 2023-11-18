@@ -6,7 +6,8 @@ add_custom_command(TARGET Sandbox POST_BUILD
     COMMAND Sandbox
     COMMENT "RUNNING GNG2D-SANDBOX")
 target_link_libraries(Sandbox
-    Gng2D)
+    Gng2D
+    Gng2D-Editor)
 
 add_subdirectory(source)
 

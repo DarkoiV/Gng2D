@@ -4,6 +4,7 @@ include(FetchContent)
 set(CMAKE_EXPORT_COMPILE_COMMANDS True)
 
 ### 3RD PARTY LIBRARIES #######################################################
+find_package(SDL2 CONFIG REQUIRED)
 cmake_policy(SET CMP0135 NEW)
 # EnTT
 FetchContent_Declare(
@@ -23,8 +24,14 @@ FetchContent_Declare(
     URL https://www.lua.org/ftp/lua-5.4.6.tar.gz
     URL_HASH SHA256=7d5ea1b9cb6aa0b59ca3dde1c6adcb57ef83a1ba8e5432c0ecd06bf439b3ad88)
 
+# imgui
+FetchContent_Declare(
+    imgui
+    GIT_REPOSITORY  https://github.com/ocornut/imgui
+    GIT_TAG         v1.90)
+
 # MAKE AVAILABLE
-FetchContent_MakeAvailable(EnTT googletest lua)
+FetchContent_MakeAvailable(EnTT googletest lua imgui)
 
 # Build lua
 file(GLOB lua_src 
@@ -32,6 +39,19 @@ file(GLOB lua_src
     "${lua_SOURCE_DIR}/src/*.cpp")
 add_library(lua ${lua_src})
 target_include_directories(lua INTERFACE "${lua_SOURCE_DIR}/src")
+
+# Build imgui 
+file(GLOB imgui_src 
+    "${imgui_SOURCE_DIR}/*.cpp"
+    "${imgui_SOURCE_DIR}/backends/imgui_impl_sdl2.cpp"
+    "${imgui_SOURCE_DIR}/backends/imgui_impl_sdlrenderer2.cpp"
+    "${imgui_SOURCE_DIR}/misc/cpp/imgui_stdlib.*")
+
+add_library(imgui ${imgui_src})
+target_include_directories(imgui PUBLIC "${imgui_SOURCE_DIR}")
+target_include_directories(imgui PRIVATE "${SDL2_INCLUDE_DIRS}")
+target_link_libraries(imgui 
+    SDL2)
 
 ### Gng2D #####################################################################
 add_library(Gng2D)
@@ -42,6 +62,15 @@ target_link_libraries(Gng2D
     lua)
 set_property(TARGET Gng2D PROPERTY CXX_STANDARD 20)
 set_property(TARGET Gng2D PROPERTY ENABLE_EXPORTS TRUE)
+add_compile_options(-Wall -Wextra -Wpedantic)
+
+### Gng2D-Editor ##############################################################
+add_library(Gng2D-Editor)
+target_link_libraries(Gng2D-Editor 
+    Gng2D 
+    imgui)
+set_property(TARGET Gng2D-Editor PROPERTY CXX_STANDARD 20)
+set_property(TARGET Gng2D-Editor PROPERTY ENABLE_EXPORTS TRUE)
 add_compile_options(-Wall -Wextra -Wpedantic)
 
 ### SANDBOX ###################################################################

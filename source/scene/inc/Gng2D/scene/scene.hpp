@@ -25,6 +25,8 @@ struct Scene : SceneInterface
     virtual void render(SDL_Renderer*) override;
 
     virtual void onKeyPress(SDL_KeyboardEvent&) override;
+    virtual void onMouseMotion(SDL_MouseMotionEvent&) override { }
+    virtual void onMouseButton(SDL_MouseButtonEvent&) override { }
 
     virtual const std::string& getName() const override;
 
@@ -37,5 +39,7 @@ struct Scene : SceneInterface
     RelationSystem relationSystem{reg};
 
     EntityRenderer entityRenderer{reg};
+
+    friend struct Editor;
 };
 } // namespace Gng2D
