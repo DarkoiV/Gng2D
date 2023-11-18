@@ -23,6 +23,11 @@ static void newImGuiFrame()
     ImGui::NewFrame();
 }
 
+static void endImGuiFrame()
+{
+    ImGui::EndFrame();
+}
+
 static void setRenderScaleForScene()
 {
     using namespace Gng2D;
@@ -55,6 +60,7 @@ void Editor::onEnter()
     LOG::INFO("Entering editor");
     startImGui();
     newImGuiFrame();
+    endImGuiFrame();
 
     editedScene = std::make_unique<Gng2D::Scene>();
     editedScene->onEnter();
@@ -71,6 +77,7 @@ void Editor::onExit()
 
 void Editor::update()
 {
+    using namespace entt::literals;
     newImGuiFrame();
 
     ImGui::Begin("Entities");
@@ -81,8 +88,15 @@ void Editor::update()
     }
     ImGui::End();
 
+    ImGui::Begin("Components");
+    for (auto meta: entt::resolve())
+    {
+        ImGui::Text("%s", meta.second.prop("name"_hs).value().cast<std::string>().c_str());
+    }
+    ImGui::End();
+
     editedScene->update();
-    ImGui::EndFrame();
+    endImGuiFrame();
 }
 
 void Editor::render(SDL_Renderer* r)
