@@ -1,5 +1,5 @@
 #pragma once
-#include "Gng2D/commons/log.hpp"
+#include "Gng2D/commons/log.hpp" // IWYU pragma: export
 
 #define GNG2D_ALWAYS_ASSERT(condition, ...)                                                        \
     if (not(condition))                                                                            \

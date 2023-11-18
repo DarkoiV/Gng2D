@@ -6,6 +6,12 @@
 #include <SDL2/SDL_image.h>
 #include <filesystem>
 
+#ifdef GNG2D_IMGUI_ENABLED
+#include "imgui.h"
+#include "imgui_impl_sdl2.h"
+#include "imgui_impl_sdlrenderer2.h"
+#endif
+
 using Gng2D::LOG;
 using namespace Gng2D::GLOBAL;
 namespace Luna = Gng2D::Luna;
@@ -90,11 +96,33 @@ static void destroySdlWindow()
     SDL_QuitSubSystem(SDL_INIT_VIDEO);
 }
 
+static void initImGui()
+{
+#ifdef GNG2D_IMGUI_ENABLED
+    LOG::INFO("ImGui enabled");
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGui_ImplSDL2_InitForSDLRenderer(Gng2D::GLOBAL::WINDOW, Gng2D::GLOBAL::RENDERER);
+    ImGui_ImplSDLRenderer2_Init(Gng2D::GLOBAL::RENDERER);
+    auto& IO = ImGui::GetIO();
+#endif
+}
+
+static void closeImGui()
+{
+#ifdef GNG2D_IMGUI_ENABLED
+    ImGui_ImplSDLRenderer2_Shutdown();
+    ImGui_ImplSDL2_Shutdown();
+    ImGui::DestroyContext();
+#endif
+}
+
 void Gng2D::initApp()
 {
     LOG::INFO("App init");
     loadAppSettings();
     createSdlWindow();
+    initImGui();
     Repository::registerDefaultComponents();
 }
 
@@ -120,5 +148,6 @@ void Gng2D::closeApp()
 {
     LOG::INFO("Closing app");
     Repository::freeResources();
+    closeImGui();
     destroySdlWindow();
 }

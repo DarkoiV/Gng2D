@@ -48,7 +48,9 @@ file(GLOB imgui_src
     "${imgui_SOURCE_DIR}/misc/cpp/imgui_stdlib.*")
 
 add_library(imgui ${imgui_src})
-target_include_directories(imgui PUBLIC "${imgui_SOURCE_DIR}")
+target_include_directories(imgui PUBLIC 
+    "${imgui_SOURCE_DIR}" 
+    "${imgui_SOURCE_DIR}/backends")
 target_include_directories(imgui PRIVATE "${SDL2_INCLUDE_DIRS}")
 target_link_libraries(imgui 
     SDL2)
@@ -64,18 +66,18 @@ set_property(TARGET Gng2D PROPERTY CXX_STANDARD 20)
 set_property(TARGET Gng2D PROPERTY ENABLE_EXPORTS TRUE)
 add_compile_options(-Wall -Wextra -Wpedantic)
 
-### Gng2D-Editor ##############################################################
-add_library(Gng2D-Editor)
-target_link_libraries(Gng2D-Editor 
-    Gng2D 
-    imgui)
-set_property(TARGET Gng2D-Editor PROPERTY CXX_STANDARD 20)
-set_property(TARGET Gng2D-Editor PROPERTY ENABLE_EXPORTS TRUE)
-add_compile_options(-Wall -Wextra -Wpedantic)
-
 ### SANDBOX ###################################################################
 if(NOT DEFINED GAME_NAME)
     add_subdirectory(sandbox)
+    set(ENABLE_IMGUI True)
+endif()
+
+### ENABLE IMGUI ##############################################################
+if (DEFINED ENABLE_IMGUI)
+    message("Enabled ImGui")
+    add_compile_definitions("GNG2D_IMGUI_ENABLED")
+    target_link_libraries(Gng2D 
+        imgui)
 endif()
 
 ### TESTING ###################################################################

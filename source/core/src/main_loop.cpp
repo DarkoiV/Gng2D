@@ -1,4 +1,5 @@
 #include "Gng2D/core/main_loop.hpp"
+#include "Gng2D/commons/imgui.hpp"
 #include "Gng2D/commons/log.hpp"
 #include "Gng2D/core/global.hpp"
 
@@ -7,6 +8,7 @@ using namespace Gng2D::GLOBAL;
 
 void MainLoop::operator()()
 {
+    IMGUI_NEW_FRAME();
     while (APP_RUNNING)
         loop();
     if (CURRENT_SCENE) CURRENT_SCENE->onExit();
@@ -35,6 +37,8 @@ void MainLoop::eventsProcessing()
 {
     SDL_Event event;
     while (SDL_PollEvent(&event))
+    {
+        IMGUI_PROCESS_EVENT(event);
         switch (event.type)
         {
         case SDL_QUIT:
@@ -51,16 +55,24 @@ void MainLoop::eventsProcessing()
             CURRENT_SCENE->onMouseButton(event.button);
             break;
         }
+    }
 }
 
 void MainLoop::logicProcessing()
 {
+    IMGUI_NEW_FRAME();
+#ifdef GNG2D_IMGUI_ENABLED
+    ImGui::Begin("Test");
+    ImGui::End();
+#endif
     CURRENT_SCENE->update();
+    IMGUI_END_FRAME();
 }
 
 void MainLoop::rendering()
 {
     CURRENT_SCENE->render(RENDERER);
+    IMGUI_RENDER_FRAME();
     SDL_RenderPresent(RENDERER);
     SDL_RenderClear(RENDERER);
 }
