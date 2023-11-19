@@ -16,8 +16,8 @@ struct Repository
     static Sprite             getSprite(const std::string&);
     static const std::string& spriteNameFromHash(const StringHash);
 
-    template <Component::Default C>
-    static auto               registerComponent(const std::string&);
+    template <Component::Concept C>
+    static auto               registerComponent();
     static void               registerDefaultComponents();
     static const std::string& componentNameFromHash(const StringHash);
 
@@ -31,22 +31,26 @@ struct Repository
 
     inline static std::map<StringHash, std::string> componentNames;
 
-    template <Component::Default C>
+    template <Component::Concept C>
     static void emplaceComponent(entt::registry*, entt::entity, entt::meta_any&);
 };
 
-template <Component::Default C>
+template <Component::Concept C>
 void Repository::emplaceComponent(entt::registry* r, entt::entity e, entt::meta_any& c)
 {
-    LOG::TRACE("Emplacing:", Component::getName<C>(), Component::getId<C>());
+    const auto& metaInfo = *(C::metaInfo());
+    LOG::TRACE("Emplacing:", metaInfo.name);
 
     r->emplace<C>(e, c.cast<C>());
 }
 
-template <Component::Default Comp>
-auto Repository::registerComponent(const std::string& name)
+template <Component::Concept Comp>
+auto Repository::registerComponent()
 {
     using namespace entt::literals;
+    auto& metaInfo = *(Comp::metaInfo());
+    auto& name     = metaInfo.name;
+
     auto id = entt::hashed_string::value(name.c_str());
     if (auto it = componentNames.find(id); it != componentNames.end())
     {
@@ -58,12 +62,10 @@ auto Repository::registerComponent(const std::string& name)
         LOG::INFO("Registering component:", name, "with id:", id);
         componentNames[id] = name;
     }
-    LOG::TRACE("Accepted args: ", *(Comp::argsInfo()));
+
     return entt::meta<Comp>()
         .type(id)
-        .prop(Component::PROPERTIES::NAME, name)
-        .prop(Component::PROPERTIES::ID, id)
-        .prop(Component::PROPERTIES::ARGS_INFO, Comp::argsInfo())
+        .prop("metaInfo"_hs, Comp::metaInfo())
         .template ctor<&Comp::fromArgs>()
         .template func<&Repository::emplaceComponent<Comp>>("emplace"_hs);
 }

@@ -8,7 +8,7 @@ using Arg = Gng2D::ComponentArg;
 using entt::type_id;
 
 // clang-format off
-const static Gng2D::ComponentArgs TRANSFORM2D_ARGS{
+const inline static Gng2D::ComponentArgs TRANSFORM2D_ARGS{
     Arg{.name          = "x",
         .description   = "x value of transform vector, 0 by default",
         .acceptedTypes = {type_id<float>()},
@@ -27,6 +27,9 @@ const static Gng2D::ComponentArgs TRANSFORM2D_ARGS{
         .required      = false}
 };
 // clang-format on
+
+const inline static Gng2D::ComponentMetaInfo TRANSFORM2D_META{.name = "Transform2d",
+                                                              .args = TRANSFORM2D_ARGS};
 
 Transform2d Transform2d::fromArgs(const Gng2D::ArgsVector& args)
 {
@@ -47,7 +50,7 @@ Transform2d Transform2d::fromArgs(const Gng2D::ArgsVector& args)
     return transform;
 }
 
-const Gng2D::ComponentArgs* Transform2d::argsInfo()
+const Gng2D::ComponentMetaInfo* Transform2d::metaInfo()
 {
-    return &TRANSFORM2D_ARGS;
+    return &TRANSFORM2D_META;
 }

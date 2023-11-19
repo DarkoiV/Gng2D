@@ -61,11 +61,8 @@ void Repository::registerDefaultComponents()
 {
     using namespace entt::literals;
     // clang-format off
-    registerComponent<Sprite>("Sprite");
-    registerComponent<Transform2d>("Transform2d")
-        .data<&Transform2d::x>("x"_hs)
-        .data<&Transform2d::y>("y"_hs)
-        .data<&Transform2d::layer>("layer"_hs);
+    registerComponent<Sprite>();
+    registerComponent<Transform2d>();
     // clang-format on
 }
 

@@ -16,6 +16,8 @@ const inline static Gng2D::ComponentArgs SPRITE_ARGS{
         .required      = true}
 };
 
+const inline static Gng2D::ComponentMetaInfo SPRITE_META{.name = "Sprite", .args = SPRITE_ARGS};
+
 Sprite Sprite::fromArgs(const Gng2D::ArgsVector& args)
 {
     using namespace entt::literals;
@@ -48,7 +50,7 @@ Sprite Sprite::fromArgs(const Gng2D::ArgsVector& args)
     return sprite;
 }
 
-const Gng2D::ComponentArgs* Sprite::argsInfo()
+const Gng2D::ComponentMetaInfo* Sprite::metaInfo()
 {
-    return &SPRITE_ARGS;
+    return &SPRITE_META;
 }

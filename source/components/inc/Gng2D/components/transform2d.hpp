@@ -1,5 +1,5 @@
 #pragma once
-#include "Gng2D/components/component_args.hpp"
+#include "Gng2D/components/component_meta_info.hpp"
 #include <compare>
 #include <cstdint>
 
@@ -16,8 +16,8 @@ struct Transform2d
         int8_t sub{};
     } layer;
 
-    static Transform2d          fromArgs(const Gng2D::ArgsVector&);
-    static const ComponentArgs* argsInfo();
+    static Transform2d              fromArgs(const ArgsVector&);
+    static const ComponentMetaInfo* metaInfo();
 };
 
 namespace detail {
