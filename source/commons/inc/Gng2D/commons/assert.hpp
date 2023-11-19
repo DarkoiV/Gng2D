@@ -2,11 +2,14 @@
 #include "Gng2D/commons/log.hpp" // IWYU pragma: export
 
 #define GNG2D_ALWAYS_ASSERT(condition, ...)                                                        \
-    if (not(condition))                                                                            \
+    do                                                                                             \
     {                                                                                              \
-        ::Gng2D::LOG::FATAL("[ Assertion", __FILE__ ":", __LINE__, "(" #condition ")",             \
-                            "failed]\n" __VA_OPT__(, ) __VA_ARGS__);                               \
-    }
+        if (not(condition))                                                                        \
+        {                                                                                          \
+            ::Gng2D::LOG::FATAL("[ Assertion", __FILE__ ":", __LINE__, "(" #condition ")",         \
+                                "failed]\n" __VA_OPT__(, ) __VA_ARGS__);                           \
+        }                                                                                          \
+    } while (0)
 
 #ifdef NDEBUG
 #define GNG2D_ASSERT(condition, ...) ((void)0)
@@ -15,8 +18,11 @@
 #endif
 
 #define GNG2D_ASSERT_CONSTEXPR(msg)                                                                \
-    []<bool flag = false>()                                                                        \
+    do                                                                                             \
     {                                                                                              \
-        static_assert(flag, "Type not supported");                                                 \
-    }                                                                                              \
-    ()
+        []<bool flag = false>()                                                                    \
+        {                                                                                          \
+            static_assert(flag, "Type not supported");                                             \
+        }                                                                                          \
+        ();                                                                                        \
+    } while (0)
