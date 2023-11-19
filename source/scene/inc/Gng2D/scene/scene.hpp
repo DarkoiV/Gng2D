@@ -39,7 +39,5 @@ struct Scene : SceneInterface
     RelationSystem relationSystem{reg};
 
     EntityRenderer entityRenderer{reg};
-
-    friend struct Editor;
 };
 } // namespace Gng2D

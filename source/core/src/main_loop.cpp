@@ -61,10 +61,6 @@ void MainLoop::eventsProcessing()
 void MainLoop::logicProcessing()
 {
     IMGUI_NEW_FRAME();
-#ifdef GNG2D_IMGUI_ENABLED
-    ImGui::Begin("Test");
-    ImGui::End();
-#endif
     CURRENT_SCENE->update();
     IMGUI_END_FRAME();
 }
