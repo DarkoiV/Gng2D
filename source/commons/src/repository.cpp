@@ -1,6 +1,8 @@
 #include "Gng2D/commons/repository.hpp"
 #include "Gng2D/commons/args_vector.hpp" // IWYU pragma: keep
 #include "Gng2D/commons/log.hpp"
+#include "Gng2D/components/input.hpp"
+#include "Gng2D/components/relationship.hpp"
 #include "Gng2D/components/sprite.hpp"
 #include "Gng2D/components/transform2d.hpp"
 #include "Gng2D/core/global.hpp"
@@ -60,10 +62,10 @@ const std::string& Repository::spriteNameFromHash(const StringHash hash)
 void Repository::registerDefaultComponents()
 {
     using namespace entt::literals;
-    // clang-format off
     registerComponent<Sprite>();
     registerComponent<Transform2d>();
-    // clang-format on
+    registerComponent<Parent>();
+    registerComponent<Children>();
 }
 
 const std::string& Repository::componentNameFromHash(const StringHash hash)

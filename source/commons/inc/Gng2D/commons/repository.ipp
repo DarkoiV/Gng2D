@@ -1,4 +1,5 @@
 #pragma once
+#include "Gng2D/commons/assert.hpp"
 #include "Gng2D/commons/log.hpp"
 #include "repository.hpp"
 
@@ -21,6 +22,7 @@ auto Repository::registerComponent()
     auto& metaInfo = *(Comp::metaInfo());
     auto& name     = metaInfo.name;
 
+    // Ensure no hash collision, or repeated registration
     auto id = entt::hashed_string::value(name.c_str());
     if (auto it = componentNames.find(id); it != componentNames.end())
     {
@@ -33,10 +35,18 @@ auto Repository::registerComponent()
         componentNames[id] = name;
     }
 
-    return entt::meta<Comp>()
-        .type(id)
-        .prop("metaInfo"_hs, Comp::metaInfo())
-        .template ctor<&Comp::fromArgs>()
-        .template func<&detail::emplaceComponent<Comp>>("emplace"_hs);
+    auto meta_factory = entt::meta<Comp>().type(id).prop("metaInfo"_hs, Comp::metaInfo());
+
+    constexpr bool HAS_FROM_ARGS_CTOR = requires(const ArgsVector av) { Comp::fromArgs(av); };
+    if constexpr (HAS_FROM_ARGS_CTOR)
+    {
+        GNG2D_ASSERT(metaInfo.args,
+                     "Component has fromArgs ctor,"
+                     " yet does not define metaInfo for required arguments");
+        meta_factory.template ctor<&Comp::fromArgs>()
+            .template func<&detail::emplaceComponent<Comp>>("emplace"_hs);
+    }
+
+    return meta_factory;
 }
 }; // namespace Gng2D
