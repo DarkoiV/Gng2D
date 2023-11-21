@@ -28,8 +28,10 @@ const inline static Gng2D::ComponentArgs TRANSFORM2D_ARGS{
 };
 // clang-format on
 
-const inline static Gng2D::ComponentMetaInfo TRANSFORM2D_META{.name = "Transform2d",
-                                                              .args = TRANSFORM2D_ARGS};
+const inline static Gng2D::ComponentMetaInfo
+    TRANSFORM2D_META{.id   = entt::hashed_string::value("Transform2d"),
+                     .name = "Transform2d",
+                     .args = TRANSFORM2D_ARGS};
 
 Transform2d Transform2d::fromArgs(const Gng2D::ArgsVector& args)
 {

@@ -1,5 +1,5 @@
 #pragma once
-#include "Gng2D/components/component_meta_info.hpp"
+#include "Gng2D/components/meta/component_meta_info.hpp"
 #include <compare>
 #include <cstdint>
 

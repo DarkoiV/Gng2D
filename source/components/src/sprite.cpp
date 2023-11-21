@@ -16,7 +16,9 @@ const inline static Gng2D::ComponentArgs SPRITE_ARGS{
         .required      = true}
 };
 
-const inline static Gng2D::ComponentMetaInfo SPRITE_META{.name = "Sprite", .args = SPRITE_ARGS};
+const inline static Gng2D::ComponentMetaInfo SPRITE_META{.id = entt::hashed_string::value("Sprite"),
+                                                         .name = "Sprite",
+                                                         .args = SPRITE_ARGS};
 
 Sprite Sprite::fromArgs(const Gng2D::ArgsVector& args)
 {

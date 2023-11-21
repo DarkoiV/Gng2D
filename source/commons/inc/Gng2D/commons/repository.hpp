@@ -1,6 +1,6 @@
 #pragma once
 #include "Gng2D/commons/types.hpp"
-#include "Gng2D/components/properties.hpp" // IWYU pragma: keep
+#include "Gng2D/components/meta/properties.hpp" // IWYU pragma: keep
 #include "Gng2D/components/sprite.hpp"
 #include <entt/entt.hpp>
 #include <string>
@@ -15,7 +15,7 @@ struct Repository
     static Sprite             getSprite(const std::string&);
     static const std::string& spriteNameFromHash(const StringHash);
 
-    template <Component::Concept C>
+    template <Component C>
     static auto               registerComponent();
     static void               registerDefaultComponents();
     static const std::string& componentNameFromHash(const StringHash);

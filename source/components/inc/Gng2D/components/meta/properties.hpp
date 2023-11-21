@@ -1,18 +1,18 @@
 #pragma once
 #include "Gng2D/commons/args_vector.hpp"
-#include "Gng2D/components/component_meta_info.hpp"
+#include "Gng2D/components/meta/component_meta_info.hpp"
 #include <entt/entt.hpp>
 
-namespace Gng2D::Component {
+namespace Gng2D {
 
 template <typename C>
-concept Concept = requires(const C c, const Gng2D::ArgsVector& av) {
+concept Component = requires(const C c, const Gng2D::ArgsVector& av) {
     {
         C::metaInfo()
     } -> std::same_as<const ComponentMetaInfo*>;
 };
 
-template <Concept Comp>
+template <Component Comp>
 const ComponentMetaInfo* getMetaInfo()
 {
     using namespace entt::literals;
@@ -22,4 +22,4 @@ const ComponentMetaInfo* getMetaInfo()
         .template cast<const ComponentMetaInfo*>();
 }
 
-} // namespace Gng2D::Component
+} // namespace Gng2D

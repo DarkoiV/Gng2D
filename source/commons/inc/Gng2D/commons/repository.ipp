@@ -3,7 +3,8 @@
 #include "repository.hpp"
 
 namespace Gng2D {
-template <Component::Concept C>
+namespace detail {
+template <Component C>
 void emplaceComponent(entt::registry* r, entt::entity e, entt::meta_any& c)
 {
     const auto& metaInfo = *(C::metaInfo());
@@ -11,8 +12,9 @@ void emplaceComponent(entt::registry* r, entt::entity e, entt::meta_any& c)
 
     r->emplace<C>(e, c.cast<C>());
 }
+} // namespace detail
 
-template <Component::Concept Comp>
+template <Component Comp>
 auto Repository::registerComponent()
 {
     using namespace entt::literals;
@@ -35,6 +37,6 @@ auto Repository::registerComponent()
         .type(id)
         .prop("metaInfo"_hs, Comp::metaInfo())
         .template ctor<&Comp::fromArgs>()
-        .template func<&emplaceComponent<Comp>>("emplace"_hs);
+        .template func<&detail::emplaceComponent<Comp>>("emplace"_hs);
 }
 }; // namespace Gng2D
