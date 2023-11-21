@@ -47,6 +47,16 @@ auto Repository::registerComponent()
             .template func<&detail::emplaceComponent<Comp>>("emplace"_hs);
     }
 
+    constexpr bool HAS_REGISTER_DATA = requires(entt::meta_factory<Comp> mf) {
+        {
+            Comp::registerData(mf)
+        } -> std::same_as<entt::meta_factory<Comp>>;
+    };
+    if constexpr (HAS_REGISTER_DATA)
+    {
+        meta_factory = Comp::registerData(meta_factory);
+    }
+
     return meta_factory;
 }
 }; // namespace Gng2D

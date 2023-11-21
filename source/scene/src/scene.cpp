@@ -50,9 +50,22 @@ static void displayEntityInList(entt::registry& reg, entt::entity e)
                               (ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeY)))
         {
             ImGui::Text("Transform2d:");
-            auto& transform = reg.get<Gng2D::Transform2d>(e);
-            ImGui::InputFloat("x", &transform.x);
-            ImGui::InputFloat("y", &transform.y);
+            auto& metaInfo = *Gng2D::Transform2d::metaInfo();
+            if (metaInfo.data)
+            {
+                auto&             transform = reg.get<Gng2D::Transform2d>(e);
+                entt::meta_handle handle{transform};
+                auto&             data = *metaInfo.data;
+                for (auto& datum: data)
+                {
+                    if (entt::type_id<float>() == datum.type)
+                    {
+                        float value = handle->get(datum.id).cast<float>();
+                        ImGui::InputFloat(datum.name.c_str(), &value);
+                        handle->set(datum.id, value);
+                    }
+                }
+            }
             reg.patch<Gng2D::Transform2d>(e);
         }
         ImGui::EndChild();

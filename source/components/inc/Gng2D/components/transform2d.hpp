@@ -18,6 +18,9 @@ struct Transform2d
 
     static Transform2d              fromArgs(const ArgsVector&);
     static const ComponentMetaInfo* metaInfo();
+
+    using MetaFactory = entt::meta_factory<Transform2d>;
+    static MetaFactory registerData(MetaFactory);
 };
 
 namespace detail {
