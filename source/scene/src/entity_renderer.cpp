@@ -40,7 +40,7 @@ void EntityRenderer::operator()(SDL_Renderer* r)
         dstRect.w = sprite.srcRect.w;
         dstRect.h = sprite.srcRect.h;
         dstRect.x = static_cast<int>(pos.x) - dstRect.w / 2 + midXOffset;
-        dstRect.y = static_cast<int>(pos.y) - dstRect.h / 2 + midYOffset;
+        dstRect.y = static_cast<int>(-pos.y) - dstRect.h / 2 + midYOffset;
         SDL_RenderCopy(r, sprite.texture, &sprite.srcRect, &dstRect);
     });
 }
