@@ -2,6 +2,7 @@
 #include "Gng2D/commons/imgui.hpp"
 #include "Gng2D/commons/log.hpp"
 #include "Gng2D/components/meta/component_meta_info.hpp"
+#include "Gng2D/components/meta/properties.hpp"
 #include "Gng2D/core/global.hpp"
 #include <SDL2/SDL.h>
 
@@ -49,6 +50,7 @@ void ImguiOverlay::entityList()
     if (ImGui::BeginChild("entityList", ImVec2(0, 0), ImGuiChildFlags_None,
                           ImGuiWindowFlags_MenuBar))
     {
+        ImGui::SetWindowFontScale(1.5f);
         for (auto&& [e]: reg.view<entt::entity>().each())
         {
             ImGui::Text(" Entity %05d", (uint32_t)e);
@@ -62,49 +64,70 @@ void ImguiOverlay::entityList()
     ImGui::EndChild();
 }
 
+static void displayComponent(entt::registry& reg, entt::entity e, entt::meta_type type)
+{
+    using namespace entt::literals;
+    const auto* metaInfo = Gng2D::getMetaInfo(type);
+    ImGui::Text("%s", metaInfo->name.c_str());
+
+    auto getRef      = type.func("getRef"_hs);
+    auto patchSignal = type.func("patchSignal"_hs);
+    GNG2D_ASSERT(getRef);
+    GNG2D_ASSERT(patchSignal);
+
+    entt::meta_any componentHandle{getRef.invoke({}, &reg, e)};
+    GNG2D_ASSERT(componentHandle.type().id() == metaInfo->id);
+
+    if (not metaInfo->data) return;
+    auto data = *(metaInfo->data);
+    for (auto& datum: data)
+    {
+        if (datum.type == entt::type_id<float>())
+        {
+            float value    = *((float*)type.get(datum.id, componentHandle).data());
+            float oldValue = value;
+            ImGui::InputFloat(datum.name.c_str(), &value, 0.0f, 0.0f, "%.1f",
+                              ImGuiInputTextFlags_AutoSelectAll);
+            type.data(datum.id).set(componentHandle, value);
+            if (value != oldValue) patchSignal.invoke({}, &reg, e);
+        }
+    }
+}
+
 void ImguiOverlay::editedEntities()
 {
     using namespace entt::literals;
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(10.0f, 5.0f));
 
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(1.f, 1.f));
     for (auto&& [e]: reg.view<IMGUI_OVERLAY_EDITED>().each())
     {
         bool              keepOpen = true;
         const std::string windowId = "Entity edit: " + std::to_string((uint32_t)e);
         ImGui::Begin(windowId.c_str(), &keepOpen);
+
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(7.f, 7.f));
+        ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 2.5f);
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+
         for (auto&& [id, type]: entt::resolve())
         {
             auto* storage = reg.storage(id);
             if (not storage or not storage->contains(e)) continue;
 
-            const auto* metaInfo =
-                type.prop("metaInfo"_hs).value().cast<const ComponentMetaInfo*>();
-            ImGui::Text("%s", metaInfo->name.c_str());
-            auto getRef      = type.func("getRef"_hs);
-            auto patchSignal = type.func("patchSignal"_hs);
-            GNG2D_ASSERT(getRef);
-            GNG2D_ASSERT(patchSignal);
-            entt::meta_any componentHandle{getRef.invoke({}, &reg, e)};
-            GNG2D_ASSERT(componentHandle.type().id() == metaInfo->id);
-
-            if (not metaInfo->data) continue;
-            auto data = *(metaInfo->data);
-            for (auto& datum: data)
+            std::string childWindowId = "Comp" + std::to_string(id);
+            if (ImGui::BeginChild(childWindowId.c_str(), ImVec2(0, 0),
+                                  ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeY))
             {
-                if (datum.type == entt::type_id<float>())
-                {
-                    float value    = *((float*)type.get(datum.id, componentHandle).data());
-                    float oldValue = value;
-                    ImGui::InputFloat(datum.name.c_str(), &value, 0.0f, 0.0f, "%.1f",
-                                      ImGuiInputTextFlags_AutoSelectAll);
-                    type.data(datum.id).set(componentHandle, value);
-                    if (value != oldValue) patchSignal.invoke({}, &reg, e);
-                }
+                ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 2.f));
+                displayComponent(reg, e, type);
+                ImGui::PopStyleVar();
             }
+            ImGui::EndChild();
         }
+
+        ImGui::PopStyleVar(3);
         ImGui::End();
         if (not keepOpen) reg.remove<IMGUI_OVERLAY_EDITED>(e);
     }
-
     ImGui::PopStyleVar();
 }
