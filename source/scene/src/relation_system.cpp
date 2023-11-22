@@ -1,4 +1,5 @@
 #include "Gng2D/scene/relation_system.hpp"
+#include "Gng2D/commons/log.hpp"
 #include "Gng2D/components/relationship.hpp"
 #include "Gng2D/components/transform2d.hpp"
 
@@ -16,6 +17,7 @@ RelationSystem::RelationSystem(entt::registry& r)
     reg.on_update<detail::Position>().connect<&RelationSystem::updateChildrenPosition>();
 
     reg.ctx().emplace<RelationSystem&>(*this);
+    LOG::INFO("RelationSystem created");
 }
 
 RelationSystem::~RelationSystem()

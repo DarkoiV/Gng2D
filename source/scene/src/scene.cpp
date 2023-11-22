@@ -4,9 +4,18 @@
 #include "Gng2D/commons/repository.hpp"
 #include "Gng2D/entities/red_x.hpp"
 
+#ifdef GNG2D_IMGUI_ENABLED
+#include "Gng2D/scene/debug/imgui_overlay.hpp"
+#endif
+
 using Gng2D::Scene;
 
-Scene::Scene() { }
+Scene::Scene()
+{
+#ifdef GNG2D_IMGUI_ENABLED
+    systems.emplace_back(std::make_unique<Gng2D::ImguiOverlay>(reg));
+#endif
+}
 
 Scene::~Scene()
 {
@@ -28,71 +37,12 @@ void Scene::onExit()
     LOG::INFO("Exiting", name);
 }
 
-#ifdef GNG2D_IMGUI_ENABLED
-struct IMGUI_EnableEdit
-{
-};
-
-static void displayEntityInList(entt::registry& reg, entt::entity e)
-{
-    ImGui::BeginChild("EntityDisplay");
-    ImGui::Text(" Entity %d", (uint32_t)e);
-    if (ImGui::IsItemClicked())
-    {
-        Gng2D::LOG::INFO("CLICK");
-        if (reg.all_of<IMGUI_EnableEdit>(e)) reg.remove<IMGUI_EnableEdit>(e);
-        else reg.emplace<IMGUI_EnableEdit>(e);
-    }
-    if (reg.any_of<IMGUI_EnableEdit>(e))
-    {
-        std::string str{"Edit:" + std::to_string((uint32_t)e)};
-        if (ImGui::BeginChild(str.c_str(), ImVec2{0, 0},
-                              (ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeY)))
-        {
-            ImGui::Text("Transform2d:");
-            auto& metaInfo = *Gng2D::Transform2d::metaInfo();
-            if (metaInfo.data)
-            {
-                auto&             transform = reg.get<Gng2D::Transform2d>(e);
-                entt::meta_handle handle{transform};
-                auto&             data = *metaInfo.data;
-                for (auto& datum: data)
-                {
-                    if (entt::type_id<float>() == datum.type)
-                    {
-                        float value = handle->get(datum.id).cast<float>();
-                        ImGui::InputFloat(datum.name.c_str(), &value);
-                        handle->set(datum.id, value);
-                    }
-                }
-            }
-            reg.patch<Gng2D::Transform2d>(e);
-        }
-        ImGui::EndChild();
-    }
-    ImGui::EndChild();
-}
-
-static void displayEntities(entt::registry& reg)
-{
-    ImGui::Begin("Scene Entities");
-    auto view = reg.view<entt::entity>();
-    ImGui::Text("Entity List[%zd]", view.size());
-    if (ImGui::BeginChild("Entities"))
-    {
-        for (auto&& [e]: view.each())
-            displayEntityInList(reg, e);
-    }
-    ImGui::EndChild();
-    ImGui::End();
-}
-#endif
-
 void Scene::update()
 {
-#ifdef GNG2D_IMGUI_ENABLED
-    displayEntities(reg);
-#endif
+    for (auto& system: systems)
+    {
+        system->onUpdate();
+    }
 }
 
 void Scene::render(SDL_Renderer* r)

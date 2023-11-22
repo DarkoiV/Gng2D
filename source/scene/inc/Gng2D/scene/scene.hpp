@@ -1,12 +1,11 @@
 #pragma once
 #include "Gng2D/commons/luna/state.hpp"
 #include "Gng2D/commons/scene_interface.hpp"
+#include "Gng2D/commons/system_interface.hpp"
 #include "Gng2D/scene/entity_renderer.hpp"
 #include "Gng2D/scene/input_handler.hpp"
 #include "Gng2D/scene/relation_system.hpp"
 #include <entt/entt.hpp>
-
-struct SDL_Renderer;
 
 namespace Gng2D {
 struct Scene : SceneInterface
@@ -39,5 +38,7 @@ struct Scene : SceneInterface
     RelationSystem relationSystem{reg};
 
     EntityRenderer entityRenderer{reg};
+
+    std::vector<SystemPtr> systems;
 };
 } // namespace Gng2D

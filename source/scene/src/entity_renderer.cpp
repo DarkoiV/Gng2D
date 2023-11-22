@@ -17,7 +17,7 @@ EntityRenderer::EntityRenderer(entt::registry& r)
             .on_update<SORT_SIGNAL>(this)
             .on_destroy<SORT_SIGNAL>(this);
     // clang-format on
-    LOG::INFO("Entity renderer started");
+    LOG::INFO("EntityRenderer created");
 }
 
 EntityRenderer::~EntityRenderer()

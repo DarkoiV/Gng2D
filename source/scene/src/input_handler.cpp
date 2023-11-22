@@ -1,4 +1,5 @@
 #include "Gng2D/scene/input_handler.hpp"
+#include "Gng2D/commons/log.hpp"
 #include "Gng2D/components/input.hpp"
 #include <algorithm>
 #include <entt/entt.hpp>
@@ -9,6 +10,7 @@ using namespace entt::literals;
 InputHandler::InputHandler(entt::registry& r)
     : reg(r)
 {
+    LOG::INFO("InputHandler created");
 }
 
 InputHandler::~InputHandler() { }
