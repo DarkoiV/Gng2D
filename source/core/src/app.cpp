@@ -1,16 +1,11 @@
 #include "Gng2D/core/app.hpp"
+#include "Gng2D/commons/imgui.hpp"
 #include "Gng2D/commons/log.hpp"
 #include "Gng2D/commons/repository.hpp"
 #include "Gng2D/core/global.hpp"
 #include "Gng2D/core/main_loop.hpp"
 #include <SDL2/SDL_image.h>
 #include <filesystem>
-
-#ifdef GNG2D_IMGUI_ENABLED
-#include "imgui.h"
-#include "imgui_impl_sdl2.h"
-#include "imgui_impl_sdlrenderer2.h"
-#endif
 
 using Gng2D::LOG;
 using namespace Gng2D::GLOBAL;
@@ -68,18 +63,22 @@ static void createSdlWindow()
     auto err = SDL_Init(SDL_INIT_VIDEO);
     if (err) LOG::FATAL("Could not initialize SDL2 Video", SDL_GetError());
 
+    int windowScreenWidth  = RENDER_WIDTH * RENDER_SCALE + IMGUI_LEFT_SIDEBAR;
+    int windowScreenHeight = RENDER_HEIGHT * RENDER_SCALE;
+
     LOG::INFO("Creating SDL2 Window");
     WINDOW = SDL_CreateWindow(TITLE.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                              RENDER_WIDTH * RENDER_SCALE, RENDER_HEIGHT * RENDER_SCALE, 0);
+                              windowScreenWidth, windowScreenHeight, 0);
     if (not WINDOW) LOG::FATAL("Could not create SDL2 Window", SDL_GetError());
-    LOG::INFO("Window size set to", RENDER_WIDTH * RENDER_SCALE, "x", RENDER_HEIGHT * RENDER_SCALE);
+    LOG::INFO("Window size set to", windowScreenWidth, "x", windowScreenHeight);
 
     LOG::INFO("Creating SDL2 Renderer for window");
     RENDERER = SDL_CreateRenderer(WINDOW, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     if (not RENDERER) LOG::FATAL("Could not create SDL2 Renderer", SDL_GetError());
 
-    SDL_RenderSetLogicalSize(RENDERER, RENDER_WIDTH, RENDER_HEIGHT);
-    LOG::INFO("Renderer logical size set to", RENDER_WIDTH, "x", RENDER_HEIGHT);
+    SDL_RenderSetIntegerScale(RENDERER, SDL_TRUE);
+    SDL_RenderSetScale(RENDERER, RENDER_SCALE, RENDER_SCALE);
+    LOG::INFO("Game render size set to", RENDER_WIDTH, "x", RENDER_HEIGHT);
 
     auto flags = IMG_INIT_PNG | IMG_INIT_JPG;
     if (IMG_Init(flags) != flags) LOG::FATAL("Failed to initialize SDL2_image:", IMG_GetError());

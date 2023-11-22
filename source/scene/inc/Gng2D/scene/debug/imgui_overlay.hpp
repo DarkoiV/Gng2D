@@ -1,5 +1,8 @@
 #pragma once
 #include "Gng2D/commons/system_interface.hpp"
+#include <functional>
+#include <map>
+#include <string>
 
 struct SDL_KeyboardEvent;
 
@@ -16,6 +19,13 @@ struct ImguiOverlay : SystemInterface
 
     virtual void onUpdate() override;
 
-    bool catchKeyPress(SDL_KeyboardEvent&);
+  private:
+    std::map<std::string, std::function<void()>> floatingWindows;
+
+    void beginLeftSidebar();
+    void endLeftSidebar();
+
+    void entityList();
+    void editedEntities();
 };
 } // namespace Gng2D

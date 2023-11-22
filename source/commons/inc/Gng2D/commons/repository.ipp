@@ -5,13 +5,25 @@
 
 namespace Gng2D {
 namespace detail {
-template <Component C>
+template <Component Comp>
 void emplaceComponent(entt::registry* r, entt::entity e, entt::meta_any& c)
 {
-    const auto& metaInfo = *(C::metaInfo());
+    const auto& metaInfo = *(Comp::metaInfo());
     LOG::TRACE("Emplacing:", metaInfo.name);
 
-    r->emplace<C>(e, c.cast<C>());
+    r->emplace<Comp>(e, c.cast<Comp>());
+}
+
+template <Component Comp>
+entt::meta_any getComponentRef(entt::registry* r, entt::entity e)
+{
+    return entt::forward_as_meta(r->get<Comp>(e));
+}
+
+template <Component Comp>
+void patchComponentSignal(entt::registry* r, entt::entity e)
+{
+    r->patch<Comp>(e);
 }
 } // namespace detail
 
@@ -35,7 +47,11 @@ auto Repository::registerComponent()
         componentNames[id] = name;
     }
 
-    auto meta_factory = entt::meta<Comp>().type(id).prop("metaInfo"_hs, Comp::metaInfo());
+    auto meta_factory = entt::meta<Comp>()
+                            .type(id)
+                            .prop("metaInfo"_hs, Comp::metaInfo())
+                            .template func<&detail::getComponentRef<Comp>>("getRef"_hs)
+                            .template func<&detail::patchComponentSignal<Comp>>("patchSignal"_hs);
 
     constexpr bool HAS_FROM_ARGS_CTOR = requires(const ArgsVector av) { Comp::fromArgs(av); };
     if constexpr (HAS_FROM_ARGS_CTOR)
