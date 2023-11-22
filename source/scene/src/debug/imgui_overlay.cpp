@@ -82,14 +82,21 @@ static void displayComponent(entt::registry& reg, entt::entity e, entt::meta_typ
     auto data = *(metaInfo->data);
     for (auto& datum: data)
     {
-        if (datum.type == entt::type_id<float>())
+        switch (datum.type)
         {
-            float value    = *((float*)type.get(datum.id, componentHandle).data());
-            float oldValue = value;
-            ImGui::InputFloat(datum.name.c_str(), &value, 0.0f, 0.0f, "%.1f",
-                              ImGuiInputTextFlags_AutoSelectAll);
-            type.data(datum.id).set(componentHandle, value);
-            if (value != oldValue) patchSignal.invoke({}, &reg, e);
+        case Gng2D::INPUT_TYPE::FLOAT:
+            {
+                float value    = componentHandle.get(datum.id).cast<float>();
+                float oldValue = value;
+                ImGui::InputFloat(datum.name.c_str(), &value, 0.0f, 0.0f, "%.1f",
+                                  ImGuiInputTextFlags_AutoSelectAll);
+                type.data(datum.id).set(componentHandle, value);
+                if (value != oldValue) patchSignal.invoke({}, &reg, e);
+            }
+            break;
+        default:
+            ImGui::Text("UNHANDLED INPUT");
+            break;
         }
     }
 }

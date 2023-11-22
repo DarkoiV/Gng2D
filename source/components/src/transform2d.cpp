@@ -19,20 +19,12 @@ const inline static Gng2D::ComponentArgs TRANSFORM2D_ARGS{
         .description   = "y value of transform vector, 0 by default",
         .acceptedTypes = {type_id<float>()},
         .required      = false},
-    Arg{.name          = "layerMain",
-        .description   = "Position on main layer, 0 by default",
-        .acceptedTypes = {type_id<int8_t>()},
-        .required      = false},
-    Arg{.name          = "layerSub",
-        .description   = "Position on sub layer, 0 by default",
-        .acceptedTypes = {type_id<int8_t>()},
-        .required      = false}
 };
 // clang-format on
 
 const inline static Gng2D::ComponentData TRANSFORM2D_DATA{
-    Datum{.id = "x"_hs, .name = "x", .type = entt::type_id<float>()},
-    Datum{.id = "y"_hs, .name = "y", .type = entt::type_id<float>()},
+    Datum{.id = "x"_hs, .name = "x", .type = Gng2D::INPUT_TYPE::FLOAT},
+    Datum{.id = "y"_hs, .name = "y", .type = Gng2D::INPUT_TYPE::FLOAT},
 };
 
 const inline static Gng2D::ComponentMetaInfo
@@ -50,8 +42,6 @@ Transform2d Transform2d::fromArgs(const Gng2D::ArgsVector& args)
         {
             COMP_ARG_CASE("x", float, transform.x);
             COMP_ARG_CASE("y", float, transform.y);
-            COMP_ARG_CASE("layerMain", int8_t, transform.layer.main);
-            COMP_ARG_CASE("layerSub", int8_t, transform.layer.sub);
             UNKNOWN_ARG_CASE;
         }
     }
