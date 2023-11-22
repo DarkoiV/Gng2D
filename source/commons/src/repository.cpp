@@ -1,10 +1,9 @@
 #include "Gng2D/commons/repository.hpp"
 #include "Gng2D/commons/args_vector.hpp" // IWYU pragma: keep
 #include "Gng2D/commons/log.hpp"
-#include "Gng2D/components/input.hpp"
 #include "Gng2D/components/relationship.hpp"
 #include "Gng2D/components/sprite.hpp"
-#include "Gng2D/components/transform2d.hpp"
+#include "Gng2D/components/transform.hpp"
 #include "Gng2D/core/global.hpp"
 #include <SDL2/SDL_image.h>
 
@@ -64,6 +63,7 @@ void Repository::registerDefaultComponents()
     using namespace entt::literals;
     registerComponent<Sprite>();
     registerComponent<Transform2d>();
+    registerComponent<TransformLayer>();
     registerComponent<Parent>();
     registerComponent<Children>();
 }

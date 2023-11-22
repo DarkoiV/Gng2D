@@ -3,6 +3,7 @@
 #include "Gng2D/core/global.hpp"
 
 using Gng2D::EntityRenderer;
+using Gng2D::detail::Layer;
 using Gng2D::detail::Position;
 
 #define SORT_SIGNAL &EntityRenderer::markForSorting
@@ -12,7 +13,7 @@ EntityRenderer::EntityRenderer(entt::registry& r)
 {
     // clang-format off
     entt::sigh_helper{reg}
-        .with<Position>()
+        .with<Layer>()
             .on_construct<SORT_SIGNAL>(this)
             .on_update<SORT_SIGNAL>(this)
             .on_destroy<SORT_SIGNAL>(this);
@@ -22,9 +23,9 @@ EntityRenderer::EntityRenderer(entt::registry& r)
 
 EntityRenderer::~EntityRenderer()
 {
-    reg.on_construct<Position>().disconnect(this);
-    reg.on_update<Position>().disconnect(this);
-    reg.on_destroy<Position>().disconnect(this);
+    reg.on_construct<Layer>().disconnect(this);
+    reg.on_update<Layer>().disconnect(this);
+    reg.on_destroy<Layer>().disconnect(this);
 }
 
 void EntityRenderer::operator()(SDL_Renderer* r)
@@ -55,8 +56,13 @@ void EntityRenderer::sortRenderables()
     renderables.sort(
         [&](entt::entity lhs, entt::entity rhs)
     {
-        return renderables.get<detail::Position>(lhs).layer <
-               renderables.get<detail::Position>(rhs).layer;
+        auto* leftLayer  = reg.try_get<Layer>(lhs);
+        auto* rightLayer = reg.try_get<Layer>(rhs);
+
+        if (not leftLayer and rightLayer) return true;
+        if (not rightLayer and leftLayer) return false;
+
+        return *leftLayer < *rightLayer;
     });
     needsSorting = false;
 }

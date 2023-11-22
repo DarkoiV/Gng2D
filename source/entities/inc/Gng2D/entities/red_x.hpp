@@ -17,6 +17,11 @@ struct RedX : EntityRecipe
                                            Arg{"x"_hs, 10},
                                            Arg{"y"_hs, 23}
         });
+
+        addComponent("TransformLayer"_hs, {
+                                              Arg{"main"_hs, 0},
+                                              Arg{ "sub"_hs, 3}
+        });
     }
 };
 } // namespace Gng2D

@@ -86,10 +86,31 @@ static void displayComponent(entt::registry& reg, entt::entity e, entt::meta_typ
         {
         case Gng2D::INPUT_TYPE::FLOAT:
             {
-                float value    = componentHandle.get(datum.id).cast<float>();
+                auto datumHandle = componentHandle.get(datum.id);
+                if (not datumHandle.allow_cast<float>()) [[unlikely]]
+                {
+                    ImGui::Text("INVALID INPUT TYPE");
+                    break;
+                }
+                float value    = datumHandle.cast<float>();
                 float oldValue = value;
                 ImGui::InputFloat(datum.name.c_str(), &value, 0.0f, 0.0f, "%.1f",
                                   ImGuiInputTextFlags_AutoSelectAll);
+                type.data(datum.id).set(componentHandle, value);
+                if (value != oldValue) patchSignal.invoke({}, &reg, e);
+            }
+            break;
+        case Gng2D::INPUT_TYPE::INTEGER:
+            {
+                auto datumHandle = componentHandle.get(datum.id);
+                if (not datumHandle.allow_cast<int>()) [[unlikely]]
+                {
+                    ImGui::Text("INVALID INPUT TYPE");
+                    break;
+                }
+                int value    = datumHandle.cast<int>();
+                int oldValue = value;
+                ImGui::InputInt(datum.name.c_str(), &value);
                 type.data(datum.id).set(componentHandle, value);
                 if (value != oldValue) patchSignal.invoke({}, &reg, e);
             }

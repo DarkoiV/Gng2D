@@ -16,5 +16,8 @@ struct RelationSystem
 
     static void setPositionFromTransform(entt::registry&, entt::entity);
     static void updateChildrenPosition(entt::registry&, entt::entity);
+
+    static void setLayerFromTransform(entt::registry&, entt::entity);
+    static void updateChildrenLayer(entt::registry&, entt::entity);
 };
 } // namespace Gng2D

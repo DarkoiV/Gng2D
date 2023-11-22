@@ -1,6 +1,6 @@
 #pragma once
 #include "Gng2D/components/sprite.hpp"
-#include "Gng2D/components/transform2d.hpp"
+#include "Gng2D/components/transform.hpp"
 #include <SDL2/SDL.h>
 #include <entt/entt.hpp>
 

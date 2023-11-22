@@ -10,16 +10,22 @@ struct Transform2d
     float x{};
     float y{};
 
-    struct Layer
-    {
-        int8_t main{};
-        int8_t sub{};
-    } layer;
-
     static Transform2d              fromArgs(const ArgsVector&);
     static const ComponentMetaInfo* metaInfo();
 
     using MetaFactory = entt::meta_factory<Transform2d>;
+    static MetaFactory registerData(MetaFactory);
+};
+
+struct TransformLayer
+{
+    int8_t main;
+    int8_t sub;
+
+    static TransformLayer           fromArgs(const ArgsVector&);
+    static const ComponentMetaInfo* metaInfo();
+
+    using MetaFactory = entt::meta_factory<TransformLayer>;
     static MetaFactory registerData(MetaFactory);
 };
 
@@ -28,14 +34,14 @@ struct Position
 {
     float x;
     float y;
+};
 
-    struct Layer
-    {
-        int16_t main;
-        int16_t sub;
+struct Layer
+{
+    int16_t main;
+    int16_t sub;
 
-        std::strong_ordering operator<=>(const Layer&) const = default;
-    } layer;
+    std::strong_ordering operator<=>(const Layer&) const = default;
 };
 } // namespace detail
 } // namespace Gng2D
