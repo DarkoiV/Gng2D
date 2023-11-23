@@ -3,6 +3,7 @@
 #include "Gng2D/commons/log.hpp"
 #include "Gng2D/components/meta/component_meta_info.hpp"
 #include "Gng2D/components/meta/properties.hpp"
+#include "Gng2D/components/sprite.hpp"
 #include "Gng2D/core/global.hpp"
 #include <SDL2/SDL.h>
 
@@ -78,6 +79,23 @@ static void displayComponent(entt::registry& reg, entt::entity e, entt::meta_typ
     entt::meta_any componentHandle{getRef.invoke({}, &reg, e)};
     GNG2D_ASSERT(componentHandle.type().id() == metaInfo->id);
 
+    /* SPRITE IS SPECIAL CASE */
+    if (metaInfo->id == "Sprite"_hs)
+    {
+        const auto& sprite = componentHandle.cast<Gng2D::Sprite>();
+
+        auto targetWidth        = ImGui::GetWindowWidth();
+        targetWidth             = std::min(targetWidth, 150.f);
+        float spriteScaleFactor = (targetWidth / sprite.srcRect.w) * .8f;
+        float scaledWidth       = sprite.srcRect.w * spriteScaleFactor;
+        float scaledHeight      = sprite.srcRect.h * spriteScaleFactor;
+
+        ImGui::SetCursorPosX(scaledWidth * .1f);
+        ImGui::Image((void*)sprite.texture, ImVec2(scaledWidth, scaledHeight));
+        return;
+    }
+
+    /* Display components data */
     if (not metaInfo->data) return;
     auto data = *(metaInfo->data);
     for (auto& datum: data)
