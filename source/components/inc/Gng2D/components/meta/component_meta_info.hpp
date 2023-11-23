@@ -5,13 +5,13 @@
 
 namespace Gng2D {
 
-enum class INPUT_TYPE { FLOAT, INTEGER, STRING };
+enum class FIELD_TYPE { FLOAT, INTEGER, STRING };
 
 struct ComponentDatum
 {
     StringHash  id;
     std::string name;
-    INPUT_TYPE  type;
+    FIELD_TYPE  type;
 };
 using ComponentData = std::vector<ComponentDatum>;
 

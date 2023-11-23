@@ -84,7 +84,7 @@ static void displayComponent(entt::registry& reg, entt::entity e, entt::meta_typ
     {
         switch (datum.type)
         {
-        case Gng2D::INPUT_TYPE::FLOAT:
+        case Gng2D::FIELD_TYPE::FLOAT:
             {
                 auto datumHandle = componentHandle.get(datum.id);
                 if (not datumHandle.allow_cast<float>()) [[unlikely]]
@@ -96,11 +96,23 @@ static void displayComponent(entt::registry& reg, entt::entity e, entt::meta_typ
                 float oldValue = value;
                 ImGui::InputFloat(datum.name.c_str(), &value, 0.0f, 0.0f, "%.1f",
                                   ImGuiInputTextFlags_AutoSelectAll);
+
+                if (auto minProp = type.data(datum.id).prop("min"_hs))
+                {
+                    if (auto min = minProp.value().try_cast<float>())
+                        value = *min > value ? *min : value;
+                }
+                if (auto maxProp = type.data(datum.id).prop("max"_hs))
+                {
+                    if (auto max = maxProp.value().try_cast<float>())
+                        value = *max < value ? *max : value;
+                }
+
                 type.data(datum.id).set(componentHandle, value);
                 if (value != oldValue) patchSignal.invoke({}, &reg, e);
             }
             break;
-        case Gng2D::INPUT_TYPE::INTEGER:
+        case Gng2D::FIELD_TYPE::INTEGER:
             {
                 auto datumHandle = componentHandle.get(datum.id);
                 if (not datumHandle.allow_cast<int>()) [[unlikely]]
@@ -111,6 +123,18 @@ static void displayComponent(entt::registry& reg, entt::entity e, entt::meta_typ
                 int value    = datumHandle.cast<int>();
                 int oldValue = value;
                 ImGui::InputInt(datum.name.c_str(), &value);
+
+                if (auto minProp = type.data(datum.id).prop("min"_hs))
+                {
+                    if (auto min = minProp.value().try_cast<int>())
+                        value = *min > value ? *min : value;
+                }
+                if (auto maxProp = type.data(datum.id).prop("max"_hs))
+                {
+                    if (auto max = maxProp.value().try_cast<int>())
+                        value = *max < value ? *max : value;
+                }
+
                 type.data(datum.id).set(componentHandle, value);
                 if (value != oldValue) patchSignal.invoke({}, &reg, e);
             }

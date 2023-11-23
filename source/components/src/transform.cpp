@@ -1,5 +1,5 @@
-#include "Gng2D/commons/args_vector.hpp"
 #include "Gng2D/components/transform.hpp"
+#include "Gng2D/commons/args_vector.hpp"
 #include "util_macros.hpp"
 #include <entt/entt.hpp>
 
@@ -24,8 +24,8 @@ const inline static Gng2D::ComponentArgs TRANSFORM2D_ARGS{
 // clang-format on
 
 const inline static Gng2D::ComponentData TRANSFORM2D_DATA{
-    Datum{.id = "x"_hs, .name = "x", .type = Gng2D::INPUT_TYPE::FLOAT},
-    Datum{.id = "y"_hs, .name = "y", .type = Gng2D::INPUT_TYPE::FLOAT},
+    Datum{.id = "x"_hs, .name = "x", .type = Gng2D::FIELD_TYPE::FLOAT},
+    Datum{.id = "y"_hs, .name = "y", .type = Gng2D::FIELD_TYPE::FLOAT},
 };
 
 const inline static Gng2D::ComponentMetaInfo
@@ -76,8 +76,8 @@ const inline static Gng2D::ComponentArgs TRANSFORMLAYER_ARGS{
 // clang-format on
 
 const inline static Gng2D::ComponentData TRANSFORMLAYER_DATA{
-    Datum{.id = "main"_hs, .name = "main", .type = Gng2D::INPUT_TYPE::INTEGER},
-    Datum{ .id = "sub"_hs,  .name = "sub", .type = Gng2D::INPUT_TYPE::INTEGER},
+    Datum{.id = "main"_hs, .name = "main", .type = Gng2D::FIELD_TYPE::INTEGER},
+    Datum{ .id = "sub"_hs,  .name = "sub", .type = Gng2D::FIELD_TYPE::INTEGER},
 };
 
 const inline static Gng2D::ComponentMetaInfo
@@ -104,7 +104,11 @@ TransformLayer TransformLayer::fromArgs(const Gng2D::ArgsVector& args)
 
 TransformLayer::MetaFactory TransformLayer::registerData(MetaFactory factory)
 {
-    return factory.data<&TransformLayer::main>("main"_hs).data<&TransformLayer::sub>("sub"_hs);
+    factory.data<&TransformLayer::main>("main"_hs)
+        .prop("max"_hs, INT8_MAX)
+        .prop("min"_hs, INT8_MIN);
+    factory.data<&TransformLayer::sub>("sub"_hs).prop("max"_hs, INT8_MAX).prop("min"_hs, INT8_MIN);
+    return factory;
 }
 
 const Gng2D::ComponentMetaInfo* TransformLayer::metaInfo()
