@@ -7,6 +7,7 @@
 #include "Gng2D/components/sprite.hpp"
 #include "Gng2D/core/global.hpp"
 #include <SDL2/SDL.h>
+#include <misc/cpp/imgui_stdlib.h>
 
 using Gng2D::ImguiOverlay;
 
@@ -57,9 +58,9 @@ void ImguiOverlay::entityList()
         {
             if (auto* info = reg.try_get<Gng2D::Info>(e))
             {
-                ImGui::Text(" %s", info->name.c_str());
+                ImGui::Text(" (%05d)%s", (uint32_t)e, info->name.c_str());
             }
-            else ImGui::Text(" Entity %05d", (uint32_t)e);
+            else ImGui::Text(" (%05d)Unnamed", (uint32_t)e);
 
             if (ImGui::IsItemClicked())
             {
@@ -143,6 +144,9 @@ static void displayComponent(entt::registry& reg, entt::entity e, entt::meta_typ
             displayField.operator()<int>([&](int* value) -> bool
             { return ImGui::InputInt(datum.name.c_str(), value); });
             break;
+        case Gng2D::FIELD_TYPE::STRING:
+            displayField.operator()<std::string>([&](std::string* value) -> bool
+            { return ImGui::InputText(datum.name.c_str(), value); });
         default:
             ImGui::Text("UNHANDLED INPUT");
             break;
