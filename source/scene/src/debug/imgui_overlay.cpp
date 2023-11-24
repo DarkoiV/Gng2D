@@ -1,6 +1,7 @@
 #include "Gng2D/scene/debug/imgui_overlay.hpp"
 #include "Gng2D/commons/imgui.hpp"
 #include "Gng2D/commons/log.hpp"
+#include "Gng2D/components/info.hpp"
 #include "Gng2D/components/meta/component_meta_info.hpp"
 #include "Gng2D/components/meta/properties.hpp"
 #include "Gng2D/components/sprite.hpp"
@@ -54,7 +55,12 @@ void ImguiOverlay::entityList()
         ImGui::SetWindowFontScale(1.5f);
         for (auto&& [e]: reg.view<entt::entity>().each())
         {
-            ImGui::Text(" Entity %05d", (uint32_t)e);
+            if (auto* info = reg.try_get<Gng2D::Info>(e))
+            {
+                ImGui::Text(" %s", info->name.c_str());
+            }
+            else ImGui::Text(" Entity %05d", (uint32_t)e);
+
             if (ImGui::IsItemClicked())
             {
                 if (reg.all_of<IMGUI_OVERLAY_EDITED>(e)) reg.erase<IMGUI_OVERLAY_EDITED>(e);

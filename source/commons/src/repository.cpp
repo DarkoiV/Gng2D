@@ -1,6 +1,7 @@
 #include "Gng2D/commons/repository.hpp"
 #include "Gng2D/commons/args_vector.hpp" // IWYU pragma: keep
 #include "Gng2D/commons/log.hpp"
+#include "Gng2D/components/info.hpp"
 #include "Gng2D/components/relationship.hpp"
 #include "Gng2D/components/sprite.hpp"
 #include "Gng2D/components/transform.hpp"
@@ -61,6 +62,7 @@ const std::string& Repository::spriteNameFromHash(const StringHash hash)
 void Repository::registerDefaultComponents()
 {
     using namespace entt::literals;
+    registerComponent<Info>();
     registerComponent<Sprite>();
     registerComponent<Transform2d>();
     registerComponent<TransformLayer>();

@@ -9,6 +9,10 @@ struct RedX : EntityRecipe
     {
         using namespace entt::literals;
         using Arg = ArgsVector::NamedArg;
+        addComponent("Info"_hs, {
+                                    Arg{"name"_hs, "Red X"}
+        });
+
         addComponent("Sprite"_hs, {
                                       Arg{"sprite"_hs, "red_x"_hs.value()}
         });
