@@ -41,8 +41,8 @@ Transform2d Transform2d::fromArgs(const Gng2D::ArgsVector& args)
     {
         switch (id)
         {
-            COMP_ARG_CASE("x", float, transform.x);
-            COMP_ARG_CASE("y", float, transform.y);
+            COMP_ARG_CASE("x", transform.x);
+            COMP_ARG_CASE("y", transform.y);
             UNKNOWN_ARG_CASE;
         }
     }
@@ -93,8 +93,8 @@ TransformLayer TransformLayer::fromArgs(const Gng2D::ArgsVector& args)
     {
         switch (id)
         {
-            COMP_ARG_CASE("main", int8_t, transform.main);
-            COMP_ARG_CASE("sub", int8_t, transform.sub);
+            COMP_ARG_CASE("main", transform.main);
+            COMP_ARG_CASE("sub", transform.sub);
             UNKNOWN_ARG_CASE;
         }
     }

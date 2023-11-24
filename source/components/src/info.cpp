@@ -29,7 +29,7 @@ Info Info::fromArgs(const ArgsVector& args)
     {
         switch (id)
         {
-            COMP_ARG_CASE("name", std::string, info.name);
+            COMP_ARG_CASE("name", info.name);
             UNKNOWN_ARG_CASE;
         }
     }
