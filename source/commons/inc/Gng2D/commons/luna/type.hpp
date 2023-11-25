@@ -1,6 +1,6 @@
 #pragma once
-#include "Gng2D/commons/assert.hpp"
 #include "lua.hpp"
+#include <memory>
 #include <string>
 #include <variant>
 
@@ -12,6 +12,7 @@ enum TYPE {
     STRING,
     BOOL,
     TABLE,
+    FUNCTION,
 };
 using Nil     = std::monostate;
 using Integer = lua_Integer;
@@ -19,6 +20,23 @@ using Float   = lua_Number;
 using String  = std::string;
 using Bool    = bool;
 struct Type;
+
+struct Ref
+{
+    Ref(lua_State*, int idx);
+    ~Ref();
+    Ref(const Ref&)            = delete;
+    Ref(Ref&&)                 = delete;
+    Ref& operator=(const Ref&) = delete;
+    Ref& operator=(Ref&&)      = delete;
+
+    int get() const { return ref; };
+
+  private:
+    lua_State* L;
+    int        ref;
+};
+using SharedRef = std::shared_ptr<Ref>;
 
 struct TableRef
 {
@@ -29,7 +47,7 @@ struct TableRef
     TableRef& operator=(TableRef&&);
 
     void set(const Type& key, const Type& value);
-    Type get(const Type& key);
+    Type get(const Type& key) const;
 
     friend bool operator==(const TableRef& lhs, const TableRef& rhs) { return lhs.ptr == rhs.ptr; }
 
@@ -39,11 +57,21 @@ struct TableRef
     friend struct State;
 
     lua_State*  L;
-    int         regRef;
+    SharedRef   regRef;
     const void* ptr;
+};
 
-    inline void markAsMovedFrom();
-    inline bool ownsRef();
+struct FunctionRef
+{
+
+  private:
+    FunctionRef(lua_State*, int idx);
+    friend struct Stack;
+    friend struct State;
+
+    lua_State*  L;
+    SharedRef   regRef;
+    const void* ptr;
 };
 
 struct Type : std::variant<Nil, Integer, Float, String, Bool, TableRef>
@@ -68,72 +96,7 @@ struct Type : std::variant<Nil, Integer, Float, String, Bool, TableRef>
     const auto&    asTable() const { return std::get<TableRef>(*this); };
 
     template <typename T>
-    bool tryAssignTo(T& target)
-    {
-        if constexpr (std::is_same_v<T, Bool>)
-        {
-            if (this->isBool()) target = this->asBool();
-            else return false;
-        }
-        else if constexpr (std::is_floating_point_v<T>)
-        {
-            if (this->isFloat()) target = this->asFloat();
-            else return false;
-        }
-        else if constexpr (std::is_integral_v<T>)
-        {
-            if (this->isInteger()) target = this->asInteger();
-            else return false;
-        }
-        else if constexpr (std::is_convertible_v<T, String>)
-        {
-            if (this->isString()) target = this->asString();
-            else return false;
-        }
-        else if constexpr (std::is_same_v<T, TableRef>)
-        {
-            if (this->isTable()) target = this->asTable();
-            else return false;
-        }
-        else GNG2D_ASSERT_CONSTEXPR("Target type not supported");
-
-        return true;
-    }
+    bool tryAssignTo(T& target);
 };
-
-template <typename T>
-constexpr bool operator==(const T& lhs, const Type& rhs)
-{
-    if constexpr (std::is_same_v<T, Nil>)
-    {
-        if (rhs.isNil()) return true;
-    }
-    else if constexpr (std::is_same_v<T, Bool>)
-    {
-        if (rhs.isBool()) return rhs.asBool() == lhs;
-    }
-    else if constexpr (std::is_floating_point_v<T>)
-    {
-        if (rhs.isFloat()) return rhs.asFloat() == lhs;
-    }
-    else if constexpr (std::is_integral_v<T>)
-    {
-        if (rhs.isInteger()) return rhs.asInteger() == lhs;
-    }
-    else if constexpr (std::is_convertible_v<T, String>)
-    {
-        if (rhs.isString()) return rhs.asString() == lhs;
-    }
-    else if constexpr (std::is_same_v<T, TableRef>)
-    {
-        if (rhs.isTable()) return rhs.asTable() == lhs;
-    }
-    return false;
-}
-
-template <typename T>
-constexpr bool operator==(const Type& lhs, const T& rhs)
-{
-    return rhs == lhs;
-}
 } // namespace Gng2D::Luna
+#include "type.ipp"

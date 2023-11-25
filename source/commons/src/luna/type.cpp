@@ -4,28 +4,37 @@
 
 using namespace Gng2D::Luna;
 
+Ref::Ref(lua_State* L, int idx)
+    : L(L)
+{
+    lua_pushvalue(L, idx);
+    ref = luaL_ref(L, LUA_REGISTRYINDEX);
+}
+
+Ref::~Ref()
+{
+    luaL_unref(L, LUA_REGISTRYINDEX, ref);
+}
+
 TableRef::TableRef(lua_State* state, int idx)
     : L(state)
 {
-    lua_pushvalue(L, idx);
-    regRef = luaL_ref(L, LUA_REGISTRYINDEX);
+    regRef = std::make_unique<Ref>(L, idx);
     ptr    = lua_topointer(L, idx);
 }
 
 TableRef::TableRef(const TableRef& from)
     : L(from.L)
 {
-    lua_rawgeti(L, LUA_REGISTRYINDEX, from.regRef);
-    regRef = luaL_ref(L, LUA_REGISTRYINDEX);
+    regRef = from.regRef;
     ptr    = from.ptr;
 }
 
 TableRef::TableRef(TableRef&& from)
     : L(from.L)
 {
-    regRef = from.regRef;
+    regRef = std::move(from.regRef);
     ptr    = from.ptr;
-    from.markAsMovedFrom();
 }
 
 TableRef& TableRef::operator=(const TableRef& from)
@@ -33,8 +42,7 @@ TableRef& TableRef::operator=(const TableRef& from)
     GNG2D_ASSERT(L == from.L,
                  "Assigment operator for TableRef "
                  "only allowed for Refs belonging to the same Lua state");
-    lua_rawgeti(L, LUA_REGISTRYINDEX, from.regRef);
-    regRef = luaL_ref(L, LUA_REGISTRYINDEX);
+    regRef = from.regRef;
     ptr    = from.ptr;
     return *this;
 }
@@ -44,40 +52,26 @@ TableRef& TableRef::operator=(TableRef&& from)
     GNG2D_ASSERT(L == from.L,
                  "Assigment operator for TableRef "
                  "only allowed for Refs belonging to the same Lua state");
-    regRef = from.regRef;
+    regRef = std::move(from.regRef);
     ptr    = from.ptr;
-    from.markAsMovedFrom();
     return *this;
 }
 
-TableRef::~TableRef()
-{
-    if (ownsRef()) luaL_unref(L, LUA_REGISTRYINDEX, regRef);
-}
+TableRef::~TableRef() { }
 
 void TableRef::set(const Type& key, const Type& value)
 {
     ScopedStack stack(L);
 
-    lua_rawgeti(L, LUA_REGISTRYINDEX, regRef);
+    lua_rawgeti(L, LUA_REGISTRYINDEX, regRef->get());
     stack.setTableField(key, value);
 }
 
-Type TableRef::get(const Type& key)
+Type TableRef::get(const Type& key) const
 {
     ScopedStack stack(L);
 
-    lua_rawgeti(L, LUA_REGISTRYINDEX, regRef);
+    lua_rawgeti(L, LUA_REGISTRYINDEX, regRef->get());
     stack.pushTableField(key);
     return stack.read(-1);
-}
-
-void TableRef::markAsMovedFrom()
-{
-    ptr = nullptr;
-}
-
-bool TableRef::ownsRef()
-{
-    return ptr != nullptr;
 }

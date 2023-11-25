@@ -1,6 +1,6 @@
+#include "Gng2D/commons/luna/stack.hpp"
 #include "Gng2D/commons/assert.hpp"
 #include "Gng2D/commons/log.hpp"
-#include "Gng2D/commons/luna/stack.hpp"
 
 using namespace Gng2D::Luna;
 
@@ -47,7 +47,7 @@ void Stack::pushBool(Bool value)
 
 void Stack::pushTable(const TableRef& tr)
 {
-    GNG2D_ASSERT(lua_rawgeti(L, LUA_REGISTRYINDEX, tr.regRef) == LUA_TTABLE,
+    GNG2D_ASSERT(lua_rawgeti(L, LUA_REGISTRYINDEX, tr.regRef->get()) == LUA_TTABLE,
                  "No table at stored ref in TableRed");
 }
 
@@ -83,7 +83,7 @@ void Stack::push(const Type& value)
     }
 }
 
-Type Stack::read(int n)
+Type Stack::read(int n) const
 {
     auto type = lua_type(L, n);
     switch (type)
@@ -105,7 +105,7 @@ Type Stack::read(int n)
     return Nil{};
 }
 
-TYPE Stack::is(int n)
+TYPE Stack::is(int n) const
 {
     auto type = lua_type(L, n);
     switch (type)
@@ -132,7 +132,7 @@ void Stack::pop(int n)
     lua_pop(L, n);
 }
 
-int Stack::top()
+int Stack::top() const
 {
     return lua_gettop(L);
 }

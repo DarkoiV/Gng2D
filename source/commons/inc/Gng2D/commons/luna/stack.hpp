@@ -22,10 +22,10 @@ struct Stack
     void push(const Type&);
     void pushGlobal(const String&);
 
-    Type read(int n);
-    TYPE is(int n);
+    Type read(int n) const;
+    TYPE is(int n) const;
     void pop(int n);
-    int  top();
+    int  top() const;
 
     void newTable();
     void setTableField(const Type& key, const Type& value, int tableIndx = -1);
