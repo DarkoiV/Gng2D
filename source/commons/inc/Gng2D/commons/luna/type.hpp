@@ -13,6 +13,7 @@ enum TYPE {
     BOOL,
     TABLE,
     FUNCTION,
+    USERDATA,
 };
 using Nil     = std::monostate;
 using Integer = lua_Integer;
@@ -40,7 +41,7 @@ using SharedRef = std::shared_ptr<Ref>;
 
 struct TableRef
 {
-    ~TableRef();
+    ~TableRef() = default;
     TableRef(const TableRef&);
     TableRef(TableRef&&);
     TableRef& operator=(const TableRef&);
@@ -63,6 +64,16 @@ struct TableRef
 
 struct FunctionRef
 {
+    ~FunctionRef() = default;
+    FunctionRef(const FunctionRef&);
+    FunctionRef(FunctionRef&&);
+    FunctionRef& operator=(const FunctionRef&);
+    FunctionRef& operator=(FunctionRef&&);
+
+    friend bool operator==(const FunctionRef& lhs, const FunctionRef& rhs)
+    {
+        return lhs.ptr == rhs.ptr;
+    };
 
   private:
     FunctionRef(lua_State*, int idx);
@@ -74,9 +85,34 @@ struct FunctionRef
     const void* ptr;
 };
 
-struct Type : std::variant<Nil, Integer, Float, String, Bool, TableRef>
+struct UserdataRef
 {
-    using std::variant<Nil, Integer, Float, String, Bool, TableRef>::variant;
+    ~UserdataRef() = default;
+    UserdataRef(const UserdataRef&);
+    UserdataRef(UserdataRef&&);
+    UserdataRef& operator=(const UserdataRef&);
+    UserdataRef& operator=(UserdataRef&&);
+
+    friend bool operator==(const UserdataRef& lhs, const UserdataRef& rhs)
+    {
+        return lhs.ptr == rhs.ptr;
+    };
+
+  private:
+    UserdataRef(lua_State*, int idx);
+    friend struct Stack;
+    friend struct State;
+
+    lua_State*  L;
+    SharedRef   regRef;
+    const void* ptr;
+};
+
+using TypesVariant =
+    std::variant<Nil, Integer, Float, String, Bool, TableRef, FunctionRef, UserdataRef>;
+struct Type : TypesVariant
+{
+    using TypesVariant::variant;
 
     constexpr bool isNil() const { return std::holds_alternative<Nil>(*this); }
     constexpr bool isInteger() const { return std::holds_alternative<Integer>(*this); }
@@ -84,16 +120,22 @@ struct Type : std::variant<Nil, Integer, Float, String, Bool, TableRef>
     constexpr bool isString() const { return std::holds_alternative<String>(*this); }
     constexpr bool isBool() const { return std::holds_alternative<Bool>(*this); }
     constexpr bool isTable() const { return std::holds_alternative<TableRef>(*this); }
+    constexpr bool isFunction() const { return std::holds_alternative<FunctionRef>(*this); }
+    constexpr bool isUserdata() const { return std::holds_alternative<UserdataRef>(*this); }
     auto&          asInteger() { return std::get<Integer>(*this); };
     auto&          asFloat() { return std::get<Float>(*this); };
     auto&          asString() { return std::get<String>(*this); };
     auto&          asBool() { return std::get<Bool>(*this); };
     auto&          asTable() { return std::get<TableRef>(*this); };
+    auto&          asFunction() { return std::get<FunctionRef>(*this); };
+    auto&          asUserdata() { return std::get<UserdataRef>(*this); };
     const auto&    asInteger() const { return std::get<Integer>(*this); };
     const auto&    asFloat() const { return std::get<Float>(*this); };
     const auto&    asString() const { return std::get<String>(*this); };
     const auto&    asBool() const { return std::get<Bool>(*this); };
     const auto&    asTable() const { return std::get<TableRef>(*this); };
+    const auto&    asFunction() const { return std::get<FunctionRef>(*this); };
+    const auto&    asUserdata() const { return std::get<UserdataRef>(*this); };
 
     template <typename T>
     bool tryAssignTo(T& target);

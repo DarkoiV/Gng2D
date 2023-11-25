@@ -45,14 +45,14 @@ ScopedStack State::getStack()
     return ScopedStack(L);
 }
 
-Type State::read(const std::string& name)
+Type State::read(const std::string& name) const
 {
     ScopedStack stack(L);
     auto        type = lua_getglobal(L, name.c_str());
     return stack.read(-1);
 }
 
-std::optional<lua_Integer> State::readInt(const std::string& name)
+std::optional<lua_Integer> State::readInt(const std::string& name) const
 {
     StackLock lock(L);
     if (LUA_TNUMBER == lua_getglobal(L, name.c_str()) and lua_isinteger(L, -1))
@@ -67,7 +67,7 @@ std::optional<lua_Integer> State::readInt(const std::string& name)
     }
 }
 
-std::optional<lua_Number> State::readFloat(const std::string& name)
+std::optional<lua_Number> State::readFloat(const std::string& name) const
 {
     StackLock lock(L);
     if (LUA_TNUMBER == lua_getglobal(L, name.c_str()))
@@ -82,7 +82,7 @@ std::optional<lua_Number> State::readFloat(const std::string& name)
     }
 }
 
-std::optional<std::string> State::readString(const std::string& name)
+std::optional<std::string> State::readString(const std::string& name) const
 {
     StackLock lock(L);
     if (LUA_TSTRING == lua_getglobal(L, name.c_str()))
@@ -97,7 +97,7 @@ std::optional<std::string> State::readString(const std::string& name)
     }
 }
 
-std::optional<bool> State::readBool(const std::string& name)
+std::optional<bool> State::readBool(const std::string& name) const
 {
     StackLock lock(L);
     if (LUA_TBOOLEAN == lua_getglobal(L, name.c_str()))
@@ -112,12 +112,40 @@ std::optional<bool> State::readBool(const std::string& name)
     }
 }
 
-std::optional<TableRef> State::readTable(const std::string& name)
+std::optional<TableRef> State::readTable(const std::string& name) const
 {
     ScopedStack stack(L);
     if (LUA_TTABLE == lua_getglobal(L, name.c_str()))
     {
         return TableRef(L, -1);
+    }
+    else [[unlikely]]
+    {
+        LOG::DEBUG(name, "is not a table");
+        return std::nullopt;
+    }
+}
+
+std::optional<FunctionRef> State::readFunction(const std::string& name) const
+{
+    ScopedStack stack(L);
+    if (LUA_TFUNCTION == lua_getglobal(L, name.c_str()))
+    {
+        return FunctionRef(L, -1);
+    }
+    else [[unlikely]]
+    {
+        LOG::DEBUG(name, "is not a table");
+        return std::nullopt;
+    }
+}
+
+std::optional<UserdataRef> State::readUserdata(const std::string& name) const
+{
+    ScopedStack stack(L);
+    if (LUA_TUSERDATA == lua_getglobal(L, name.c_str()))
+    {
+        return UserdataRef(L, -1);
     }
     else [[unlikely]]
     {

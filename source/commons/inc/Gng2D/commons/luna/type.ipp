@@ -31,6 +31,11 @@ bool Type::tryAssignTo(T& target)
         if (this->isTable()) target = this->asTable();
         else return false;
     }
+    else if constexpr (std::is_same_v<T, FunctionRef>)
+    {
+        if (this->isFunction()) target = this->asFunction();
+        else return false;
+    }
     else GNG2D_ASSERT_CONSTEXPR("Target type not supported");
 
     return true;
@@ -62,6 +67,14 @@ constexpr bool operator==(const T& lhs, const Type& rhs)
     else if constexpr (std::is_same_v<T, TableRef>)
     {
         if (rhs.isTable()) return rhs.asTable() == lhs;
+    }
+    else if constexpr (std::is_same_v<T, FunctionRef>)
+    {
+        if (rhs.isFunction()) return rhs.asFunction() == lhs;
+    }
+    else if constexpr (std::is_same_v<T, UserdataRef>)
+    {
+        if (rhs.isUserdata()) return rhs.asUserdata() == lhs;
     }
     return false;
 }

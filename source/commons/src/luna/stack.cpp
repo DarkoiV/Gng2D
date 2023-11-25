@@ -48,7 +48,19 @@ void Stack::pushBool(Bool value)
 void Stack::pushTable(const TableRef& tr)
 {
     GNG2D_ASSERT(lua_rawgeti(L, LUA_REGISTRYINDEX, tr.regRef->get()) == LUA_TTABLE,
-                 "No table at stored ref in TableRed");
+                 "No table at stored ref in TableRef");
+}
+
+void Stack::pushFunction(const FunctionRef& fr)
+{
+    GNG2D_ASSERT(lua_rawgeti(L, LUA_REGISTRYINDEX, fr.regRef->get()) == LUA_TFUNCTION,
+                 "No table at stored ref in FunctionRef");
+}
+
+void Stack::pushUserdata(const UserdataRef& ur)
+{
+    GNG2D_ASSERT(lua_rawgeti(L, LUA_REGISTRYINDEX, ur.regRef->get()) == LUA_TUSERDATA,
+                 "No table at stored ref in UserdataRef");
 }
 
 void Stack::pushGlobal(const String& name)
@@ -62,25 +74,35 @@ void Stack::push(const Type& value)
     {
     case TYPE::NIL:
         lua_pushnil(L);
-        break;
+        return;
     case TYPE::INT:
         pushInt(value.asInteger());
-        break;
+        return;
     case TYPE::FLOAT:
         pushFloat(value.asFloat());
-        break;
+        return;
     case TYPE::STRING:
         pushString(value.asString());
-        break;
+        return;
     case TYPE::BOOL:
         pushBool(value.asBool());
-        break;
+        return;
     case TYPE::TABLE:
         pushTable(value.asTable());
-        break;
-    [[unlikely]] default:
-        LOG::ERROR("Fallthrough on push");
+        return;
+    case TYPE::FUNCTION:
+        pushFunction(value.asFunction());
+        return;
+    case TYPE::USERDATA:
+        pushUserdata(value.asUserdata());
+        return;
     }
+    LOG::ERROR("Fallthrough on push");
+}
+
+void Stack::setGlobal(const std::string& name)
+{
+    lua_setglobal(L, name.c_str());
 }
 
 Type Stack::read(int n) const
@@ -99,6 +121,10 @@ Type Stack::read(int n) const
         return bool{static_cast<bool>(lua_toboolean(L, n))};
     case LUA_TTABLE:
         return TableRef(L, n);
+    case LUA_TFUNCTION:
+        return FunctionRef(L, n);
+    case LUA_TUSERDATA:
+        return UserdataRef(L, n);
     }
 
     LOG::DEBUG("Global is of non readable type");
@@ -121,6 +147,10 @@ TYPE Stack::is(int n) const
         return TYPE::BOOL;
     case LUA_TTABLE:
         return TYPE::TABLE;
+    case LUA_TFUNCTION:
+        return TYPE::FUNCTION;
+    case LUA_TUSERDATA:
+        return TYPE::USERDATA;
     };
 
     LOG::DEBUG("Var is of non readable type");

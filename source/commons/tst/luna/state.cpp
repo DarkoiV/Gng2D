@@ -172,3 +172,42 @@ TEST_F(LunaTest, CanUseTablesAsEnvsForFiles)
     ASSERT_FALSE(luna.readFloat("z"));
     ASSERT_FALSE(luna.readTable("envTable"));
 }
+
+TEST_F(LunaTest, CanKeepReferencesToFunctions)
+{
+    luna.doString("foo = function() globalZ = true end");
+    auto foo               = luna.read("foo");
+    auto globalZBeforeCall = luna.read("globalZ");
+    ASSERT_TRUE(foo.isFunction());
+    ASSERT_TRUE(globalZBeforeCall.isNil());
+
+    auto stack = luna.getStack();
+    stack.newTable();
+    stack.setTableField("foo", foo);
+    stack.setGlobal("foo_table");
+    stack.pop(stack.top());
+
+    luna.doString("foo_table.foo()");
+    ASSERT_EQ(luna.read("globalZ"), true);
+}
+
+static int multiply(Gng2D::Luna::Stack stack)
+{
+    int    argsNo = stack.top();
+    double val    = 1;
+    for (int i = 0; i < argsNo; i++)
+    {
+        auto var = stack.read(-1 - i);
+        if (var.isFloat()) val *= var.asFloat();
+        if (var.isInteger()) val *= var.asInteger();
+    }
+    stack.push(val);
+    return 1;
+}
+
+TEST_F(LunaTest, CanRegisterFunction)
+{
+    luna.registerFunction<multiply>("myMultiply");
+    luna.doString("result = myMultiply(1, 2, 3, 4)");
+    ASSERT_EQ(luna.read("result"), 1.0 * 2.0 * 3.0 * 4.0);
+}

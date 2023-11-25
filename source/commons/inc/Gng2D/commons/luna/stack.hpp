@@ -18,11 +18,14 @@ struct Stack
     void pushString(const String&);
     void pushBool(Bool);
     void pushTable(const TableRef&);
+    void pushFunction(const FunctionRef&);
+    void pushUserdata(const UserdataRef&);
 
     void push(const Type&);
-    void pushGlobal(const String&);
+    void pushGlobal(const std::string&);
 
     Type read(int n) const;
+    void setGlobal(const std::string&);
     TYPE is(int n) const;
     void pop(int n);
     int  top() const;
