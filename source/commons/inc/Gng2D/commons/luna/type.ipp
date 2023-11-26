@@ -42,6 +42,7 @@ bool Type::tryAssignTo(T& target)
 }
 
 template <typename T>
+    requires(not std::is_same_v<T, Type>)
 constexpr bool operator==(const T& lhs, const Type& rhs)
 {
     if constexpr (std::is_same_v<T, Nil>)
@@ -80,8 +81,36 @@ constexpr bool operator==(const T& lhs, const Type& rhs)
 }
 
 template <typename T>
+    requires(not std::is_same_v<T, Type>)
 constexpr bool operator==(const Type& lhs, const T& rhs)
 {
     return rhs == lhs;
 }
+
+template <typename T>
+    requires(std::is_same_v<T, Type>)
+inline constexpr bool operator==(const T& lhs, const Type& rhs)
+{
+    if (lhs.index() != rhs.index()) return false;
+    switch (lhs.index())
+    {
+    case TYPE::INT:
+        return lhs.asInteger() == rhs.asInteger();
+    case TYPE::FLOAT:
+        return lhs.asFloat() == rhs.asFloat();
+    case TYPE::BOOL:
+        return lhs.asBool() == rhs.asBool();
+    case TYPE::STRING:
+        return lhs.asString() == rhs.asString();
+    case TYPE::TABLE:
+        return lhs.asTable() == rhs.asTable();
+    case TYPE::FUNCTION:
+        return lhs.asFunction() == rhs.asFunction();
+    case TYPE::USERDATA:
+        return lhs.asUserdata() == rhs.asUserdata();
+    }
+
+    return true;
+}
+
 } // namespace Gng2D::Luna
