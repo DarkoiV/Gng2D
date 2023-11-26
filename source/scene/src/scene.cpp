@@ -29,8 +29,7 @@ Scene::Scene()
     if (OnUpdateRef.isFunction()) lunaOnUpdate = OnUpdateRef.asFunction();
     else if (not OnUpdateRef.isNil()) LOG::WARN("OnUpdate should be a lua function!");
 
-    luna.registerMethod<&Scene::lunaSpawnEntity>(*this, "spawn");
-    lunaSceneEnv.set("spawn", luna.read("spawn"));
+    luna.registerMethod<&Scene::lunaSpawnEntity>(*this, "spawn", lunaSceneEnv);
 }
 
 Scene::~Scene()

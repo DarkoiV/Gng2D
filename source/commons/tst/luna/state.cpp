@@ -236,3 +236,26 @@ TEST_F(LunaTest, CanRegisterMethods)
         "increase()");
     ASSERT_EQ(counter.get(), 3);
 }
+
+TEST_F(LunaTest, FunctionsAndMethodsCanBeRegisteredInEnv)
+{
+
+    Counter counter;
+    luna.createTable("customEnv");
+    auto env = luna.readTable("customEnv");
+    ASSERT_TRUE(env);
+
+    luna.registerFunction<&multiply>("mult", *env);
+    luna.registerMethod<&Counter::inc>(counter, "inc", *env);
+    ASSERT_EQ(luna.read("mult"), Gng2D::Luna::Nil{});
+    ASSERT_EQ(luna.read("inc"), Gng2D::Luna::Nil{});
+    ASSERT_EQ(counter.get(), 0);
+
+    luna.doString("result = customEnv.mult(1, 2, 3)");
+    luna.doString(
+        "customEnv.inc() \n"
+        "customEnv.inc() \n"
+        "customEnv.inc()");
+    ASSERT_EQ(luna.readFloat("result"), 1. * 2. * 3.);
+    ASSERT_EQ(counter.get(), 3);
+}

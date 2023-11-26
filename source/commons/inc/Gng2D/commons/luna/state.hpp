@@ -37,15 +37,25 @@ struct State
     TableRef createTableRef();
 
     template <int (*F)(Stack)>
-    void registerFunction(const std::string& name)
+    void registerFunction(const std::string& name, std::optional<TableRef> env = std::nullopt)
     {
         auto* fn = +[](lua_State* L) { return F(Stack(L)); };
-        lua_register(L, name.c_str(), fn);
+
+        if (not env) lua_register(L, name.c_str(), fn);
+        else
+        {
+            auto stack = getStack();
+            stack.push(*env);
+            stack.push(name);
+            lua_pushcfunction(L, fn);
+            stack.setTableFieldFS();
+        }
     }
 
     template <auto Method>
         requires(std::is_member_function_pointer_v<decltype(Method)>)
-    void registerMethod(auto& obj, const std::string& name)
+    void
+    registerMethod(auto& obj, const std::string& name, std::optional<TableRef> env = std::nullopt)
     {
         using ObjType = std::remove_reference_t<decltype(obj)>;
         static_assert(requires {
@@ -60,9 +70,22 @@ struct State
             GNG2D_ASSERT(objPtr);
             return (objPtr->*Method)(Stack(L));
         };
-        lua_pushlightuserdata(L, &obj);
-        lua_pushcclosure(L, fn, 1);
-        lua_setglobal(L, name.c_str());
+
+        if (not env)
+        {
+            lua_pushlightuserdata(L, &obj);
+            lua_pushcclosure(L, fn, 1);
+            lua_setglobal(L, name.c_str());
+        }
+        else
+        {
+            auto stack = getStack();
+            stack.push(*env);
+            stack.push(name);
+            lua_pushlightuserdata(L, &obj);
+            lua_pushcclosure(L, fn, 1);
+            stack.setTableFieldFS();
+        }
     }
 
   private:
