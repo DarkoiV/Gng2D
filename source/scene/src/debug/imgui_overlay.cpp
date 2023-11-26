@@ -147,6 +147,7 @@ static void displayComponent(entt::registry& reg, entt::entity e, entt::meta_typ
         case Gng2D::FIELD_TYPE::STRING:
             displayField.operator()<std::string>([&](std::string* value) -> bool
             { return ImGui::InputText(datum.name.c_str(), value); });
+            break;
         default:
             ImGui::Text("UNHANDLED INPUT");
             break;
