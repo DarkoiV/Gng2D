@@ -29,11 +29,12 @@ struct State
     std::optional<FunctionRef> readFunction(const std::string&) const;
     std::optional<UserdataRef> readUserdata(const std::string&) const;
 
-    void createInt(const std::string&, lua_Integer);
-    void createFloat(const std::string&, lua_Number);
-    void createString(const std::string& name, const std::string& var);
-    void createBool(const std::string&, bool);
-    void createTable(const std::string&);
+    void     createInt(const std::string&, lua_Integer);
+    void     createFloat(const std::string&, lua_Number);
+    void     createString(const std::string& name, const std::string& var);
+    void     createBool(const std::string&, bool);
+    void     createTable(const std::string&);
+    TableRef createTableRef();
 
     template <int (*F)(Stack)>
     void registerFunction(const std::string& name)

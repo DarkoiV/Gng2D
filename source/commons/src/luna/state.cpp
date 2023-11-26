@@ -189,6 +189,13 @@ void State::createTable(const std::string& name)
     lua_setglobal(L, name.c_str());
 }
 
+TableRef State::createTableRef()
+{
+    auto stack = getStack();
+    stack.newTable();
+    return stack.read(-1).asTable();
+}
+
 void State::setEnv(const TableRef& env)
 {
     GNG2D_ASSERT(lua_isfunction(L, -1), "setEnv requires function at -1 index");
