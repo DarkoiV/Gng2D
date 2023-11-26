@@ -118,3 +118,39 @@ TEST_F(LunaStackTest, CanDoOperationsOnLuaTables)
     stack.pushTableFieldFS(-2);
     ASSERT_EQ(stack.read(-1), GLOBAL_TABLE_KEY_VALUE);
 }
+
+TEST_F(LunaStackTest, CanCallFunction)
+{
+    luaL_dostring(L, "foo = function() varSetFromFoo = 100 end");
+    Stack stack(L);
+    stack.pushGlobal("foo");
+    auto foo = stack.read(-1);
+    ASSERT_TRUE(foo.isFunction());
+
+    stack.pushGlobal("varSetFromFoo");
+    ASSERT_EQ(stack.read(-1), Nil{});
+
+    constexpr int VOID_RETURN = 0;
+    ASSERT_EQ(stack.callFunction(foo.asFunction()), VOID_RETURN);
+
+    stack.pushGlobal("varSetFromFoo");
+    ASSERT_EQ(stack.read(-1), 100);
+}
+
+TEST_F(LunaStackTest, CanCallFunctionWithMultipleArgsAndReturns)
+{
+    luaL_dostring(L,
+                  "foo = function(x, y, z) \n"
+                  "  local sum = x + y + z \n"
+                  "  local mul = x * y * z \n"
+                  "  return sum, mul \n"
+                  "end");
+    Stack stack(L);
+    stack.pushGlobal("foo");
+    constexpr int    ARGS_NO       = 3;
+    constexpr int    RET_NO        = 2;
+    constexpr double ARGS[ARGS_NO] = {1.3, 3.2, 9.0};
+    ASSERT_EQ(stack.callFunctionFS({ARGS[0], ARGS[1], ARGS[2]}), RET_NO);
+    ASSERT_EQ(stack.read(-1), ARGS[0] * ARGS[1] * ARGS[2]);
+    ASSERT_EQ(stack.read(-2), ARGS[0] + ARGS[1] + ARGS[2]);
+}

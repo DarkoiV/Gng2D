@@ -33,7 +33,7 @@ struct Scene : SceneInterface
     std::string    name;
     entt::registry reg;
 
-    Luna::State    luna;
+    Luna::State&   luna;
     InputHandler   inputHandler{reg};
     RelationSystem relationSystem{reg};
 

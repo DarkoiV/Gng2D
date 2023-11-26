@@ -201,6 +201,23 @@ void Stack::pushTableFieldFS(int tableIndx)
     lua_rawget(L, tableIndx);
 }
 
+int Stack::callFunction(const FunctionRef& fn, std::vector<Type> args)
+{
+    push(fn);
+    return callFunctionFS(std::move(args));
+}
+
+int Stack::callFunctionFS(std::vector<Type> args)
+{
+    int retNo = top();
+    for (auto& arg: args)
+        push(arg);
+    GNG2D_ASSERT(lua_pcall(L, args.size(), LUA_MULTRET, 0) == LUA_OK, lua_tostring(L, -1));
+    retNo = top() - retNo + 1; // +1 'cause pcall pops function too
+
+    return retNo;
+}
+
 StackLock::StackLock(lua_State* state)
     : L(state)
 {

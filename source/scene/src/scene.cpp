@@ -2,6 +2,7 @@
 #include "Gng2D/commons/imgui.hpp"
 #include "Gng2D/commons/log.hpp"
 #include "Gng2D/commons/repository.hpp"
+#include "Gng2D/core/global.hpp"
 #include "Gng2D/entities/red_x.hpp"
 
 #ifdef GNG2D_IMGUI_ENABLED
@@ -11,6 +12,7 @@
 using Gng2D::Scene;
 
 Scene::Scene()
+    : luna(Gng2D::GLOBAL::LUNA_STATE)
 {
 #ifdef GNG2D_IMGUI_ENABLED
     systems.emplace_back(std::make_unique<Gng2D::ImguiOverlay>(reg));
