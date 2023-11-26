@@ -3,7 +3,7 @@
 
 using Gng2D::EntityRecipe;
 
-EntityRecipe::EntityRecipe(entt::registry& r)
+EntityRecipe::EntityRecipe(entt::registry* r)
     : reg(r)
 {
 }
@@ -26,7 +26,7 @@ entt::entity EntityRecipe::spawn()
 {
     using namespace entt::literals;
 
-    auto e = reg.create();
+    auto e = reg->create();
     for (auto& component: components)
     {
         GNG2D_ASSERT(component.type().func("emplace"_hs),
@@ -34,7 +34,7 @@ entt::entity EntityRecipe::spawn()
                      component.type().prop("name"_hs).value().cast<std::string>());
 
         // emplace.invoke({}, &reg, e, entt::forward_as_meta(component));
-        component.invoke("emplace"_hs.value(), &reg, e, entt::forward_as_meta(component));
+        component.invoke("emplace"_hs.value(), reg, e, entt::forward_as_meta(component));
     }
 
     return e;

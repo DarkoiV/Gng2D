@@ -13,10 +13,24 @@ using Gng2D::Scene;
 
 Scene::Scene()
     : luna(Gng2D::GLOBAL::LUNA_STATE)
+    , lunaSceneEnv(luna.createTableRef())
 {
 #ifdef GNG2D_IMGUI_ENABLED
     systems.emplace_back(std::make_unique<Gng2D::ImguiOverlay>(reg));
 #endif
+
+    luna.doFile(GLOBAL::DATA_DIRECTORY / "scene.lua", lunaSceneEnv);
+
+    auto OnEnterRef = lunaSceneEnv.get("OnEnter");
+    if (OnEnterRef.isFunction()) lunaOnEnter = OnEnterRef.asFunction();
+    else if (not OnEnterRef.isNil()) LOG::WARN("OnEnter should be a lua function!");
+
+    auto OnUpdateRef = lunaSceneEnv.get("OnUpdate");
+    if (OnUpdateRef.isFunction()) lunaOnUpdate = OnUpdateRef.asFunction();
+    else if (not OnUpdateRef.isNil()) LOG::WARN("OnUpdate should be a lua function!");
+
+    luna.registerMethod<&Scene::lunaSpawnEntity>(*this, "spawn");
+    lunaSceneEnv.set("spawn", luna.read("spawn"));
 }
 
 Scene::~Scene()
@@ -26,12 +40,13 @@ Scene::~Scene()
 
 void Scene::onEnter()
 {
+    using namespace entt::literals;
     LOG::INFO("Entering", name);
+
     Repository::loadSprite("red_x");
-    RedX spawner(reg);
-    spawner.spawn();
-    spawner.spawn();
-    spawner.spawn();
+    entityRecipes.insert_or_assign("RedX"_hs, redX(&reg));
+
+    if (lunaOnEnter) luna.getStack().callFunction(*lunaOnEnter);
 }
 
 void Scene::onExit()
@@ -45,6 +60,8 @@ void Scene::update()
     {
         system->onUpdate();
     }
+
+    if (lunaOnUpdate) luna.getStack().callFunction(*lunaOnUpdate);
 }
 
 void Scene::render(SDL_Renderer* r)
@@ -60,4 +77,18 @@ void Scene::onKeyPress(SDL_KeyboardEvent& e)
 const std::string& Scene::getName() const
 {
     return name;
+}
+
+int Scene::lunaSpawnEntity(Luna::Stack stack)
+{
+    GNG2D_ASSERT(stack.top() == 1);
+    auto entityName = stack.read(-1);
+    if (not entityName.isString()) return 0;
+    auto eid = entt::hashed_string::value(entityName.asString().c_str());
+
+    auto recipeIt = entityRecipes.find(eid);
+    if (recipeIt == entityRecipes.end()) return 0;
+    recipeIt->second.spawn();
+
+    return 0;
 }

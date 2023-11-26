@@ -2,6 +2,7 @@
 #include "Gng2D/commons/luna/state.hpp"
 #include "Gng2D/commons/scene_interface.hpp"
 #include "Gng2D/commons/system_interface.hpp"
+#include "Gng2D/entities/entity_recipe.hpp"
 #include "Gng2D/scene/entity_renderer.hpp"
 #include "Gng2D/scene/input_handler.hpp"
 #include "Gng2D/scene/relation_system.hpp"
@@ -39,6 +40,14 @@ struct Scene : SceneInterface
 
     EntityRenderer entityRenderer{reg};
 
-    std::vector<SystemPtr> systems;
+    std::vector<SystemPtr>                       systems;
+    std::unordered_map<StringHash, EntityRecipe> entityRecipes;
+
+  private:
+    Luna::TableRef                   lunaSceneEnv;
+    std::optional<Luna::FunctionRef> lunaOnEnter;
+    std::optional<Luna::FunctionRef> lunaOnUpdate;
+
+    int lunaSpawnEntity(Luna::Stack);
 };
 } // namespace Gng2D
