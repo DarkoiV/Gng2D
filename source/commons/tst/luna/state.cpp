@@ -191,9 +191,9 @@ TEST_F(LunaTest, CanKeepReferencesToFunctions)
     ASSERT_EQ(luna.read("globalZ"), true);
 }
 
-static int multiply(Gng2D::Luna::Stack stack)
+static int multiply(Gng2D::Luna::Stack stack, Gng2D::Luna::TypeVector args)
 {
-    int    argsNo = stack.top();
+    int    argsNo = args.size();
     double val    = 1;
     for (int i = 0; i < argsNo; i++)
     {
@@ -214,7 +214,7 @@ TEST_F(LunaTest, CanRegisterFunction)
 
 struct Counter
 {
-    int inc(Gng2D::Luna::Stack)
+    int inc(Gng2D::Luna::Stack, Gng2D::Luna::TypeVector)
     {
         count++;
         return 0;

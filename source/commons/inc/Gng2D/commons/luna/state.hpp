@@ -36,10 +36,19 @@ struct State
     void     createTable(const std::string&);
     TableRef createTableRef();
 
-    template <int (*F)(Stack)>
+    template <int (*F)(Stack, TypeVector)>
     void registerFunction(const std::string& name, std::optional<TableRef> env = std::nullopt)
     {
-        auto* fn = +[](lua_State* L) { return F(Stack(L)); };
+        auto* fn = +[](lua_State* L)
+        {
+            Stack      stack(L);
+            TypeVector args;
+            for (int i = stack.top(); i > 0; i--)
+            {
+                args.emplace_back(stack.read(i));
+            }
+            return F(std::move(stack), std::move(args));
+        };
 
         if (not env) lua_register(L, name.c_str(), fn);
         else
@@ -60,7 +69,7 @@ struct State
         using ObjType = std::remove_reference_t<decltype(obj)>;
         static_assert(requires {
             {
-                (obj.*Method)(Stack(L))
+                (obj.*Method)(Stack(L), TypeVector())
             } -> std::same_as<int>;
         });
 
@@ -68,7 +77,13 @@ struct State
         {
             auto* objPtr = (ObjType*)lua_touserdata(L, lua_upvalueindex(1));
             GNG2D_ASSERT(objPtr);
-            return (objPtr->*Method)(Stack(L));
+            Stack      stack(L);
+            TypeVector args;
+            for (int i = stack.top(); i > 0; i--)
+            {
+                args.emplace_back(stack.read(i));
+            }
+            return (objPtr->*Method)(std::move(stack), std::move(args));
         };
 
         if (not env)

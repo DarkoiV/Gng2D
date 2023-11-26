@@ -78,10 +78,10 @@ const std::string& Scene::getName() const
     return name;
 }
 
-int Scene::lunaSpawnEntity(Luna::Stack stack)
+int Scene::lunaSpawnEntity(Luna::Stack stack, Luna::TypeVector args)
 {
-    GNG2D_ASSERT(stack.top() == 1);
-    auto entityName = stack.read(-1);
+    GNG2D_ASSERT(args.size() == 1);
+    auto entityName = args[0];
     if (not entityName.isString()) return 0;
     auto eid = entt::hashed_string::value(entityName.asString().c_str());
 

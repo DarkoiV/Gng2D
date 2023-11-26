@@ -1,6 +1,5 @@
 #pragma once
 #include "Gng2D/commons/luna/type.hpp"
-#include <vector>
 
 namespace Gng2D::Luna {
 struct Stack
@@ -9,8 +8,8 @@ struct Stack
         : L(L)
     {
     }
-    Stack(const Stack&) = delete;
-    Stack(Stack&&)      = delete;
+    Stack(const Stack&) = default;
+    Stack(Stack&&)      = default;
     ~Stack()            = default;
 
     void pushNil();
@@ -37,8 +36,8 @@ struct Stack
     void pushTableField(const Type& key, int tableIndx = -1);
     void pushTableFieldFS(int tableIndx = -2);
 
-    int callFunction(const FunctionRef&, std::vector<Type> args = {});
-    int callFunctionFS(std::vector<Type> args = {});
+    int callFunction(const FunctionRef&, TypeVector args = {});
+    int callFunctionFS(TypeVector args = {});
 
   private:
     lua_State* L;

@@ -3,6 +3,7 @@
 #include <memory>
 #include <string>
 #include <variant>
+#include <vector>
 
 namespace Gng2D::Luna {
 enum TYPE {
@@ -140,5 +141,8 @@ struct Type : TypesVariant
     template <typename T>
     bool tryAssignTo(T& target);
 };
+
+using TypeVector = std::vector<Type>;
+
 } // namespace Gng2D::Luna
 #include "type.ipp"
