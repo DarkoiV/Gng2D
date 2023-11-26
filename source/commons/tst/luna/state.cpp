@@ -207,7 +207,32 @@ static int multiply(Gng2D::Luna::Stack stack)
 
 TEST_F(LunaTest, CanRegisterFunction)
 {
-    luna.registerFunction<multiply>("myMultiply");
+    luna.registerFunction<&multiply>("myMultiply");
     luna.doString("result = myMultiply(1, 2, 3, 4)");
     ASSERT_EQ(luna.read("result"), 1.0 * 2.0 * 3.0 * 4.0);
+}
+
+struct Counter
+{
+    int inc(Gng2D::Luna::Stack)
+    {
+        count++;
+        return 0;
+    }
+    int get() { return count; }
+
+  private:
+    int count{};
+};
+
+TEST_F(LunaTest, CanRegisterMethods)
+{
+    Counter counter;
+    ASSERT_EQ(counter.get(), 0);
+    luna.registerMethod<&Counter::inc>(counter, "increase");
+    luna.doString(
+        "increase() \n"
+        "increase() \n"
+        "increase()");
+    ASSERT_EQ(counter.get(), 3);
 }

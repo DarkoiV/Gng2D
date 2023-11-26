@@ -43,6 +43,28 @@ struct State
         lua_register(L, name.c_str(), fn);
     }
 
+    template <auto Method>
+        requires(std::is_member_function_pointer_v<decltype(Method)>)
+    void registerMethod(auto& obj, const std::string& name)
+    {
+        using ObjType = std::remove_reference_t<decltype(obj)>;
+        static_assert(requires {
+            {
+                (obj.*Method)(Stack(L))
+            } -> std::same_as<int>;
+        });
+
+        auto* fn = +[](lua_State* L) -> int
+        {
+            auto* objPtr = (ObjType*)lua_touserdata(L, lua_upvalueindex(1));
+            GNG2D_ASSERT(objPtr);
+            return (objPtr->*Method)(Stack(L));
+        };
+        lua_pushlightuserdata(L, &obj);
+        lua_pushcclosure(L, fn, 1);
+        lua_setglobal(L, name.c_str());
+    }
+
   private:
     lua_State* L{};
 
