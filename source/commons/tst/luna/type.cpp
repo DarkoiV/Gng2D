@@ -69,3 +69,41 @@ TEST_F(LunaTypeTest, ReferencesToTheSameTableAreEqual)
     auto globalTable = stack.read(-1).asTable();
     ASSERT_EQ(table, globalTable);
 }
+
+TEST_F(LunaTypeTest, CanIterateOverLunaTable)
+{
+    luaL_dostring(L,
+                  "x = {} "
+                  "x[123] = 'table-value'"
+                  "x.test = 32.91");
+    Stack stack(L);
+    stack.pushGlobal("x");
+    ASSERT_TRUE(stack.read(-1).isTable());
+    auto tableRef = stack.read(-1).asTable();
+
+    using kvpair        = std::pair<Type, Type>;
+    const kvpair PAIR_1 = {123, "table-value"};
+    int          pair_1_count{};
+    const kvpair PAIR_2 = {"test", 32.91};
+    int          pair_2_count{};
+
+    auto it = tableRef.begin();
+    ASSERT_EQ(*it, PAIR_1);
+    it++;
+    ASSERT_EQ(*it, PAIR_2);
+    it++;
+    ASSERT_EQ(it, tableRef.end());
+
+    for (auto it = tableRef.begin(); it != tableRef.end(); it++)
+    {
+    }
+
+    // for (auto&& pairTable: tableRef)
+    //{
+    //    if (pairTable == PAIR_1) pair_1_count++;
+    //    if (pairTable == PAIR_2) pair_2_count++;
+    //}
+
+    // ASSERT_EQ(pair_1_count, 1);
+    // ASSERT_EQ(pair_2_count, 1);
+}

@@ -127,7 +127,7 @@ Type Stack::read(int n) const
         return UserdataRef(L, n);
     }
 
-    LOG::DEBUG("Global is of non readable type");
+    LOG::DEBUG("Is of non readable type:", type);
     return Nil{};
 }
 

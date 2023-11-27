@@ -1,4 +1,5 @@
 #pragma once
+#include "Gng2D/commons/assert.hpp"
 #include "lua.hpp"
 #include <memory>
 #include <string>
@@ -52,6 +53,54 @@ struct TableRef
     Type get(const Type& key) const;
 
     friend bool operator==(const TableRef& lhs, const TableRef& rhs) { return lhs.ptr == rhs.ptr; }
+
+    struct Iterator
+    {
+        using iterator_category = std::input_iterator_tag;
+        using difference_type   = std::ptrdiff_t;
+        using value_type        = std::pair<Type, Type>;
+
+        ~Iterator() = default;
+        Iterator(TableRef&);
+        Iterator(const Iterator&);
+        Iterator(Iterator&&);
+
+        Iterator& operator=(const Iterator&) = delete;
+        Iterator& operator=(Iterator&&)      = delete;
+
+        Iterator& operator++();
+        Iterator  operator++(int);
+
+        value_type operator*();
+
+        friend bool operator==(const Iterator& lhs, const Iterator& rhs)
+        {
+            GNG2D_ASSERT(lhs.tableRef == rhs.tableRef);
+            return (lhs.isThereNextElement == rhs.isThereNextElement) and
+                   (lhs.isThereNextElement == false or areKeysSame(lhs, rhs));
+        }
+
+        friend bool operator!=(const Iterator& lhs, const Iterator& rhs)
+        {
+            GNG2D_ASSERT(lhs.tableRef == rhs.tableRef);
+            return (lhs.isThereNextElement != rhs.isThereNextElement) and
+                   (lhs.isThereNextElement != false or not areKeysSame(lhs, rhs));
+        }
+
+      private:
+        lua_State* thread{};
+        TableRef&  tableRef;
+        SharedRef  threadRef;
+        bool       isThereNextElement;
+
+        friend TableRef;
+        Iterator(lua_State* L, TableRef&);
+
+        static bool areKeysSame(const Iterator&, const Iterator&);
+    };
+
+    Iterator begin() { return Iterator(L, *this); };
+    Iterator end() { return Iterator(*this); };
 
   private:
     TableRef(lua_State*, int idx);

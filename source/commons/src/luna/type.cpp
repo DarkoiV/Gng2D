@@ -76,6 +76,73 @@ Type TableRef::get(const Type& key) const
     return stack.read(-1);
 }
 
+TableRef::Iterator::Iterator(lua_State* L, TableRef& t)
+    : tableRef(t)
+{
+    thread    = lua_newthread(L);
+    threadRef = std::make_unique<Ref>(L, -1);
+    Stack stack(thread);
+    stack.push(t);
+    stack.pushNil();
+    isThereNextElement = lua_next(thread, -2);
+};
+
+TableRef::Iterator::Iterator(TableRef& t)
+    : tableRef(t)
+{
+    isThereNextElement = false;
+}
+
+TableRef::Iterator::Iterator(const Iterator& from)
+    : tableRef(from.tableRef)
+{
+    thread    = lua_newthread(from.thread);
+    threadRef = std::make_unique<Ref>(from.thread, -1);
+    lua_pop(from.thread, 1); // Pop thread
+
+    Stack stack(thread);
+    Stack fromStack(from.thread);
+    for (int i = 1; i <= fromStack.top(); i++)
+    {
+        stack.push(fromStack.read(i));
+    }
+    isThereNextElement = from.isThereNextElement;
+}
+
+TableRef::Iterator::Iterator(Iterator&& from)
+    : tableRef(from.tableRef)
+{
+    thread             = from.thread;
+    from.thread        = nullptr;
+    threadRef          = from.threadRef;
+    isThereNextElement = from.isThereNextElement;
+}
+
+TableRef::Iterator& TableRef::Iterator::operator++()
+{
+    lua_pop(thread, 1);
+    isThereNextElement = lua_next(thread, -2);
+    return *this;
+}
+
+TableRef::Iterator TableRef::Iterator::operator++(int)
+{
+    Iterator tmp = *this;
+    ++(*this);
+    return tmp;
+}
+
+TableRef::Iterator::value_type TableRef::Iterator::operator*()
+{
+    Stack stack(thread);
+    return {stack.read(-2), stack.read(-1)};
+}
+
+bool TableRef::Iterator::areKeysSame(const Iterator& lhs, const Iterator& rhs)
+{
+    return Stack(lhs.thread).read(-2) == Stack(rhs.thread).read(-2);
+}
+
 // FUNCTION REF ////////////////////////////////////////////////////////////////
 
 FunctionRef::FunctionRef(lua_State* state, int idx)
