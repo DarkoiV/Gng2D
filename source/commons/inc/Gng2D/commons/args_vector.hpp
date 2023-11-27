@@ -1,4 +1,5 @@
 #pragma once
+#include "Gng2D/commons/luna/type.hpp"
 #include "Gng2D/commons/types.hpp"
 #include "entt/entt.hpp"
 #include <vector>
@@ -17,6 +18,7 @@ struct ArgsVector
         : vec(l)
     {
     }
+    ArgsVector(const Luna::TableRef&);
     ~ArgsVector() = default;
 
     void addArg(StringHash id, entt::meta_any arg);

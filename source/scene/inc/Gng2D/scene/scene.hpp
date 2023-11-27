@@ -49,5 +49,6 @@ struct Scene : SceneInterface
     std::optional<Luna::FunctionRef> lunaOnUpdate;
 
     int lunaSpawnEntity(Luna::Stack, Luna::TypeVector);
+    int lunaNewEntityRecipe(Luna::Stack, Luna::TypeVector);
 };
 } // namespace Gng2D

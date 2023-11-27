@@ -81,6 +81,8 @@ TableRef::Iterator::Iterator(lua_State* L, const TableRef& t)
 {
     thread    = lua_newthread(L);
     threadRef = std::make_unique<Ref>(L, -1);
+    lua_pop(L, 1); // Pop thread
+
     Stack stack(thread);
     stack.push(t);
     stack.pushNil();
@@ -120,6 +122,8 @@ TableRef::Iterator::Iterator(Iterator&& from)
 
 TableRef::Iterator& TableRef::Iterator::operator++()
 {
+    GNG2D_ASSERT(isThereNextElement);
+    GNG2D_ASSERT(lua_gettop(thread) == 3, "actual:", lua_gettop(thread));
     lua_pop(thread, 1);
     isThereNextElement = lua_next(thread, -2);
     return *this;
@@ -127,6 +131,8 @@ TableRef::Iterator& TableRef::Iterator::operator++()
 
 TableRef::Iterator TableRef::Iterator::operator++(int)
 {
+    GNG2D_ASSERT(isThereNextElement);
+    GNG2D_ASSERT(lua_gettop(thread) == 3, "actual:", lua_gettop(thread));
     Iterator tmp = *this;
     ++(*this);
     return tmp;

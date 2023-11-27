@@ -3,7 +3,6 @@
 #include "Gng2D/commons/log.hpp"
 #include "Gng2D/commons/repository.hpp"
 #include "Gng2D/core/global.hpp"
-#include "Gng2D/entities/red_x.hpp"
 
 #ifdef GNG2D_IMGUI_ENABLED
 #include "Gng2D/scene/debug/imgui_overlay.hpp"
@@ -29,7 +28,8 @@ Scene::Scene()
     if (OnUpdateRef.isFunction()) lunaOnUpdate = OnUpdateRef.asFunction();
     else if (not OnUpdateRef.isNil()) LOG::WARN("OnUpdate should be a lua function!");
 
-    luna.registerMethod<&Scene::lunaSpawnEntity>(*this, "spawn", lunaSceneEnv);
+    luna.registerMethod<&Scene::lunaSpawnEntity>(*this, "spawnEntity", lunaSceneEnv);
+    luna.registerMethod<&Scene::lunaNewEntityRecipe>(*this, "newEntityRecipe", lunaSceneEnv);
 }
 
 Scene::~Scene()
@@ -43,7 +43,6 @@ void Scene::onEnter()
     LOG::INFO("Entering", name);
 
     Repository::loadSprite("red_x");
-    entityRecipes.insert_or_assign("RedX"_hs, redX(&reg));
 
     if (lunaOnEnter) luna.getStack().callFunction(*lunaOnEnter);
 }
@@ -89,5 +88,45 @@ int Scene::lunaSpawnEntity(Luna::Stack stack, Luna::TypeVector args)
     if (recipeIt == entityRecipes.end()) return 0;
     recipeIt->second.spawn();
 
+    return 0;
+}
+
+int Scene::lunaNewEntityRecipe(Luna::Stack stack, Luna::TypeVector args)
+{
+    GNG2D_ASSERT(args.size() == 2 and args.at(0).isString() and args.at(1).isTable(),
+                 "newEntityRecipe requires 2 args 1 of type string, and components table");
+    StringHash eid             = entt::hashed_string::value(args.at(0).asString().c_str());
+    auto&      componentsTable = args.at(1).asTable();
+    LOG::INFO("Registering entity from lua:", args.at(0).asString());
+
+    EntityRecipe recipe(&reg);
+    for (auto&& [compId, compArgs]: componentsTable)
+    {
+        if (not compId.isInteger() and not compId.isString())
+        {
+            LOG::ERROR("in lunaNewEntityRecipe, key of table has to be string or hash");
+            continue;
+        }
+        if (not compArgs.isTable())
+        {
+            LOG::ERROR("in lunaNewEntityRecipe, value of componentArgs has to be table");
+            continue;
+        }
+        StringHash hash = compId.isInteger()
+                            ? compId.asInteger()
+                            : entt::hashed_string::value(compId.asString().c_str());
+
+        auto type = entt::resolve(hash);
+        if (not type)
+        {
+            LOG::ERROR("Faile to resolve:",
+                       compId.isString() ? compId.asString() : std::to_string(hash));
+            continue;
+        }
+        LOG::TRACE("Resolved to component:", type.info().name(), hash);
+        recipe.addComponent(hash, compArgs.asTable());
+        LOG::TRACE("Component added");
+    }
+    entityRecipes.insert_or_assign(eid, std::move(recipe));
     return 0;
 }

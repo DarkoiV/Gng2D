@@ -43,7 +43,7 @@ struct State
         {
             Stack      stack(L);
             TypeVector args;
-            for (int i = stack.top(); i > 0; i--)
+            for (int i = 1; i <= stack.top(); i++)
             {
                 args.emplace_back(stack.read(i));
             }
@@ -79,7 +79,7 @@ struct State
             GNG2D_ASSERT(objPtr);
             Stack      stack(L);
             TypeVector args;
-            for (int i = stack.top(); i > 0; i--)
+            for (int i = 1; i <= stack.top(); i++)
             {
                 args.emplace_back(stack.read(i));
             }
