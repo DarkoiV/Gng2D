@@ -73,37 +73,37 @@ TEST_F(LunaTypeTest, ReferencesToTheSameTableAreEqual)
 TEST_F(LunaTypeTest, CanIterateOverLunaTable)
 {
     luaL_dostring(L,
-                  "x = {} "
-                  "x[123] = 'table-value'"
-                  "x.test = 32.91");
+                  "foo = function() return 1 end \n"
+                  "x = {} \n"
+                  "x[123] = 'table-value' \n"
+                  "x.test = 32.91 \n"
+                  "x[foo] = x \n");
+
     Stack stack(L);
     stack.pushGlobal("x");
     ASSERT_TRUE(stack.read(-1).isTable());
     auto tableRef = stack.read(-1).asTable();
+    stack.pushGlobal("foo");
+    ASSERT_TRUE(stack.read(-1).isFunction());
+    auto fooRef = stack.read(-1).asFunction();
 
     using kvpair        = std::pair<Type, Type>;
     const kvpair PAIR_1 = {123, "table-value"};
-    int          pair_1_count{};
     const kvpair PAIR_2 = {"test", 32.91};
-    int          pair_2_count{};
+    const kvpair PAIR_3 = {fooRef, tableRef};
+    int          pair_1_count{0};
+    int          pair_2_count{0};
+    int          pair_3_count{0};
 
-    auto it = tableRef.begin();
-    ASSERT_EQ(*it, PAIR_1);
-    it++;
-    ASSERT_EQ(*it, PAIR_2);
-    it++;
-    ASSERT_EQ(it, tableRef.end());
-
-    for (auto it = tableRef.begin(); it != tableRef.end(); it++)
+    for (auto&& pair: tableRef)
     {
+        if (pair == PAIR_1) pair_1_count++;
+        else if (pair == PAIR_2) pair_2_count++;
+        else if (pair == PAIR_3) pair_3_count++;
+        else ASSERT_TRUE(false);
     }
 
-    // for (auto&& pairTable: tableRef)
-    //{
-    //    if (pairTable == PAIR_1) pair_1_count++;
-    //    if (pairTable == PAIR_2) pair_2_count++;
-    //}
-
-    // ASSERT_EQ(pair_1_count, 1);
-    // ASSERT_EQ(pair_2_count, 1);
+    ASSERT_EQ(pair_1_count, 1);
+    ASSERT_EQ(pair_2_count, 1);
+    ASSERT_EQ(pair_3_count, 1);
 }

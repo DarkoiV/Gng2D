@@ -61,7 +61,7 @@ struct TableRef
         using value_type        = std::pair<Type, Type>;
 
         ~Iterator() = default;
-        Iterator(TableRef&);
+        Iterator(const TableRef&);
         Iterator(const Iterator&);
         Iterator(Iterator&&);
 
@@ -88,19 +88,19 @@ struct TableRef
         }
 
       private:
-        lua_State* thread{};
-        TableRef&  tableRef;
-        SharedRef  threadRef;
-        bool       isThereNextElement;
+        lua_State*      thread{};
+        const TableRef& tableRef;
+        SharedRef       threadRef;
+        bool            isThereNextElement;
 
         friend TableRef;
-        Iterator(lua_State* L, TableRef&);
+        Iterator(lua_State* L, const TableRef&);
 
         static bool areKeysSame(const Iterator&, const Iterator&);
     };
 
-    Iterator begin() { return Iterator(L, *this); };
-    Iterator end() { return Iterator(*this); };
+    Iterator begin() const { return Iterator(L, *this); };
+    Iterator end() const { return Iterator(*this); };
 
   private:
     TableRef(lua_State*, int idx);

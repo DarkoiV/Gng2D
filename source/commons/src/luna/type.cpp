@@ -76,7 +76,7 @@ Type TableRef::get(const Type& key) const
     return stack.read(-1);
 }
 
-TableRef::Iterator::Iterator(lua_State* L, TableRef& t)
+TableRef::Iterator::Iterator(lua_State* L, const TableRef& t)
     : tableRef(t)
 {
     thread    = lua_newthread(L);
@@ -87,7 +87,7 @@ TableRef::Iterator::Iterator(lua_State* L, TableRef& t)
     isThereNextElement = lua_next(thread, -2);
 };
 
-TableRef::Iterator::Iterator(TableRef& t)
+TableRef::Iterator::Iterator(const TableRef& t)
     : tableRef(t)
 {
     isThereNextElement = false;
