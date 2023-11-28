@@ -50,7 +50,7 @@ void Transform2d::onUpdate(entt::registry& reg, entt::entity e)
 
     if (auto* parent = reg.try_get<Parent>(e))
     {
-        auto* parentPos = reg.try_get<detail::Position>(parent->id);
+        auto* parentPos = reg.try_get<detail::Position>(parent->id());
         if (parentPos)
         {
             pos.x += parentPos->x;
@@ -134,7 +134,7 @@ void TransformLayer::onUpdate(entt::registry& reg, entt::entity e)
 
     if (auto* parent = reg.try_get<Parent>(e))
     {
-        auto* parentLayer = reg.try_get<detail::Layer>(parent->id);
+        auto* parentLayer = reg.try_get<detail::Layer>(parent->id());
         if (parentLayer)
         {
             layer.main += parentLayer->main;
@@ -197,7 +197,7 @@ void Position::onUpdate(entt::registry& reg, entt::entity e)
 
     auto parentPos = reg.get<detail::Position>(e);
 
-    for (const auto child: children->list)
+    for (const auto child: *children)
     {
         auto* childTransformPos = reg.try_get<Transform2d>(e);
         if (not childTransformPos) continue;
@@ -223,7 +223,7 @@ void Layer::onUpdate(entt::registry& reg, entt::entity e)
 
     auto parentLayer = reg.get<detail::Layer>(e);
 
-    for (const auto child: children->list)
+    for (const auto child: *children)
     {
         auto* childTransformLayer = reg.try_get<TransformLayer>(child);
         if (not childTransformLayer) continue;
