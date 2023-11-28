@@ -9,7 +9,7 @@ struct Sprite
     SDL_Texture* texture{};
     SDL_Rect     srcRect{};
 
-    static Sprite                   fromArgs(const ArgsVector&);
+    static std::optional<Sprite>    fromArgs(const ArgsVector&);
     static const ComponentMetaInfo* metaInfo();
 };
 } // namespace Gng2D

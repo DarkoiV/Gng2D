@@ -21,7 +21,9 @@ struct EntityRecipe
     entt::entity spawn();
 
   protected:
-    entt::registry*             reg;
-    std::vector<entt::meta_any> components;
+    entt::registry* reg;
+
+    using CompArgsPair = std::pair<entt::meta_type, ArgsVector>;
+    std::vector<CompArgsPair> components;
 };
 } // namespace Gng2D

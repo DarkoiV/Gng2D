@@ -6,12 +6,15 @@
 namespace Gng2D {
 namespace detail {
 template <Component Comp>
-void emplaceComponent(entt::registry* r, entt::entity e, entt::meta_any& c)
+void emplaceComponent(entt::registry* r, entt::entity e, ArgsVector* av)
 {
+    using namespace entt::literals;
     const auto& metaInfo = *(Comp::metaInfo());
-    LOG::TRACE("Emplacing:", metaInfo.name);
+    LOG::INFO("Emplacing", metaInfo.name);
 
-    r->emplace<Comp>(e, c.cast<Comp>());
+    auto componentOpt = Comp::fromArgs(*av);
+    if (componentOpt) r->emplace<Comp>(e, std::move(*componentOpt));
+    else [[unlikely]] LOG::ERROR("Failed to initialzie component,", metaInfo.name);
 }
 
 template <Component Comp>
@@ -53,14 +56,17 @@ auto Repository::registerComponent()
                             .template func<&detail::getComponentRef<Comp>>("getRef"_hs)
                             .template func<&detail::patchComponentSignal<Comp>>("patchSignal"_hs);
 
-    constexpr bool HAS_FROM_ARGS_CTOR = requires(const ArgsVector av) { Comp::fromArgs(av); };
+    constexpr bool HAS_FROM_ARGS_CTOR = requires(const ArgsVector av) {
+        {
+            Comp::fromArgs(av)
+        } -> std::same_as<std::optional<Comp>>;
+    };
     if constexpr (HAS_FROM_ARGS_CTOR)
     {
         GNG2D_ASSERT(metaInfo.args,
                      "Component has fromArgs ctor,"
-                     " yet does not define metaInfo for required arguments");
-        meta_factory.template ctor<&Comp::fromArgs>()
-            .template func<&detail::emplaceComponent<Comp>>("emplace"_hs);
+                     " yet does not define metaInfo for arguments");
+        meta_factory.template func<&detail::emplaceComponent<Comp>>("emplace"_hs);
     }
 
     constexpr bool HAS_REGISTER_DATA = requires(entt::meta_factory<Comp> mf) {
@@ -70,6 +76,9 @@ auto Repository::registerComponent()
     };
     if constexpr (HAS_REGISTER_DATA)
     {
+        GNG2D_ASSERT(metaInfo.data,
+                     "Component has register data,"
+                     " yet does not define metaInfo for it");
         meta_factory = Comp::registerData(meta_factory);
     }
 

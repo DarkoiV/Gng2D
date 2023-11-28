@@ -10,8 +10,8 @@ struct Transform2d
     float x{};
     float y{};
 
-    static Transform2d              fromArgs(const ArgsVector&);
-    static const ComponentMetaInfo* metaInfo();
+    static std::optional<Transform2d> fromArgs(const ArgsVector&);
+    static const ComponentMetaInfo*   metaInfo();
 
     using MetaFactory = entt::meta_factory<Transform2d>;
     static MetaFactory registerData(MetaFactory);
@@ -22,8 +22,8 @@ struct TransformLayer
     int8_t main;
     int8_t sub;
 
-    static TransformLayer           fromArgs(const ArgsVector&);
-    static const ComponentMetaInfo* metaInfo();
+    static std::optional<TransformLayer> fromArgs(const ArgsVector&);
+    static const ComponentMetaInfo*      metaInfo();
 
     using MetaFactory = entt::meta_factory<TransformLayer>;
     static MetaFactory registerData(MetaFactory);
