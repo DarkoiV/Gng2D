@@ -81,6 +81,12 @@ const std::string& Repository::componentNameFromHash(const StringHash hash)
     else [[unlikely]] return UNKNOWN_HASH;
 }
 
+void Repository::attachComponentHooks(entt::registry* r)
+{
+    for (auto&& attachHooks: cachedHooks)
+        attachHooks(r);
+}
+
 void Repository::freeResources()
 {
     LOG::INFO("Deleting global assets");
@@ -91,5 +97,6 @@ void Repository::freeResources()
     sprites.clear();
     spriteNames.clear();
     componentNames.clear();
+    cachedHooks.clear();
     entt::meta_reset();
 }

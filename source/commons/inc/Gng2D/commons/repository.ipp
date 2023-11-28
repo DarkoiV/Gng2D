@@ -28,6 +28,7 @@ void patchComponentSignal(entt::registry* r, entt::entity e)
 {
     r->patch<Comp>(e);
 }
+
 } // namespace detail
 
 template <Component Comp>
@@ -56,7 +57,7 @@ auto Repository::registerComponent()
                             .template func<&detail::getComponentRef<Comp>>("getRef"_hs)
                             .template func<&detail::patchComponentSignal<Comp>>("patchSignal"_hs);
 
-    if constexpr (ComponentIsArgsConstructible<Comp>)
+    if constexpr (IsArgsConstructible<Comp>)
     {
         GNG2D_ASSERT(metaInfo.args,
                      "Component has fromArgs ctor,"
@@ -64,12 +65,26 @@ auto Repository::registerComponent()
         meta_factory.template func<&detail::emplaceComponent<Comp>>("emplace"_hs);
     }
 
-    if constexpr (ComponentHasRegisteredData<Comp>)
+    if constexpr (HasRegisteredData<Comp>)
     {
         GNG2D_ASSERT(metaInfo.data,
                      "Component has register data,"
                      " yet does not define metaInfo for it");
         meta_factory = Comp::registerData(meta_factory);
+    }
+
+    if constexpr (HasAnyHook<Comp>)
+    {
+        auto attach = [](entt::registry* r)
+        {
+            if constexpr (HasOnCreateHook<Comp>)
+                r->on_construct<Comp>().template connect<&Comp::onCreate>();
+            if constexpr (HasOnUpdateHook<Comp>)
+                r->on_update<Comp>().template connect<&Comp::onUpdate>();
+            if constexpr (HasOnDeleteHook<Comp>)
+                r->on_destroy<Comp>().template connect<&Comp::onDelete>();
+        };
+        cachedHooks.emplace_back(attach);
     }
 
     static_assert(std::is_move_assignable_v<Comp> and std::is_move_constructible_v<Comp>);

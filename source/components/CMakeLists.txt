@@ -7,3 +7,6 @@ target_sources(Gng2D PRIVATE
     src/sprite.cpp
     src/transform.cpp)
 
+#tests
+target_sources(Gng2D_TESTS PRIVATE
+    tst/transform.cpp)

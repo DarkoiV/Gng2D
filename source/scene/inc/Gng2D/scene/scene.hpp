@@ -5,7 +5,6 @@
 #include "Gng2D/entities/entity_recipe.hpp"
 #include "Gng2D/scene/entity_renderer.hpp"
 #include "Gng2D/scene/input_handler.hpp"
-#include "Gng2D/scene/relation_system.hpp"
 #include <entt/entt.hpp>
 #include <filesystem>
 
@@ -36,9 +35,8 @@ struct Scene : SceneInterface
     entt::registry              reg;
     const std::filesystem::path sceneDir;
 
-    Luna::State&   luna;
-    InputHandler   inputHandler{reg};
-    RelationSystem relationSystem{reg};
+    Luna::State& luna;
+    InputHandler inputHandler{reg};
 
     EntityRenderer entityRenderer{reg};
 

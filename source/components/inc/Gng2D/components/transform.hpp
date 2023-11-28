@@ -10,6 +10,10 @@ struct Transform2d
     float x{};
     float y{};
 
+    static void onCreate(entt::registry&, entt::entity);
+    static void onUpdate(entt::registry&, entt::entity);
+    static void onDelete(entt::registry&, entt::entity);
+
     static std::optional<Transform2d> fromArgs(const ArgsVector&, const entt::registry::context&);
     static const ComponentMetaInfo*   metaInfo();
 
@@ -21,6 +25,10 @@ struct TransformLayer
 {
     int8_t main;
     int8_t sub;
+
+    static void onCreate(entt::registry&, entt::entity);
+    static void onUpdate(entt::registry&, entt::entity);
+    static void onDelete(entt::registry&, entt::entity);
 
     static std::optional<TransformLayer> fromArgs(const ArgsVector&,
                                                   const entt::registry::context&);
@@ -35,12 +43,18 @@ struct Position
 {
     float x;
     float y;
+
+    static void onCreate(entt::registry&, entt::entity);
+    static void onUpdate(entt::registry&, entt::entity);
 };
 
 struct Layer
 {
     int16_t main;
     int16_t sub;
+
+    static void onCreate(entt::registry&, entt::entity);
+    static void onUpdate(entt::registry&, entt::entity);
 
     std::strong_ordering operator<=>(const Layer&) const = default;
 };

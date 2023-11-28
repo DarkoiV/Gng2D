@@ -1,5 +1,4 @@
 #include "Gng2D/scene/input_handler.hpp"
-#include "Gng2D/commons/log.hpp"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 

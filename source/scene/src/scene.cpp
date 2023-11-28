@@ -6,6 +6,9 @@
 
 #ifdef GNG2D_IMGUI_ENABLED
 #include "Gng2D/scene/debug/imgui_overlay.hpp"
+#define EMPLACE_IMGUI_SYSEM systems.emplace_back(std::make_unique<Gng2D::ImguiOverlay>(reg))
+#else
+#define EMPLACE_IMGUI_SYSEM
 #endif
 
 using Gng2D::Scene;
@@ -16,9 +19,8 @@ Scene::Scene(const std::string& n)
     , name(n)
     , sceneDir(GLOBAL::DATA_DIRECTORY / ("scene_" + name))
 {
-#ifdef GNG2D_IMGUI_ENABLED
-    systems.emplace_back(std::make_unique<Gng2D::ImguiOverlay>(reg));
-#endif
+    EMPLACE_IMGUI_SYSEM;
+    Repository::attachComponentHooks(&reg);
 
     LOG::INFO("Loading scene data from:", sceneDir);
     luna.doFile(sceneDir / "scene.lua", lunaSceneEnv);
