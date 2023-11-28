@@ -30,7 +30,8 @@ struct Children
     auto end() const { return list.end(); }
     auto find(entt::entity e) const { return std::find(list.begin(), list.end(), e); }
     bool contains(entt::entity e) const { return find(e) != end(); }
-    bool empty() { return list.empty(); }
+    bool empty() const { return list.empty(); }
+    auto size() const { return list.size(); }
 
     static void onDelete(entt::registry&, entt::entity);
 
