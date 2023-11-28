@@ -46,6 +46,8 @@ struct Position
 
     static void onCreate(entt::registry&, entt::entity);
     static void onUpdate(entt::registry&, entt::entity);
+
+    static const ComponentMetaInfo* metaInfo();
 };
 
 struct Layer
@@ -57,6 +59,8 @@ struct Layer
     static void onUpdate(entt::registry&, entt::entity);
 
     std::strong_ordering operator<=>(const Layer&) const = default;
+
+    static const ComponentMetaInfo* metaInfo();
 };
 } // namespace detail
 } // namespace Gng2D

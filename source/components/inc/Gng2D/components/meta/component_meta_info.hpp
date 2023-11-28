@@ -19,7 +19,8 @@ struct ComponentMetaInfo
 {
     StringHash                   id;
     std::string                  name;
-    std::optional<ComponentArgs> args = std::nullopt;
-    std::optional<ComponentData> data;
+    bool                         isDetail = false;
+    std::optional<ComponentArgs> args     = std::nullopt;
+    std::optional<ComponentData> data     = std::nullopt;
 };
 } // namespace Gng2D

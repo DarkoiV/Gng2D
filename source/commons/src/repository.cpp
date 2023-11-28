@@ -70,6 +70,9 @@ void Repository::registerDefaultComponents()
     registerComponent<LuaScript>();
     registerComponent<Parent>();
     registerComponent<Children>();
+
+    registerComponent<detail::Position>();
+    registerComponent<detail::Layer>();
 }
 
 const std::string& Repository::componentNameFromHash(const StringHash hash)
@@ -99,4 +102,5 @@ void Repository::freeResources()
     componentNames.clear();
     cachedHooks.clear();
     entt::meta_reset();
+    entt::meta_reset(detailComponentCtx);
 }

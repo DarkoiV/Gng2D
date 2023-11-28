@@ -182,8 +182,11 @@ const Gng2D::ComponentMetaInfo* TransformLayer::metaInfo()
 }
 
 // DETAIL POSITIION ///////////////////////////////////////////////////////////////////////////////
-
 using namespace Gng2D::detail;
+
+const inline Gng2D::ComponentMetaInfo DETAIL_POSITION_META{.id       = "Position"_hs,
+                                                           .name     = "Position",
+                                                           .isDetail = true};
 
 void Position::onCreate(entt::registry& reg, entt::entity e)
 {
@@ -199,7 +202,7 @@ void Position::onUpdate(entt::registry& reg, entt::entity e)
 
     for (const auto child: *children)
     {
-        auto* childTransformPos = reg.try_get<Transform2d>(e);
+        auto* childTransformPos = reg.try_get<Transform2d>(child);
         if (not childTransformPos) continue;
 
         reg.patch<detail::Position>(child,
@@ -210,6 +213,17 @@ void Position::onUpdate(entt::registry& reg, entt::entity e)
         });
     }
 }
+
+const Gng2D::ComponentMetaInfo* Position::metaInfo()
+{
+    return &DETAIL_POSITION_META;
+}
+
+// DETAIL LAYER ///////////////////////////////////////////////////////////////////////////////////
+
+const inline Gng2D::ComponentMetaInfo DETAIL_LAYER_META{.id       = "Position"_hs,
+                                                        .name     = "position",
+                                                        .isDetail = true};
 
 void Layer::onCreate(entt::registry& reg, entt::entity e)
 {
@@ -235,4 +249,9 @@ void Layer::onUpdate(entt::registry& reg, entt::entity e)
             layer.sub  = childTransformLayer->sub + parentLayer.sub;
         });
     }
+}
+
+const Gng2D::ComponentMetaInfo* Layer::metaInfo()
+{
+    return &DETAIL_LAYER_META;
 }

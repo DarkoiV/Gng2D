@@ -32,11 +32,14 @@ void patchComponentSignal(entt::registry* r, entt::entity e)
 } // namespace detail
 
 template <Component Comp>
-auto Repository::registerComponent()
+void Repository::registerComponent()
 {
     using namespace entt::literals;
     auto& metaInfo = *(Comp::metaInfo());
     auto& name     = metaInfo.name;
+
+    auto&& context =
+        metaInfo.isDetail ? detailComponentCtx : entt::locator<entt::meta_ctx>::value_or();
 
     // Ensure no hash collision, or repeated registration
     auto id = entt::hashed_string::value(name.c_str());
@@ -51,7 +54,7 @@ auto Repository::registerComponent()
         componentNames[id] = name;
     }
 
-    auto meta_factory = entt::meta<Comp>()
+    auto meta_factory = entt::meta<Comp>(context)
                             .type(id)
                             .prop("metaInfo"_hs, Comp::metaInfo())
                             .template func<&detail::getComponentRef<Comp>>("getRef"_hs)
@@ -88,6 +91,5 @@ auto Repository::registerComponent()
     }
 
     static_assert(std::is_move_assignable_v<Comp> and std::is_move_constructible_v<Comp>);
-    return meta_factory;
 }
 }; // namespace Gng2D

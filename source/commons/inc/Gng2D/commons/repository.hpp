@@ -16,7 +16,7 @@ struct Repository
     static const std::string& spriteNameFromHash(const StringHash);
 
     template <Component C>
-    static auto               registerComponent();
+    static void               registerComponent();
     static void               registerDefaultComponents();
     static const std::string& componentNameFromHash(const StringHash);
     static void               attachComponentHooks(entt::registry*);
@@ -29,9 +29,11 @@ struct Repository
     inline static std::map<StringHash, Sprite>      sprites;
     inline static std::map<StringHash, std::string> spriteNames;
 
+    using HookCache = std::function<void(entt::registry*)>;
     inline static std::map<StringHash, std::string> componentNames;
+    inline static std::vector<HookCache>            cachedHooks;
 
-    inline static std::vector<std::function<void(entt::registry*)>> cachedHooks;
+    inline static entt::meta_ctx detailComponentCtx;
 };
 } // namespace Gng2D
 #include "repository.ipp"
