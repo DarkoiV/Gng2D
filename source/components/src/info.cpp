@@ -34,7 +34,8 @@ std::optional<Info> Info::fromArgs(const ArgsVector& args)
         }
     }
 
-    return info;
+    if (info.name.empty()) return std::nullopt;
+    else return info;
 }
 
 const Gng2D::ComponentMetaInfo* Info::metaInfo()

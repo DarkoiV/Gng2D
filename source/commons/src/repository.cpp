@@ -2,6 +2,7 @@
 #include "Gng2D/commons/args_vector.hpp" // IWYU pragma: keep
 #include "Gng2D/commons/log.hpp"
 #include "Gng2D/components/info.hpp"
+#include "Gng2D/components/lua_script.hpp"
 #include "Gng2D/components/relationship.hpp"
 #include "Gng2D/components/sprite.hpp"
 #include "Gng2D/components/transform.hpp"
@@ -66,6 +67,7 @@ void Repository::registerDefaultComponents()
     registerComponent<Sprite>();
     registerComponent<Transform2d>();
     registerComponent<TransformLayer>();
+    registerComponent<LuaScript>();
     registerComponent<Parent>();
     registerComponent<Children>();
 }
