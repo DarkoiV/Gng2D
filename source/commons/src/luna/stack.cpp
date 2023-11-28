@@ -47,20 +47,20 @@ void Stack::pushBool(Bool value)
 
 void Stack::pushTable(const TableRef& tr)
 {
-    GNG2D_ASSERT(lua_rawgeti(L, LUA_REGISTRYINDEX, tr.regRef->get()) == LUA_TTABLE,
-                 "No table at stored ref in TableRef");
+    const auto RES = lua_rawgeti(L, LUA_REGISTRYINDEX, tr.regRef->get());
+    GNG2D_ASSERT(RES == LUA_TTABLE, "No table at stored ref in TableRef");
 }
 
 void Stack::pushFunction(const FunctionRef& fr)
 {
-    GNG2D_ASSERT(lua_rawgeti(L, LUA_REGISTRYINDEX, fr.regRef->get()) == LUA_TFUNCTION,
-                 "No table at stored ref in FunctionRef");
+    const auto RES = lua_rawgeti(L, LUA_REGISTRYINDEX, fr.regRef->get());
+    GNG2D_ASSERT(RES == LUA_TFUNCTION, "No table at stored ref in FunctionRef");
 }
 
 void Stack::pushUserdata(const UserdataRef& ur)
 {
-    GNG2D_ASSERT(lua_rawgeti(L, LUA_REGISTRYINDEX, ur.regRef->get()) == LUA_TUSERDATA,
-                 "No table at stored ref in UserdataRef");
+    const auto RES = lua_rawgeti(L, LUA_REGISTRYINDEX, ur.regRef->get());
+    GNG2D_ASSERT(RES == LUA_TUSERDATA, "No table at stored ref in UserdataRef");
 }
 
 void Stack::pushGlobal(const String& name)
@@ -212,7 +212,8 @@ int Stack::callFunctionFS(std::vector<Type> args)
     int retNo = top();
     for (auto& arg: args)
         push(arg);
-    GNG2D_ASSERT(lua_pcall(L, args.size(), LUA_MULTRET, 0) == LUA_OK, lua_tostring(L, -1));
+    const auto RES = lua_pcall(L, args.size(), LUA_MULTRET, 0);
+    GNG2D_ASSERT(RES == LUA_OK, lua_tostring(L, -1));
     retNo = top() - retNo + 1; // +1 'cause pcall pops function too
 
     return retNo;

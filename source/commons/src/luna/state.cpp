@@ -18,7 +18,8 @@ State::~State()
 
 void State::doFile(const std::string& path)
 {
-    GNG2D_ASSERT(luaL_dofile(L, path.c_str()) == LUA_OK, lua_tostring(L, -1));
+    const auto RES = luaL_dofile(L, path.c_str());
+    GNG2D_ASSERT(RES == LUA_OK, lua_tostring(L, -1));
 }
 
 void State::doFile(const std::string& path, const TableRef& env)
@@ -37,7 +38,8 @@ void State::doString(const std::string& str, const TableRef& env)
 
 void State::doString(const std::string& str)
 {
-    GNG2D_ASSERT(luaL_dostring(L, str.c_str()) == LUA_OK, lua_tostring(L, -1));
+    const auto RES = luaL_dostring(L, str.c_str());
+    GNG2D_ASSERT(RES == LUA_OK, lua_tostring(L, -1));
 }
 
 ScopedStack State::getStack()
@@ -201,5 +203,6 @@ void State::setEnv(const TableRef& env)
     GNG2D_ASSERT(lua_isfunction(L, -1), "setEnv requires function at -1 index");
     ScopedStack stack(L);
     stack.push(env);
-    GNG2D_ASSERT(std::string("_ENV") == lua_setupvalue(L, -2, 1), "setupvalue did not set env");
+    const std::string RES = lua_setupvalue(L, -2, 1);
+    GNG2D_ASSERT(RES == std::string("_ENV"), "setupvalue did not set env");
 }
