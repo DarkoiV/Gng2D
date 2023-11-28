@@ -3,6 +3,11 @@ project(Gng2D)
 include(FetchContent)
 set(CMAKE_EXPORT_COMPILE_COMMANDS True)
 
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Debug)
+endif()
+message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+
 ### 3RD PARTY LIBRARIES #######################################################
 find_package(SDL2 CONFIG REQUIRED)
 cmake_policy(SET CMP0135 NEW)
@@ -74,7 +79,7 @@ endif()
 
 ### ENABLE IMGUI ##############################################################
 if (DEFINED ENABLE_IMGUI)
-    message("Enabled ImGui")
+    message(STATUS "Enabled ImGui")
     add_compile_definitions("GNG2D_IMGUI_ENABLED")
     target_link_libraries(Gng2D 
         imgui)
