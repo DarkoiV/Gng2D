@@ -10,15 +10,18 @@
 
 using Gng2D::Scene;
 
-Scene::Scene()
+Scene::Scene(const std::string& n)
     : luna(Gng2D::GLOBAL::LUNA_STATE)
     , lunaSceneEnv(luna.createTableRef())
+    , name(n)
+    , sceneDir(GLOBAL::DATA_DIRECTORY / ("scene_" + name))
 {
 #ifdef GNG2D_IMGUI_ENABLED
     systems.emplace_back(std::make_unique<Gng2D::ImguiOverlay>(reg));
 #endif
 
-    luna.doFile(GLOBAL::DATA_DIRECTORY / "scene.lua", lunaSceneEnv);
+    LOG::INFO("Loading scene data from:", sceneDir);
+    luna.doFile(sceneDir / "scene.lua", lunaSceneEnv);
 
     auto OnEnterRef = lunaSceneEnv.get("OnEnter");
     if (OnEnterRef.isFunction()) lunaOnEnter = OnEnterRef.asFunction();
@@ -80,11 +83,10 @@ const std::string& Scene::getName() const
 int Scene::lunaSpawnEntity(Luna::Stack stack, Luna::TypeVector args)
 {
     GNG2D_ASSERT(args.size() == 1);
-    auto entityName = args[0];
-    if (not entityName.isString()) return 0;
-    auto eid = entt::hashed_string::value(entityName.asString().c_str());
+    GNG2D_ASSERT(args.at(0).isString());
+    auto& entityName = args.at(0).asString();
 
-    auto recipeIt = entityRecipes.find(eid);
+    auto recipeIt = entityRecipes.find(entityName);
     if (recipeIt == entityRecipes.end()) return 0;
     recipeIt->second.spawn();
 
@@ -95,8 +97,8 @@ int Scene::lunaNewEntityRecipe(Luna::Stack stack, Luna::TypeVector args)
 {
     GNG2D_ASSERT(args.size() == 2 and args.at(0).isString() and args.at(1).isTable(),
                  "newEntityRecipe requires 2 args 1 of type string, and components table");
-    StringHash eid             = entt::hashed_string::value(args.at(0).asString().c_str());
-    auto&      componentsTable = args.at(1).asTable();
+    auto& entityName      = args.at(0).asString();
+    auto& componentsTable = args.at(1).asTable();
     LOG::INFO("Registering entity from lua:", args.at(0).asString());
 
     EntityRecipe recipe(&reg);
@@ -127,6 +129,7 @@ int Scene::lunaNewEntityRecipe(Luna::Stack stack, Luna::TypeVector args)
         recipe.addComponent(hash, compArgs.asTable());
         LOG::TRACE("Component added");
     }
-    entityRecipes.insert_or_assign(eid, std::move(recipe));
+    entityRecipes.insert_or_assign(entityName, std::move(recipe));
+    LOG::OK("Created recipe for Entity:", entityName);
     return 0;
 }

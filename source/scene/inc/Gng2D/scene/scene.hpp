@@ -7,11 +7,12 @@
 #include "Gng2D/scene/input_handler.hpp"
 #include "Gng2D/scene/relation_system.hpp"
 #include <entt/entt.hpp>
+#include <filesystem>
 
 namespace Gng2D {
 struct Scene : SceneInterface
 {
-    Scene();
+    Scene(const std::string&);
     Scene(const Scene&) = delete;
     Scene(Scene&&)      = delete;
     virtual ~Scene();
@@ -31,8 +32,9 @@ struct Scene : SceneInterface
     virtual const std::string& getName() const override;
 
   protected:
-    std::string    name;
-    entt::registry reg;
+    const std::string           name;
+    entt::registry              reg;
+    const std::filesystem::path sceneDir;
 
     Luna::State&   luna;
     InputHandler   inputHandler{reg};
@@ -40,8 +42,8 @@ struct Scene : SceneInterface
 
     EntityRenderer entityRenderer{reg};
 
-    std::vector<SystemPtr>                       systems;
-    std::unordered_map<StringHash, EntityRecipe> entityRecipes;
+    std::vector<SystemPtr>                        systems;
+    std::unordered_map<std::string, EntityRecipe> entityRecipes;
 
   private:
     Luna::TableRef                   lunaSceneEnv;
