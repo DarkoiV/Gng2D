@@ -34,7 +34,8 @@ const inline static Gng2D::ComponentMetaInfo
                      .args = TRANSFORM2D_ARGS,
                      .data = TRANSFORM2D_DATA};
 
-std::optional<Transform2d> Transform2d::fromArgs(const Gng2D::ArgsVector& args)
+std::optional<Transform2d> Transform2d::fromArgs(const Gng2D::ArgsVector& args,
+                                                 const entt::registry::context&)
 {
     Gng2D::Transform2d transform{};
     for (auto&& [id, arg]: args)
@@ -86,7 +87,8 @@ const inline static Gng2D::ComponentMetaInfo
                         .args = TRANSFORMLAYER_ARGS,
                         .data = TRANSFORMLAYER_DATA};
 
-std::optional<TransformLayer> TransformLayer::fromArgs(const Gng2D::ArgsVector& args)
+std::optional<TransformLayer> TransformLayer::fromArgs(const Gng2D::ArgsVector& args,
+                                                       const entt::registry::context&)
 {
     Gng2D::TransformLayer transform{.main = 0, .sub = 1};
     for (auto&& [id, arg]: args)

@@ -13,6 +13,18 @@ concept Component = requires(const C c, const Gng2D::ArgsVector& av) {
     } -> std::same_as<const ComponentMetaInfo*>;
 };
 
+template <Component C>
+constexpr bool ComponentIsArgsConstructible =
+    requires(const ArgsVector av, const entt::registry::context& ctx) {
+        {
+            C::fromArgs(av, ctx)
+        } -> std::same_as<std::optional<C>>;
+    };
+
+template <Component C>
+constexpr bool ComponentHasRegisteredData =
+    requires(entt::meta_factory<C> mf) { C::registerData(mf); };
+
 template <Component Comp>
 const ComponentMetaInfo* getMetaInfo()
 {

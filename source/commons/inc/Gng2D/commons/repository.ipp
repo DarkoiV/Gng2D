@@ -12,7 +12,7 @@ void emplaceComponent(entt::registry* r, entt::entity e, ArgsVector* av)
     const auto& metaInfo = *(Comp::metaInfo());
     LOG::INFO("Emplacing", metaInfo.name);
 
-    auto componentOpt = Comp::fromArgs(*av);
+    auto componentOpt = Comp::fromArgs(*av, r->ctx());
     if (componentOpt) r->emplace<Comp>(e, std::move(*componentOpt));
     else [[unlikely]] LOG::ERROR("Failed to initialzie component,", metaInfo.name);
 }
@@ -56,12 +56,7 @@ auto Repository::registerComponent()
                             .template func<&detail::getComponentRef<Comp>>("getRef"_hs)
                             .template func<&detail::patchComponentSignal<Comp>>("patchSignal"_hs);
 
-    constexpr bool HAS_FROM_ARGS_CTOR = requires(const ArgsVector av) {
-        {
-            Comp::fromArgs(av)
-        } -> std::same_as<std::optional<Comp>>;
-    };
-    if constexpr (HAS_FROM_ARGS_CTOR)
+    if constexpr (ComponentIsArgsConstructible<Comp>)
     {
         GNG2D_ASSERT(metaInfo.args,
                      "Component has fromArgs ctor,"
@@ -69,12 +64,7 @@ auto Repository::registerComponent()
         meta_factory.template func<&detail::emplaceComponent<Comp>>("emplace"_hs);
     }
 
-    constexpr bool HAS_REGISTER_DATA = requires(entt::meta_factory<Comp> mf) {
-        {
-            Comp::registerData(mf)
-        } -> std::same_as<entt::meta_factory<Comp>>;
-    };
-    if constexpr (HAS_REGISTER_DATA)
+    if constexpr (ComponentHasRegisteredData<Comp>)
     {
         GNG2D_ASSERT(metaInfo.data,
                      "Component has register data,"
@@ -82,6 +72,7 @@ auto Repository::registerComponent()
         meta_factory = Comp::registerData(meta_factory);
     }
 
+    static_assert(std::is_move_assignable_v<Comp> and std::is_move_constructible_v<Comp>);
     return meta_factory;
 }
 }; // namespace Gng2D

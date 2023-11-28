@@ -12,7 +12,7 @@ struct InputListener
     std::vector<Action> actions;
     Signal              signal;
 
-    static InputListener            fromArgs(const Gng2D::ArgsVector&);
+    static InputListener fromArgs(const Gng2D::ArgsVector&, const entt::registry::context&);
     static const ComponentMetaInfo* metaInfo();
 };
 } // namespace Gng2D

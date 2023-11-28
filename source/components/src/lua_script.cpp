@@ -23,7 +23,8 @@ const inline static Gng2D::ComponentMetaInfo LUA_SCRIPT_META{.id   = "LuaScript"
                                                              .args = LUA_SCRIPT_ARGS,
                                                              .data = LUA_SCRIPT_DATA};
 
-std::optional<LuaScript> LuaScript::fromArgs(const ArgsVector& args)
+std::optional<LuaScript> LuaScript::fromArgs(const ArgsVector&              args,
+                                             const entt::registry::context& ctx)
 {
     std::string scriptName;
     for (auto&& [id, arg]: args)

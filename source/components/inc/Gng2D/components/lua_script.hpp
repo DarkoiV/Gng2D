@@ -9,7 +9,7 @@ struct LuaScript
     std::string    scriptName;
     Luna::TableRef loadedTable;
 
-    static std::optional<LuaScript> fromArgs(const ArgsVector&);
+    static std::optional<LuaScript> fromArgs(const ArgsVector&, const entt::registry::context&);
     static const ComponentMetaInfo* metaInfo();
 
     using MetaFactory = entt::meta_factory<LuaScript>;

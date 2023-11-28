@@ -20,7 +20,8 @@ const inline static Gng2D::ComponentMetaInfo SPRITE_META{.id = entt::hashed_stri
                                                          .name = "Sprite",
                                                          .args = SPRITE_ARGS};
 
-std::optional<Sprite> Sprite::fromArgs(const Gng2D::ArgsVector& args)
+std::optional<Sprite> Sprite::fromArgs(const Gng2D::ArgsVector& args,
+                                       const entt::registry::context&)
 {
     using namespace entt::literals;
     Gng2D::Sprite sprite;

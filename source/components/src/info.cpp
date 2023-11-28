@@ -22,7 +22,7 @@ const inline static Gng2D::ComponentMetaInfo INFO_META{.id   = entt::hashed_stri
                                                        .args = INFO_ARGS,
                                                        .data = INFO_DATA};
 
-std::optional<Info> Info::fromArgs(const ArgsVector& args)
+std::optional<Info> Info::fromArgs(const ArgsVector& args, const entt::registry::context&)
 {
     Info info;
     for (auto&& [id, arg]: args)
