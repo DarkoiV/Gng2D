@@ -4,9 +4,9 @@ Simple 2D game engine written in C++
 
 
 ## Build Requirements
-`C++20 Compiler`  
-`Cmake 3.22+`  
-`SDL2 dev libraries`  
+- `C++20 Compiler`  
+- `Cmake 3.22+`  
+- `SDL2 dev libraries`  
 
 ### Linux
 To build on linux simply clone repository, create build folder, and run CMake && make inside.  
