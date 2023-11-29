@@ -15,7 +15,7 @@ local function createRedX()
         ['name'] = "RedX"
     }
     components.LuaScript = {
-        ['script'] = "redx"
+        ['script'] = "entities/redx"
     }
 
     newEntityRecipe("RedX", components)

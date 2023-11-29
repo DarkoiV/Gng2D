@@ -123,6 +123,7 @@ void Gng2D::initApp()
     createSdlWindow();
     initImGui();
     Repository::registerDefaultComponents();
+    Repository::indexScripts();
 }
 
 void Gng2D::runApp()

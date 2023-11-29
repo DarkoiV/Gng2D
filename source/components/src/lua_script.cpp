@@ -1,4 +1,5 @@
 #include "Gng2D/components/lua_script.hpp"
+#include "Gng2D/commons/repository.hpp"
 #include "Gng2D/core/global.hpp"
 #include "util_macros.hpp"
 
@@ -36,12 +37,10 @@ std::optional<LuaScript> LuaScript::fromArgs(const ArgsVector&              args
         }
     }
 
-    if (not scriptName.empty())
+    if (auto pathOpt = Repository::getScript(scriptName))
     {
-        auto                  entityEnv = GLOBAL::LUNA_STATE.createTableRef();
-        std::filesystem::path scriptPath =
-            GLOBAL::DATA_DIRECTORY / "scripts" / (scriptName + ".lua");
-        GLOBAL::LUNA_STATE.doFile(scriptPath, entityEnv);
+        auto entityEnv = GLOBAL::LUNA_STATE.createTableRef();
+        GLOBAL::LUNA_STATE.doFile(*pathOpt, entityEnv);
         return LuaScript(scriptName, entityEnv);
     }
     return std::nullopt;

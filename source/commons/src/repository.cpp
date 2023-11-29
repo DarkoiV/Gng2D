@@ -8,6 +8,7 @@
 #include "Gng2D/components/transform.hpp"
 #include "Gng2D/core/global.hpp"
 #include <SDL2/SDL_image.h>
+#include <ranges>
 
 using Gng2D::Repository;
 
@@ -88,6 +89,37 @@ void Repository::attachComponentHooks(entt::registry* r)
 {
     for (auto&& attachHooks: cachedHooks)
         attachHooks(r);
+}
+
+void Repository::indexScripts()
+{
+    namespace fs   = std::filesystem;
+    namespace sv   = std::views;
+    auto scriptDir = GLOBAL::DATA_DIRECTORY / "scripts";
+    LOG::INFO("indexingScripts from:", scriptDir);
+    GNG2D_ASSERT(fs::is_directory(scriptDir));
+
+    auto rdi         = fs::recursive_directory_iterator(scriptDir);
+    auto isLuaScript = [](const fs::directory_entry& e) { return e.path().extension() == ".lua"; };
+    for (auto script: rdi | sv::filter(isLuaScript))
+    {
+        auto scriptName = script.path().lexically_relative(scriptDir).string();
+        scriptName      = scriptName.substr(0, scriptName.find_last_of("."));
+
+        LOG::INFO("Found script:", scriptName);
+        scripts.emplace(scriptName, script.path());
+    }
+}
+
+std::optional<std::filesystem::path> Repository::getScript(const std::string& name)
+{
+    if (auto it = scripts.find(name); it != scripts.end())
+    {
+        return it->second;
+    }
+
+    LOG::ERROR("Script", name, "not found");
+    return std::nullopt;
 }
 
 void Repository::freeResources()

@@ -3,6 +3,7 @@
 #include "Gng2D/components/meta/properties.hpp" // IWYU pragma: keep
 #include "Gng2D/components/sprite.hpp"
 #include <entt/entt.hpp>
+#include <filesystem>
 #include <string>
 
 namespace Gng2D {
@@ -21,6 +22,9 @@ struct Repository
     static const std::string& componentNameFromHash(const StringHash);
     static void               attachComponentHooks(entt::registry*);
 
+    static void                                 indexScripts();
+    static std::optional<std::filesystem::path> getScript(const std::string&);
+
     static void freeResources();
 
   private:
@@ -32,6 +36,8 @@ struct Repository
     using HookCache = std::function<void(entt::registry*)>;
     inline static std::map<StringHash, std::string> componentNames;
     inline static std::vector<HookCache>            cachedHooks;
+
+    inline static std::map<std::string, std::filesystem::path> scripts;
 
     inline static entt::meta_ctx detailComponentCtx;
 };
