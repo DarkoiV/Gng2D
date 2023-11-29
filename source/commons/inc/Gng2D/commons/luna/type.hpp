@@ -49,6 +49,7 @@ struct TableRef
     TableRef& operator=(const TableRef&);
     TableRef& operator=(TableRef&&);
 
+    void createSubTable(const Type& key);
     void set(const Type& key, const Type& value);
     Type get(const Type& key) const;
 
@@ -143,9 +144,11 @@ struct UserdataRef
     UserdataRef& operator=(const UserdataRef&);
     UserdataRef& operator=(UserdataRef&&);
 
+    void* get() { return value; }
+
     friend bool operator==(const UserdataRef& lhs, const UserdataRef& rhs)
     {
-        return lhs.ptr == rhs.ptr;
+        return lhs.value == rhs.value;
     };
 
   private:
@@ -153,9 +156,9 @@ struct UserdataRef
     friend struct Stack;
     friend struct State;
 
-    lua_State*  L;
-    SharedRef   regRef;
-    const void* ptr;
+    lua_State* L;
+    SharedRef  regRef;
+    void*      value;
 };
 
 using TypesVariant =

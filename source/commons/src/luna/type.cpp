@@ -59,6 +59,15 @@ TableRef& TableRef::operator=(TableRef&& from)
     return *this;
 }
 
+void TableRef::createSubTable(const Type& key)
+{
+    ScopedStack stack(L);
+    stack.push(*this);
+    stack.push(key);
+    stack.newTable();
+    stack.setTableFieldFS();
+}
+
 void TableRef::set(const Type& key, const Type& value)
 {
     ScopedStack stack(L);
@@ -198,21 +207,21 @@ UserdataRef::UserdataRef(lua_State* state, int idx)
     : L(state)
 {
     regRef = std::make_unique<Ref>(L, idx);
-    ptr    = lua_topointer(L, idx);
+    value  = lua_touserdata(L, idx);
 }
 
 UserdataRef::UserdataRef(const UserdataRef& from)
     : L(from.L)
 {
     regRef = from.regRef;
-    ptr    = from.ptr;
+    value  = from.value;
 }
 
 UserdataRef::UserdataRef(UserdataRef&& from)
     : L(from.L)
 {
     regRef = std::move(from.regRef);
-    ptr    = from.ptr;
+    value  = from.value;
 }
 
 UserdataRef& UserdataRef::operator=(const UserdataRef& from)
@@ -221,7 +230,7 @@ UserdataRef& UserdataRef::operator=(const UserdataRef& from)
                  "Assigment operator for UserdataRef "
                  "only allowed for Refs belonging to the same Lua state");
     regRef = from.regRef;
-    ptr    = from.ptr;
+    value  = from.value;
     return *this;
 }
 
@@ -231,6 +240,6 @@ UserdataRef& UserdataRef::operator=(UserdataRef&& from)
                  "Assigment operator for UserdataRef "
                  "only allowed for Refs belonging to the same Lua state");
     regRef = std::move(from.regRef);
-    ptr    = from.ptr;
+    value  = from.value;
     return *this;
 }

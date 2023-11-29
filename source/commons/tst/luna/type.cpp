@@ -107,3 +107,30 @@ TEST_F(LunaTypeTest, CanIterateOverLunaTable)
     ASSERT_EQ(pair_2_count, 1);
     ASSERT_EQ(pair_3_count, 1);
 }
+
+TEST_F(LunaTypeTest, CanSaveUserdataAsRef)
+{
+    struct UserDefinedData
+    {
+        int x = 10;
+        int y = 11;
+        int z = 77;
+    };
+
+    namespace Luna = Gng2D::Luna;
+    Luna::Type udd;
+    {
+        ScopedStack stack(L);
+        auto*       mem = lua_newuserdata(L, sizeof(UserDefinedData));
+        ASSERT_TRUE(lua_isuserdata(L, -1));
+        new (mem) UserDefinedData{.x = 7, .y = -9, .z = 0};
+        udd = stack.read(-1);
+        ASSERT_TRUE(udd.isUserdata());
+        ASSERT_EQ(udd.asUserdata().get(), mem);
+    }
+    ASSERT_EQ(lua_gettop(L), 0);
+    UserDefinedData* data = (UserDefinedData*)udd.asUserdata().get();
+    ASSERT_EQ(data->x, 7);
+    ASSERT_EQ(data->y, -9);
+    ASSERT_EQ(data->z, 0);
+}
