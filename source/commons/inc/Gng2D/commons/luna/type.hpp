@@ -144,7 +144,9 @@ struct UserdataRef
     UserdataRef& operator=(const UserdataRef&);
     UserdataRef& operator=(UserdataRef&&);
 
-    void* get() { return value; }
+    void*    get() { return value; }
+    void     setMetaTable(const TableRef&);
+    TableRef getMetaTable();
 
     friend bool operator==(const UserdataRef& lhs, const UserdataRef& rhs)
     {

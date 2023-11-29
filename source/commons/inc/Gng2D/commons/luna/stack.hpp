@@ -24,6 +24,9 @@ struct Stack
     void push(const Type&);
     void pushGlobal(const std::string&);
 
+    void setMetaTable(int indx, const TableRef&);
+    void pushMetaTable(int indx);
+
     Type read(int n) const;
     void setGlobal(const std::string&);
     TYPE is(int n) const;
@@ -38,6 +41,14 @@ struct Stack
 
     int callFunction(const FunctionRef&, TypeVector args = {});
     int callFunctionFS(TypeVector args = {});
+
+    template <typename T, typename... Args>
+    UserdataRef newUserdata(Args&&... args)
+    {
+        auto* mem = lua_newuserdata(L, sizeof(T));
+        new (mem) T(std::forward<Args>(args)...);
+        return read(-1).asUserdata();
+    }
 
   private:
     lua_State* L;

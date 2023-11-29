@@ -243,3 +243,18 @@ UserdataRef& UserdataRef::operator=(UserdataRef&& from)
     value  = from.value;
     return *this;
 }
+
+void UserdataRef::setMetaTable(const TableRef& table)
+{
+    ScopedStack stack(L);
+    stack.push(*this);
+    stack.setMetaTable(-1, table);
+}
+
+TableRef UserdataRef::getMetaTable()
+{
+    ScopedStack stack(L);
+    stack.push(*this);
+    stack.pushMetaTable(-1);
+    return stack.read(-1).asTable();
+}

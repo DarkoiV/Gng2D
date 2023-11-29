@@ -134,3 +134,17 @@ TEST_F(LunaTypeTest, CanSaveUserdataAsRef)
     ASSERT_EQ(data->y, -9);
     ASSERT_EQ(data->z, 0);
 }
+
+TEST_F(LunaTypeTest, UserdataCanAccessItsMetaTable)
+{
+    Stack stack(L);
+    auto* mem = lua_newuserdata(L, sizeof(int));
+    new (mem) int(-99);
+    auto userdata = stack.read(-1).asUserdata();
+
+    stack.newTable();
+    auto table = stack.read(-1).asTable();
+    userdata.setMetaTable(table);
+
+    ASSERT_EQ(table, userdata.getMetaTable());
+}

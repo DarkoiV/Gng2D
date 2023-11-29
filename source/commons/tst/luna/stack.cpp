@@ -154,3 +154,40 @@ TEST_F(LunaStackTest, CanCallFunctionWithMultipleArgsAndReturns)
     ASSERT_EQ(stack.read(-1), ARGS[0] * ARGS[1] * ARGS[2]);
     ASSERT_EQ(stack.read(-2), ARGS[0] + ARGS[1] + ARGS[2]);
 }
+
+TEST_F(LunaStackTest, CanAssignMetaTables)
+{
+    luaL_dostring(L,
+                  "function addToUserdata(userdata) \n"
+                  "  return userdata + 5 \n"
+                  "end");
+    Stack stack(L);
+    auto  intRef = stack.newUserdata<int>(123);
+    ASSERT_EQ(*(int*)intRef.get(), 123);
+
+    stack.newTable();
+    auto table = stack.read(-1).asTable();
+    stack.pop(1);
+
+    auto* add = +[](lua_State* L) -> int
+    {
+        int* value  = (int*)lua_touserdata(L, 1);
+        *value     += lua_tointeger(L, 2);
+        lua_pushvalue(L, 1);
+
+        return 1;
+    };
+    lua_pushcclosure(L, add, 0);
+    auto __add = stack.read(-1).asFunction();
+    stack.pop(1);
+
+    table.set("__add", __add);
+    intRef.setMetaTable(table);
+
+    ASSERT_TRUE(stack.read(-1).isUserdata());
+    stack.pushGlobal("addToUserdata");
+    stack.push(intRef);
+    ASSERT_TRUE(lua_pcall(L, 1, 1, 0) == LUA_OK) << lua_tostring(L, -1);
+    ASSERT_EQ(*(int*)intRef.get(), 123 + 5);
+    ASSERT_TRUE(stack.read(-1).isUserdata());
+}

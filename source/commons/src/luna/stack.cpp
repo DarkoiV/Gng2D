@@ -68,6 +68,20 @@ void Stack::pushGlobal(const String& name)
     lua_getglobal(L, name.c_str());
 }
 
+void Stack::setMetaTable(int indx, const TableRef& table)
+{
+    push(table);
+    indx = indx > 0 ? indx : indx - 1;
+    lua_setmetatable(L, indx);
+}
+
+void Stack::pushMetaTable(int indx)
+{
+    auto RES = lua_getmetatable(L, indx);
+    GNG2D_ASSERT(RES, "No metatabable found");
+    if (not RES) pushNil();
+}
+
 void Stack::push(const Type& value)
 {
     switch (value.index())
