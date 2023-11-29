@@ -14,12 +14,11 @@ concept Component = requires(const C c, const Gng2D::ArgsVector& av) {
 };
 
 template <Component C>
-constexpr bool IsArgsConstructible =
-    requires(const ArgsVector av, const entt::registry::context& ctx) {
-        {
-            C::fromArgs(av, ctx)
-        } -> std::same_as<std::optional<C>>;
-    };
+constexpr bool IsArgsConstructible = requires(const ArgsVector av, entt::registry::context& ctx) {
+    {
+        C::fromArgs(av, ctx)
+    } -> std::same_as<std::optional<C>>;
+};
 
 template <Component C>
 constexpr bool HasRegisteredData = requires(entt::meta_factory<C> mf) { C::registerData(mf); };

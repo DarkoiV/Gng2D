@@ -8,22 +8,26 @@
 #include "Gng2D/scene/debug/imgui_overlay.hpp"
 #define EMPLACE_IMGUI_SYSEM systems.emplace_back(std::make_unique<Gng2D::ImguiOverlay>(reg))
 #else
-#define EMPLACE_IMGUI_SYSEM
+#define EMPLACE_IMGUI_SYSEM (void(0))
 #endif
 
 using Gng2D::Scene;
 
 Scene::Scene(const std::string& n)
-    : luna(Gng2D::GLOBAL::LUNA_STATE)
-    , lunaSceneEnv(luna.createTableRef())
+    : lunaSceneEnv(luna.createTableRef())
     , name(n)
     , sceneDir(GLOBAL::DATA_DIRECTORY / ("scene_" + name))
 {
     EMPLACE_IMGUI_SYSEM;
     Repository::attachComponentHooks(&reg);
 
+    GNG2D_ASSERT(std::filesystem::is_directory(sceneDir));
+    GNG2D_ASSERT(std::filesystem::is_regular_file(sceneDir / "scene.lua"));
+
     LOG::INFO("Loading scene data from:", sceneDir);
     luna.doFile(sceneDir / "scene.lua", lunaSceneEnv);
+
+    reg.ctx().emplace<Luna::State&>(luna);
 
     auto OnEnterRef = lunaSceneEnv.get("OnEnter");
     if (OnEnterRef.isFunction()) lunaOnEnter = OnEnterRef.asFunction();
@@ -104,9 +108,9 @@ int Scene::lunaNewEntityRecipe(Luna::Stack stack, Luna::TypeVector args)
     LOG::INFO("Registering entity from lua:", args.at(0).asString());
 
     EntityRecipe recipe(&reg);
-    for (auto&& [compId, compArgs]: componentsTable)
+    for (auto&& [compName, compArgs]: componentsTable)
     {
-        if (not compId.isInteger() and not compId.isString())
+        if (not compName.isInteger() and not compName.isString())
         {
             LOG::ERROR("in lunaNewEntityRecipe, key of table has to be string or hash");
             continue;
@@ -116,15 +120,15 @@ int Scene::lunaNewEntityRecipe(Luna::Stack stack, Luna::TypeVector args)
             LOG::ERROR("in lunaNewEntityRecipe, value of componentArgs has to be table");
             continue;
         }
-        StringHash hash = compId.isInteger()
-                            ? compId.asInteger()
-                            : entt::hashed_string::value(compId.asString().c_str());
+        StringHash hash = compName.isInteger()
+                            ? compName.asInteger()
+                            : entt::hashed_string::value(compName.asString().c_str());
 
         auto type = entt::resolve(hash);
         if (not type)
         {
             LOG::ERROR("Faile to resolve:",
-                       compId.isString() ? compId.asString() : std::to_string(hash));
+                       compName.isString() ? compName.asString() : std::to_string(hash));
             continue;
         }
         LOG::TRACE("Resolved to component:", type.info().name(), hash);

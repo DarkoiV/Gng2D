@@ -14,7 +14,7 @@ struct Transform2d
     static void onUpdate(entt::registry&, entt::entity);
     static void onDelete(entt::registry&, entt::entity);
 
-    static std::optional<Transform2d> fromArgs(const ArgsVector&, const entt::registry::context&);
+    static std::optional<Transform2d> fromArgs(const ArgsVector&, entt::registry::context&);
     static const ComponentMetaInfo*   metaInfo();
 
     using MetaFactory = entt::meta_factory<Transform2d>;
@@ -30,8 +30,7 @@ struct TransformLayer
     static void onUpdate(entt::registry&, entt::entity);
     static void onDelete(entt::registry&, entt::entity);
 
-    static std::optional<TransformLayer> fromArgs(const ArgsVector&,
-                                                  const entt::registry::context&);
+    static std::optional<TransformLayer> fromArgs(const ArgsVector&, entt::registry::context&);
     static const ComponentMetaInfo*      metaInfo();
 
     using MetaFactory = entt::meta_factory<TransformLayer>;

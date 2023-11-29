@@ -35,7 +35,7 @@ struct Scene : SceneInterface
     entt::registry              reg;
     const std::filesystem::path sceneDir;
 
-    Luna::State& luna;
+    Luna::State  luna;
     InputHandler inputHandler{reg};
 
     EntityRenderer entityRenderer{reg};

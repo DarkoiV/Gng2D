@@ -1,6 +1,6 @@
 #include "Gng2D/components/lua_script.hpp"
+#include "Gng2D/commons/luna/state.hpp"
 #include "Gng2D/commons/repository.hpp"
-#include "Gng2D/core/global.hpp"
 #include "util_macros.hpp"
 
 using Gng2D::LuaScript;
@@ -24,8 +24,7 @@ const static Gng2D::ComponentMetaInfo LUA_SCRIPT_META{.id   = "LuaScript"_hs,
                                                       .args = LUA_SCRIPT_ARGS,
                                                       .data = LUA_SCRIPT_DATA};
 
-std::optional<LuaScript> LuaScript::fromArgs(const ArgsVector&              args,
-                                             const entt::registry::context& ctx)
+std::optional<LuaScript> LuaScript::fromArgs(const ArgsVector& args, entt::registry::context& ctx)
 {
     std::string scriptName;
     for (auto&& [id, arg]: args)
@@ -39,8 +38,9 @@ std::optional<LuaScript> LuaScript::fromArgs(const ArgsVector&              args
 
     if (auto pathOpt = Repository::getScript(scriptName))
     {
-        auto entityEnv = GLOBAL::LUNA_STATE.createTableRef();
-        GLOBAL::LUNA_STATE.doFile(*pathOpt, entityEnv);
+        auto& luna      = ctx.get<Luna::State&>();
+        auto  entityEnv = luna.createTableRef();
+        luna.doFile(*pathOpt, entityEnv);
         return LuaScript(scriptName, entityEnv);
     }
     return std::nullopt;

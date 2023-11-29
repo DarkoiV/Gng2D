@@ -8,7 +8,7 @@ struct Info
 {
     std::string name;
 
-    static std::optional<Info>      fromArgs(const ArgsVector&, const entt::registry::context&);
+    static std::optional<Info>      fromArgs(const ArgsVector&, entt::registry::context&);
     static const ComponentMetaInfo* metaInfo();
 
     using MetaFactory = entt::meta_factory<Info>;

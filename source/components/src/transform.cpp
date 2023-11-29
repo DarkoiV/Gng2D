@@ -67,7 +67,7 @@ void Transform2d::onDelete(entt::registry& reg, entt::entity e)
 }
 
 std::optional<Transform2d> Transform2d::fromArgs(const Gng2D::ArgsVector& args,
-                                                 const entt::registry::context&)
+                                                 entt::registry::context&)
 {
     Gng2D::Transform2d transform{};
     for (auto&& [id, arg]: args)
@@ -151,7 +151,7 @@ void TransformLayer::onDelete(entt::registry& reg, entt::entity e)
 }
 
 std::optional<TransformLayer> TransformLayer::fromArgs(const Gng2D::ArgsVector& args,
-                                                       const entt::registry::context&)
+                                                       entt::registry::context&)
 {
     Gng2D::TransformLayer transform{.main = 0, .sub = 1};
     for (auto&& [id, arg]: args)
