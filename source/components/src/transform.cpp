@@ -12,7 +12,7 @@ using namespace entt::literals;
 
 // TRANSFORM 2D ///////////////////////////////////////////////////////////////////////////////////
 // clang-format off
-const inline static Gng2D::ComponentArgs TRANSFORM2D_ARGS{
+const static Gng2D::ComponentArgs TRANSFORM2D_ARGS{
     Arg{.name          = "x",
         .description   = "x value of transform vector, 0 by default",
         .acceptedTypes = {type_id<float>()},
@@ -24,12 +24,12 @@ const inline static Gng2D::ComponentArgs TRANSFORM2D_ARGS{
 };
 // clang-format on
 
-const inline static Gng2D::ComponentData TRANSFORM2D_DATA{
+const static Gng2D::ComponentData TRANSFORM2D_DATA{
     Datum{.id = "x"_hs, .name = "x", .type = Gng2D::FIELD_TYPE::FLOAT},
     Datum{.id = "y"_hs, .name = "y", .type = Gng2D::FIELD_TYPE::FLOAT},
 };
 
-const inline static Gng2D::ComponentMetaInfo
+const static Gng2D::ComponentMetaInfo
     TRANSFORM2D_META{.id   = entt::hashed_string::value("Transform2d"),
                      .name = "Transform2d",
                      .args = TRANSFORM2D_ARGS,
@@ -96,7 +96,7 @@ const Gng2D::ComponentMetaInfo* Transform2d::metaInfo()
 // TRANSFORM LAYER ////////////////////////////////////////////////////////////////////////////////
 using Gng2D::TransformLayer;
 // clang-format off
-const inline static Gng2D::ComponentArgs TRANSFORMLAYER_ARGS{
+const static Gng2D::ComponentArgs TRANSFORMLAYER_ARGS{
     Arg{.name          = "main",
         .description   = "value of main layer transform relative to parent, 0 by default",
         .acceptedTypes = {type_id<float>()},
@@ -108,12 +108,12 @@ const inline static Gng2D::ComponentArgs TRANSFORMLAYER_ARGS{
 };
 // clang-format on
 
-const inline static Gng2D::ComponentData TRANSFORMLAYER_DATA{
+const static Gng2D::ComponentData TRANSFORMLAYER_DATA{
     Datum{.id = "main"_hs, .name = "main", .type = Gng2D::FIELD_TYPE::INTEGER},
     Datum{ .id = "sub"_hs,  .name = "sub", .type = Gng2D::FIELD_TYPE::INTEGER},
 };
 
-const inline static Gng2D::ComponentMetaInfo
+const static Gng2D::ComponentMetaInfo
     TRANSFORMLAYER_META{.id   = entt::hashed_string::value("TransformLayer"),
                         .name = "TransformLayer",
                         .args = TRANSFORMLAYER_ARGS,
@@ -184,7 +184,7 @@ const Gng2D::ComponentMetaInfo* TransformLayer::metaInfo()
 // DETAIL POSITIION ///////////////////////////////////////////////////////////////////////////////
 using namespace Gng2D::detail;
 
-const inline Gng2D::ComponentMetaInfo DETAIL_POSITION_META{.id       = "Position"_hs,
+const static Gng2D::ComponentMetaInfo DETAIL_POSITION_META{.id       = "Position"_hs,
                                                            .name     = "Position",
                                                            .isDetail = true};
 

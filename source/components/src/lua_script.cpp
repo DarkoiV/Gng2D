@@ -7,21 +7,21 @@ using Datum = Gng2D::ComponentDatum;
 using Arg   = Gng2D::ComponentArg;
 using namespace entt::literals;
 
-const inline static Gng2D::ComponentArgs LUA_SCRIPT_ARGS{
+const static Gng2D::ComponentArgs LUA_SCRIPT_ARGS{
     Arg{.name          = "script",
         .description   = "script to be attached to entity",
         .acceptedTypes = {entt::type_id<std::string>()},
         .required      = true}
 };
 
-const inline static Gng2D::ComponentData LUA_SCRIPT_DATA{
+const static Gng2D::ComponentData LUA_SCRIPT_DATA{
     Datum{.id = "script"_hs, .name = "script", .type = Gng2D::FIELD_TYPE::STRING}
 };
 
-const inline static Gng2D::ComponentMetaInfo LUA_SCRIPT_META{.id   = "LuaScript"_hs,
-                                                             .name = "LuaScript",
-                                                             .args = LUA_SCRIPT_ARGS,
-                                                             .data = LUA_SCRIPT_DATA};
+const static Gng2D::ComponentMetaInfo LUA_SCRIPT_META{.id   = "LuaScript"_hs,
+                                                      .name = "LuaScript",
+                                                      .args = LUA_SCRIPT_ARGS,
+                                                      .data = LUA_SCRIPT_DATA};
 
 std::optional<LuaScript> LuaScript::fromArgs(const ArgsVector&              args,
                                              const entt::registry::context& ctx)
