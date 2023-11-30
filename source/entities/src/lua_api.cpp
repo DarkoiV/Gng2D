@@ -4,7 +4,6 @@
 using Gng2D::EntityLuaApi;
 namespace Luna = Gng2D::Luna;
 using LOG      = Gng2D::LOG;
-using Gng2D::FIELD_TYPE;
 using namespace entt::literals;
 
 static int component__index(Luna::Stack stack, Luna::TypeVector args)
@@ -17,45 +16,32 @@ static int component__index(Luna::Stack stack, Luna::TypeVector args)
     GNG2D_ASSERT(args.at(0).isUserdata(), ARGS_ERROR);
     GNG2D_ASSERT(args.at(1).isString(), ARGS_ERROR);
 
-    entt::meta_any& component = *(entt::meta_any*)args.at(0).asUserdata().get();
-    const auto*     metaInfo  = Gng2D::getMetaInfo(component.type());
-
-    auto& data = metaInfo->data;
-    if (not data)
+    entt::meta_any component = args.at(0).asUserdata().toMetaAny();
+    auto           var       = component.get(args.at(1).asStringHash());
+    if (not var) [[unlikely]]
     {
-        LOG::WARN("Component", metaInfo->name, "has no data to assign from lua");
+        LOG::ERROR("Failed to get", args.at(0).asString(), "from component",
+                   component.type().info().name());
         return 0;
     }
 
-    entt::meta_any datumHandle;
-    FIELD_TYPE     datumType;
-    for (const auto& datum: *data)
+    if (var.type().is_integral())
     {
-        if (datum.name == args.at(1).asString())
-        {
-            datumHandle = component.get(datum.id);
-            datumType   = datum.type;
-            break;
-        }
+        stack.pushInt(var.cast<Luna::Integer>());
+        return 1;
     }
-
-    switch (datumType)
+    else if (var.type().is_arithmetic() and var.allow_cast<Luna::Float>())
     {
-    case FIELD_TYPE::FLOAT:
-        GNG2D_ASSERT(datumHandle.allow_cast<float>());
-        stack.push(datumHandle.cast<float>());
+        stack.pushFloat(var.cast<Luna::Float>());
         return 1;
-    case FIELD_TYPE::INTEGER:
-        GNG2D_ASSERT(datumHandle.allow_cast<long>());
-        stack.push(datumHandle.cast<long>());
-        return 1;
-    case FIELD_TYPE::STRING:
-        GNG2D_ASSERT(datumHandle.allow_cast<std::string>());
-        stack.push(datumHandle.cast<std::string>());
+    }
+    else if (var.allow_cast<Luna::String>())
+    {
+        stack.pushString(var.cast<Luna::String>());
         return 1;
     }
 
-    LOG::WARN("Failed to convert component datum to lua type");
+    LOG::ERROR("Failed to convert component datum to lua type");
     return 0;
 }
 
@@ -98,7 +84,7 @@ int EntityLuaApi::getComponent(Luna::Stack stack, Luna::TypeVector args)
 
     auto eid = (entt::entity)args.at(0).asInteger();
     GNG2D_ASSERT(reg.valid(eid), "Invalid entity in getComponent call");
-    auto compHash      = entt::hashed_string::value(args.at(1).asString().c_str());
+    auto compHash      = args.at(1).asStringHash();
     auto componentType = entt::resolve(compHash);
     GNG2D_ASSERT(componentType);
 

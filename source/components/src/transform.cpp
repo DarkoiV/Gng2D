@@ -85,7 +85,10 @@ std::optional<Transform2d> Transform2d::fromArgs(const Gng2D::ArgsVector& args,
 
 Transform2d::MetaFactory Transform2d::registerData(MetaFactory factory)
 {
-    return factory.data<&Transform2d::x>("x"_hs).data<&Transform2d::y>("y"_hs);
+    return factory.data<&Transform2d::x>("x"_hs)
+        .prop("type"_hs, FIELD_TYPE::FLOAT)
+        .data<&Transform2d::y>("y"_hs)
+        .prop("type"_hs, FIELD_TYPE::FLOAT);
 }
 
 const Gng2D::ComponentMetaInfo* Transform2d::metaInfo()
@@ -221,8 +224,8 @@ const Gng2D::ComponentMetaInfo* Position::metaInfo()
 
 // DETAIL LAYER ///////////////////////////////////////////////////////////////////////////////////
 
-const inline Gng2D::ComponentMetaInfo DETAIL_LAYER_META{.id       = "Position"_hs,
-                                                        .name     = "position",
+const inline Gng2D::ComponentMetaInfo DETAIL_LAYER_META{.id       = "Layer"_hs,
+                                                        .name     = "Layer",
                                                         .isDetail = true};
 
 void Layer::onCreate(entt::registry& reg, entt::entity e)
