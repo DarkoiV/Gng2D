@@ -31,6 +31,12 @@ TEST_F(LuaApiTest, getComponent_canAccessReferenceToComponentThroughMetaAny)
     stack.callFunctionFS({Luna::Integer(e)});
     ASSERT_TRUE(stack.read(-1).isUserdata());
 
-    entt::meta_any& transform = *(entt::meta_any*)stack.read(-1).asUserdata().get();
-    ASSERT_EQ(transform.data(), reg.try_get<Gng2D::Transform2d>(e));
+    entt::meta_any transform = stack.read(-1).asUserdata().toMetaAny();
+    auto&          res       = transform.cast<Gng2D::Transform2d&>();
+    ASSERT_EQ(res.x, reg.get<Gng2D::Transform2d>(e).x);
+    ASSERT_EQ(res.y, reg.get<Gng2D::Transform2d>(e).y);
+    res.x                            = 7.f;
+    reg.get<Gng2D::Transform2d>(e).y = 101.f;
+    ASSERT_EQ(res.x, reg.get<Gng2D::Transform2d>(e).x);
+    ASSERT_EQ(res.y, reg.get<Gng2D::Transform2d>(e).y);
 }

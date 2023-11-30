@@ -1,6 +1,7 @@
 #pragma once
 #include "Gng2D/commons/assert.hpp"
 #include "lua.hpp"
+#include <entt/entt.hpp>
 #include <memory>
 #include <string>
 #include <variant>
@@ -144,9 +145,10 @@ struct UserdataRef
     UserdataRef& operator=(const UserdataRef&);
     UserdataRef& operator=(UserdataRef&&);
 
-    void*    get() { return value; }
-    void     setMetaTable(const TableRef&);
-    TableRef getMetaTable();
+    void*          get() { return value; }
+    entt::meta_any toMetaAny() { return ((entt::meta_any*)value)->as_ref(); }
+    void           setMetaTable(const TableRef&);
+    TableRef       getMetaTable();
 
     friend bool operator==(const UserdataRef& lhs, const UserdataRef& rhs)
     {
