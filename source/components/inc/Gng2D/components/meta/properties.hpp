@@ -6,6 +6,16 @@
 namespace Gng2D {
 struct ArgsVector;
 
+enum ComponentFieldType { INTEGER, FLOAT, STRING, STRING_HASH, UNDEF };
+using ComponentFieldSetter = ComponentFieldType;
+using ComponentFieldGetter = ComponentFieldType;
+
+enum ComponentFieldProperties : StringHash {
+    MAX        = "max"_hash,
+    MIN        = "min"_hash,
+    FIELD_TYPE = "fieldType"_hash
+};
+
 template <typename C>
 concept Component = requires {
     requires std::is_same_v<decltype(C::NAME), const char* const>;

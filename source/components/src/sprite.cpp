@@ -5,7 +5,6 @@
 #include "util_macros.hpp"
 #include <entt/entt.hpp>
 
-using entt::type_id;
 using Gng2D::Sprite;
 
 std::optional<Sprite> Sprite::fromArgs(const Gng2D::ArgsVector& args, entt::registry::context&)

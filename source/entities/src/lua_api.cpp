@@ -1,5 +1,6 @@
 #include "Gng2D/entities/lua_api.hpp"
 #include "Gng2D/commons/args_vector.hpp"
+#include "Gng2D/components/meta/properties.hpp"
 
 using Gng2D::EntityLuaApi;
 namespace Luna = Gng2D::Luna;
@@ -25,23 +26,32 @@ static int component__index(Luna::Stack stack, Luna::TypeVector args)
         return 0;
     }
 
-    if (var.type().is_integral())
+    auto field = component.type()
+                     .data(args.at(1).asStringHash())
+                     .prop(Gng2D::ComponentFieldProperties::FIELD_TYPE)
+                     .value()
+                     .cast<Gng2D::ComponentFieldType>();
+
+    switch (field)
     {
+    case Gng2D::INTEGER:
+    case Gng2D::STRING_HASH:
+        if (not var.allow_cast<Luna::Integer>()) break;
         stack.pushInt(var.cast<Luna::Integer>());
         return 1;
-    }
-    else if (var.type().is_arithmetic() and var.allow_cast<Luna::Float>())
-    {
+    case Gng2D::FLOAT:
+        if (not var.allow_cast<Luna::Float>()) break;
         stack.pushFloat(var.cast<Luna::Float>());
         return 1;
-    }
-    else if (var.allow_cast<Luna::String>())
-    {
+    case Gng2D::STRING:
+        if (not var.allow_cast<Luna::String>()) break;
         stack.pushString(var.cast<Luna::String>());
         return 1;
+    case Gng2D::UNDEF:
+        break;
     }
 
-    LOG::ERROR("Failed to convert component datum to lua type");
+    LOG::ERROR("Failed to convert component datum to lua type in __index call");
     return 0;
 }
 

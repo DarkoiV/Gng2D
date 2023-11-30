@@ -18,6 +18,6 @@ struct LuaScript
     static void OnCreate(entt::registry&, entt::entity);
 
     using MetaFactory = entt::meta_factory<LuaScript>;
-    static MetaFactory registerData(MetaFactory);
+    static void registerData(MetaFactory);
 };
 } // namespace Gng2D

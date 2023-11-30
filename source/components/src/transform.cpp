@@ -1,5 +1,6 @@
 #include "Gng2D/components/transform.hpp"
 #include "Gng2D/commons/args_vector.hpp"
+#include "Gng2D/components/meta/properties.hpp"
 #include "Gng2D/components/relationship.hpp"
 #include "util_macros.hpp"
 #include <entt/entt.hpp>
@@ -56,9 +57,12 @@ std::optional<Transform2d> Transform2d::fromArgs(const Gng2D::ArgsVector& args,
     return transform;
 }
 
-Transform2d::MetaFactory Transform2d::registerData(MetaFactory factory)
+void Transform2d::registerData(MetaFactory factory)
 {
-    return factory.data<&Transform2d::x>("x"_hs).data<&Transform2d::y>("y"_hs);
+    factory.data<&Transform2d::x>("x"_hs).prop(ComponentFieldProperties::FIELD_TYPE,
+                                               ComponentFieldType::FLOAT);
+    factory.data<&Transform2d::y>("y"_hs).prop(ComponentFieldProperties::FIELD_TYPE,
+                                               ComponentFieldType::FLOAT);
 }
 
 // TRANSFORM LAYER ////////////////////////////////////////////////////////////////////////////////
@@ -111,13 +115,16 @@ std::optional<TransformLayer> TransformLayer::fromArgs(const Gng2D::ArgsVector& 
     return transform;
 }
 
-TransformLayer::MetaFactory TransformLayer::registerData(MetaFactory factory)
+void TransformLayer::registerData(MetaFactory factory)
 {
     factory.data<&TransformLayer::main>("main"_hs)
-        .prop("max"_hs, INT8_MAX)
-        .prop("min"_hs, INT8_MIN);
-    factory.data<&TransformLayer::sub>("sub"_hs).prop("max"_hs, INT8_MAX).prop("min"_hs, INT8_MIN);
-    return factory;
+        .prop(ComponentFieldProperties::MAX, INT8_MAX)
+        .prop(ComponentFieldProperties::MIN, INT8_MIN)
+        .prop(ComponentFieldProperties::FIELD_TYPE, Gng2D::ComponentFieldType::INTEGER);
+    factory.data<&TransformLayer::sub>("sub"_hs)
+        .prop(ComponentFieldProperties::MAX, INT8_MAX)
+        .prop(ComponentFieldProperties::MIN, INT8_MIN)
+        .prop(ComponentFieldProperties::FIELD_TYPE, Gng2D::ComponentFieldType::STRING);
 }
 
 // DETAIL POSITIION ///////////////////////////////////////////////////////////////////////////////

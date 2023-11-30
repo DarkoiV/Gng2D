@@ -1,8 +1,9 @@
 #include "Gng2D/components/info.hpp"
 #include "Gng2D/commons/args_vector.hpp"
+#include "Gng2D/components/meta/properties.hpp"
 #include "util_macros.hpp"
 
-using Gng2D::Info;
+using namespace Gng2D;
 using namespace entt::literals;
 
 std::optional<Info> Info::fromArgs(const ArgsVector& args, entt::registry::context&)
@@ -21,7 +22,8 @@ std::optional<Info> Info::fromArgs(const ArgsVector& args, entt::registry::conte
     else return info;
 }
 
-Info::MetaFactory Info::registerData(MetaFactory factory)
+void Info::registerData(MetaFactory factory)
 {
-    return factory.data<&Info::name>("name"_hs);
+    factory.data<&Info::name>("name"_hs).prop(ComponentFieldProperties::FIELD_TYPE,
+                                              ComponentFieldType::STRING);
 }

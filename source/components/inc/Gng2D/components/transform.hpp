@@ -21,7 +21,7 @@ struct Transform2d
     static std::optional<Transform2d> fromArgs(const ArgsVector&, entt::registry::context&);
 
     using MetaFactory = entt::meta_factory<Transform2d>;
-    static MetaFactory registerData(MetaFactory);
+    static void registerData(MetaFactory);
 };
 
 struct TransformLayer
@@ -38,7 +38,7 @@ struct TransformLayer
     static std::optional<TransformLayer> fromArgs(const ArgsVector&, entt::registry::context&);
 
     using MetaFactory = entt::meta_factory<TransformLayer>;
-    static MetaFactory registerData(MetaFactory);
+    static void registerData(MetaFactory);
 };
 
 namespace detail {

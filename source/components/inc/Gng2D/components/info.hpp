@@ -15,6 +15,6 @@ struct Info
     static std::optional<Info> fromArgs(const ArgsVector&, entt::registry::context&);
 
     using MetaFactory = entt::meta_factory<Info>;
-    static MetaFactory registerData(MetaFactory);
+    static void registerData(MetaFactory);
 };
 } // namespace Gng2D
