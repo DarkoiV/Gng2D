@@ -1,12 +1,16 @@
 #pragma once
-#include "Gng2D/components/meta/component_meta_info.hpp"
+#include "Gng2D/components/meta/properties_macro.hpp"
 #include <compare>
 #include <cstdint>
+#include <entt/entt.hpp>
+#include <optional>
 
 namespace Gng2D {
 struct ArgsVector;
 struct Transform2d
 {
+    component_property_name(Transform2d);
+
     float x{};
     float y{};
 
@@ -15,7 +19,6 @@ struct Transform2d
     static void onDelete(entt::registry&, entt::entity);
 
     static std::optional<Transform2d> fromArgs(const ArgsVector&, entt::registry::context&);
-    static const ComponentMetaInfo*   metaInfo();
 
     using MetaFactory = entt::meta_factory<Transform2d>;
     static MetaFactory registerData(MetaFactory);
@@ -23,6 +26,8 @@ struct Transform2d
 
 struct TransformLayer
 {
+    component_property_name(TransformLayer);
+
     int8_t main;
     int8_t sub;
 
@@ -31,7 +36,6 @@ struct TransformLayer
     static void onDelete(entt::registry&, entt::entity);
 
     static std::optional<TransformLayer> fromArgs(const ArgsVector&, entt::registry::context&);
-    static const ComponentMetaInfo*      metaInfo();
 
     using MetaFactory = entt::meta_factory<TransformLayer>;
     static MetaFactory registerData(MetaFactory);
@@ -40,17 +44,19 @@ struct TransformLayer
 namespace detail {
 struct Position
 {
+    component_property_name(Position);
+
     float x;
     float y;
 
     static void onCreate(entt::registry&, entt::entity);
     static void onUpdate(entt::registry&, entt::entity);
-
-    static const ComponentMetaInfo* metaInfo();
 };
 
 struct Layer
 {
+    component_property_name(Layer);
+
     int16_t main;
     int16_t sub;
 
@@ -58,8 +64,6 @@ struct Layer
     static void onUpdate(entt::registry&, entt::entity);
 
     std::strong_ordering operator<=>(const Layer&) const = default;
-
-    static const ComponentMetaInfo* metaInfo();
 };
 } // namespace detail
 } // namespace Gng2D

@@ -74,7 +74,7 @@ add_compile_options(-Wall -Wextra -Wpedantic)
 ### SANDBOX ###################################################################
 if(NOT DEFINED GAME_NAME)
     add_subdirectory(sandbox)
-    set(ENABLE_IMGUI True)
+    # set(ENABLE_IMGUI True)
 endif()
 
 ### ENABLE IMGUI ##############################################################

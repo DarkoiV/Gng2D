@@ -4,37 +4,10 @@
 #include "util_macros.hpp"
 #include <entt/entt.hpp>
 
-using Gng2D::Transform2d;
-using Arg   = Gng2D::ComponentArg;
-using Datum = Gng2D::ComponentDatum;
-using entt::type_id;
 using namespace entt::literals;
 
 // TRANSFORM 2D ///////////////////////////////////////////////////////////////////////////////////
-// clang-format off
-const static Gng2D::ComponentArgs TRANSFORM2D_ARGS{
-    Arg{.name          = "x",
-        .description   = "x value of transform vector, 0 by default",
-        .acceptedTypes = {type_id<float>()},
-        .required      = false},
-    Arg{.name          = "y",
-        .description   = "y value of transform vector, 0 by default",
-        .acceptedTypes = {type_id<float>()},
-        .required      = false},
-};
-// clang-format on
-
-const static Gng2D::ComponentData TRANSFORM2D_DATA{
-    Datum{.id = "x"_hs, .name = "x", .type = Gng2D::FIELD_TYPE::FLOAT},
-    Datum{.id = "y"_hs, .name = "y", .type = Gng2D::FIELD_TYPE::FLOAT},
-};
-
-const static Gng2D::ComponentMetaInfo
-    TRANSFORM2D_META{.id   = entt::hashed_string::value("Transform2d"),
-                     .name = "Transform2d",
-                     .args = TRANSFORM2D_ARGS,
-                     .data = TRANSFORM2D_DATA};
-
+using Gng2D::Transform2d;
 void Transform2d::onCreate(entt::registry& reg, entt::entity e)
 {
     onUpdate(reg, e);
@@ -85,43 +58,11 @@ std::optional<Transform2d> Transform2d::fromArgs(const Gng2D::ArgsVector& args,
 
 Transform2d::MetaFactory Transform2d::registerData(MetaFactory factory)
 {
-    return factory.data<&Transform2d::x>("x"_hs)
-        .prop("type"_hs, FIELD_TYPE::FLOAT)
-        .data<&Transform2d::y>("y"_hs)
-        .prop("type"_hs, FIELD_TYPE::FLOAT);
-}
-
-const Gng2D::ComponentMetaInfo* Transform2d::metaInfo()
-{
-    return &TRANSFORM2D_META;
+    return factory.data<&Transform2d::x>("x"_hs).data<&Transform2d::y>("y"_hs);
 }
 
 // TRANSFORM LAYER ////////////////////////////////////////////////////////////////////////////////
 using Gng2D::TransformLayer;
-// clang-format off
-const static Gng2D::ComponentArgs TRANSFORMLAYER_ARGS{
-    Arg{.name          = "main",
-        .description   = "value of main layer transform relative to parent, 0 by default",
-        .acceptedTypes = {type_id<float>()},
-        .required      = false},
-    Arg{.name          = "sub",
-        .description   = "value of sub layer transform relative to parent, 1 by default",
-        .acceptedTypes = {type_id<float>()},
-        .required      = false},
-};
-// clang-format on
-
-const static Gng2D::ComponentData TRANSFORMLAYER_DATA{
-    Datum{.id = "main"_hs, .name = "main", .type = Gng2D::FIELD_TYPE::INTEGER},
-    Datum{ .id = "sub"_hs,  .name = "sub", .type = Gng2D::FIELD_TYPE::INTEGER},
-};
-
-const static Gng2D::ComponentMetaInfo
-    TRANSFORMLAYER_META{.id   = entt::hashed_string::value("TransformLayer"),
-                        .name = "TransformLayer",
-                        .args = TRANSFORMLAYER_ARGS,
-                        .data = TRANSFORMLAYER_DATA};
-
 void TransformLayer::onCreate(entt::registry& reg, entt::entity e)
 {
     onUpdate(reg, e);
@@ -179,18 +120,8 @@ TransformLayer::MetaFactory TransformLayer::registerData(MetaFactory factory)
     return factory;
 }
 
-const Gng2D::ComponentMetaInfo* TransformLayer::metaInfo()
-{
-    return &TRANSFORMLAYER_META;
-}
-
 // DETAIL POSITIION ///////////////////////////////////////////////////////////////////////////////
-using namespace Gng2D::detail;
-
-const static Gng2D::ComponentMetaInfo DETAIL_POSITION_META{.id       = "Position"_hs,
-                                                           .name     = "Position",
-                                                           .isDetail = true};
-
+using Gng2D::detail::Position;
 void Position::onCreate(entt::registry& reg, entt::entity e)
 {
     onUpdate(reg, e);
@@ -217,17 +148,8 @@ void Position::onUpdate(entt::registry& reg, entt::entity e)
     }
 }
 
-const Gng2D::ComponentMetaInfo* Position::metaInfo()
-{
-    return &DETAIL_POSITION_META;
-}
-
 // DETAIL LAYER ///////////////////////////////////////////////////////////////////////////////////
-
-const inline Gng2D::ComponentMetaInfo DETAIL_LAYER_META{.id       = "Layer"_hs,
-                                                        .name     = "Layer",
-                                                        .isDetail = true};
-
+using Gng2D::detail::Layer;
 void Layer::onCreate(entt::registry& reg, entt::entity e)
 {
     onUpdate(reg, e);
@@ -252,9 +174,4 @@ void Layer::onUpdate(entt::registry& reg, entt::entity e)
             layer.sub  = childTransformLayer->sub + parentLayer.sub;
         });
     }
-}
-
-const Gng2D::ComponentMetaInfo* Layer::metaInfo()
-{
-    return &DETAIL_LAYER_META;
 }

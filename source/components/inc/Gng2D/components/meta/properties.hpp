@@ -1,20 +1,21 @@
 #pragma once
-#include "Gng2D/commons/args_vector.hpp"
-#include "Gng2D/commons/assert.hpp"
-#include "Gng2D/components/meta/component_meta_info.hpp"
+#include "Gng2D/commons/types.hpp"
 #include <entt/entt.hpp>
+#include <optional>
 
 namespace Gng2D {
+struct ArgsVector;
 
 template <typename C>
-concept Component = requires(const C c, const Gng2D::ArgsVector& av) {
-    {
-        C::metaInfo()
-    } -> std::same_as<const ComponentMetaInfo*>;
+concept Component = requires {
+    requires std::is_same_v<decltype(C::NAME), const char* const>;
+    requires std::is_same_v<decltype(C::ID), const StringHash>;
+    requires std::is_move_constructible_v<C>;
+    requires std::is_move_assignable_v<C>;
 };
 
 template <Component C>
-constexpr bool IsArgsConstructible = requires(const ArgsVector av, entt::registry::context& ctx) {
+constexpr bool IsArgsConstructible = requires(const ArgsVector& av, entt::registry::context& ctx) {
     {
         C::fromArgs(av, ctx)
     } -> std::same_as<std::optional<C>>;
@@ -37,28 +38,4 @@ constexpr bool HasOnDeleteHook =
 
 template <Component C>
 constexpr bool HasAnyHook = HasOnCreateHook<C> or HasOnUpdateHook<C> or HasOnDeleteHook<C>;
-
-template <Component Comp>
-const ComponentMetaInfo* getMetaInfo()
-{
-    using namespace entt::literals;
-    return entt::resolve<Comp>()
-        .prop("metaInfo"_hs)
-        .value()
-        .template cast<const ComponentMetaInfo*>();
-}
-
-inline const ComponentMetaInfo* getMetaInfo(StringHash id)
-{
-    using namespace entt::literals;
-    auto* ptr = entt::resolve(id).prop("metaInfo"_hs).value().try_cast<const ComponentMetaInfo*>();
-    GNG2D_ASSERT(ptr, "No meta info for", id);
-    return *ptr;
-}
-
-inline const ComponentMetaInfo* getMetaInfo(entt::meta_type type)
-{
-    return getMetaInfo(type.id());
-}
-
 } // namespace Gng2D
