@@ -10,7 +10,7 @@ void emplaceComponent(entt::registry* r, entt::entity e, ArgsVector* av)
 {
     using namespace entt::literals;
     const auto& metaInfo = *(Comp::metaInfo());
-    LOG::INFO("Emplacing", metaInfo.name);
+    LOG::TRACE("Emplacing", metaInfo.name);
 
     auto componentOpt = Comp::fromArgs(*av, r->ctx());
     if (componentOpt) r->emplace<Comp>(e, std::move(*componentOpt));

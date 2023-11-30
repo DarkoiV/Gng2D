@@ -24,6 +24,11 @@ const static Gng2D::ComponentMetaInfo LUA_SCRIPT_META{.id   = "LuaScript"_hs,
                                                       .args = LUA_SCRIPT_ARGS,
                                                       .data = LUA_SCRIPT_DATA};
 
+void LuaScript::OnCreate(entt::registry& reg, entt::entity e)
+{
+    auto& state = reg.ctx().get<Luna::State&>();
+}
+
 std::optional<LuaScript> LuaScript::fromArgs(const ArgsVector& args, entt::registry::context& ctx)
 {
     std::string scriptName;
