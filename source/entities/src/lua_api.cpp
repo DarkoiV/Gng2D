@@ -1,5 +1,6 @@
 #include "Gng2D/entities/lua_api.hpp"
 #include "Gng2D/commons/args_vector.hpp"
+#include "Gng2D/components/lua_script.hpp"
 #include "Gng2D/components/meta/component_userdata.hpp"
 #include "Gng2D/components/meta/properties.hpp"
 #include "Gng2D/components/meta/util_funcs.hpp"
@@ -22,24 +23,44 @@ EntityLuaApi::EntityLuaApi(entt::registry& r, Luna::State& ls)
     lunaState.registerMethod<comp_idx>(*this, "__index", compMetaTable);
     lunaState.registerMethod<comp_nidx>(*this, "__newindex", compMetaTable);
 
-    // REGISTER COMPONENTS
-    lunaState.registerMethod<&EntityLuaApi::getComponent>(*this, "getComponent");
-    lunaState.registerMethod<&EntityLuaApi::addComponent>(*this, "addComponent");
+    reg.ctx().emplace<EntityLuaApi&>(*this);
+
+    reg.on_construct<LuaScript>().connect<&EntityLuaApi::addImplicitEntitySelf>(*this);
+    reg.on_update<LuaScript>().connect<&EntityLuaApi::addImplicitEntitySelf>(*this);
+}
+
+EntityLuaApi::~EntityLuaApi()
+{
+    reg.ctx().erase<EntityLuaApi&>();
+
+    reg.on_construct<LuaScript>().disconnect<&EntityLuaApi::addImplicitEntitySelf>(*this);
+    reg.on_update<LuaScript>().disconnect<&EntityLuaApi::addImplicitEntitySelf>(*this);
+}
+
+void EntityLuaApi::addImplicitEntitySelf(entt::registry& r, entt::entity e)
+{
+    auto& env = r.get<LuaScript>(e).entityEnv;
+    env.set("Self", env);
+    env.set("entity"_hash, (Luna::Integer)e);
+
+    lunaState.registerMethod<&EntityLuaApi::getComponent>(*this, "getComponent", env);
+    lunaState.registerMethod<&EntityLuaApi::addComponent>(*this, "addComponent", env);
 }
 
 int EntityLuaApi::addComponent(Luna::Stack, Luna::TypeVector args)
 {
     constexpr auto ARGS_ERROR =
         "add components requires 3 arguments, "
-        "first should be entity id, "
+        "first should be entity table, "
         "second should be component name, "
         "third should be table with args";
     GNG2D_ASSERT(args.size() == 3, ARGS_ERROR);
-    GNG2D_ASSERT(args.at(0).isInteger(), ARGS_ERROR);
+    GNG2D_ASSERT(args.at(0).isTable(), ARGS_ERROR);
     GNG2D_ASSERT(args.at(1).isString(), ARGS_ERROR);
     GNG2D_ASSERT(args.at(2).isTable(), ARGS_ERROR);
 
-    auto  eid      = (entt::entity)args.at(0).asInteger();
+    auto& enttable = args.at(0).asTable();
+    auto  eid      = (entt::entity)enttable.get("entity"_hash).asInteger();
     auto  compHash = args.at(1).asStringHash();
     auto& compArgs = args.at(2).asTable();
 
@@ -58,13 +79,14 @@ int EntityLuaApi::getComponent(Luna::Stack stack, Luna::TypeVector args)
 {
     constexpr auto ARGS_ERROR =
         "get components requires 2 arguments, "
-        "first should be entity id, "
+        "first should be entity table, "
         "second should be component name";
     GNG2D_ASSERT(args.size() == 2, ARGS_ERROR);
-    GNG2D_ASSERT(args.at(0).isInteger(), ARGS_ERROR);
+    GNG2D_ASSERT(args.at(0).isTable(), ARGS_ERROR);
     GNG2D_ASSERT(args.at(1).isString(), ARGS_ERROR);
 
-    auto eid = (entt::entity)args.at(0).asInteger();
+    auto& enttable = args.at(0).asTable();
+    auto  eid      = (entt::entity)enttable.get("entity"_hash).asInteger();
     GNG2D_ASSERT(reg.valid(eid), "Invalid entity in getComponent call");
     auto compHash      = args.at(1).asStringHash();
     auto componentType = entt::resolve(compHash);

@@ -9,7 +9,7 @@ struct EntityLuaApi : SystemInterface
     EntityLuaApi(entt::registry& r, Luna::State&);
     EntityLuaApi(EntityLuaApi&)  = delete;
     EntityLuaApi(EntityLuaApi&&) = delete;
-    ~EntityLuaApi()              = default;
+    ~EntityLuaApi();
 
     auto operator=(EntityLuaApi&)  = delete;
     auto operator=(EntityLuaApi&&) = delete;
@@ -19,6 +19,8 @@ struct EntityLuaApi : SystemInterface
   private:
     Luna::State&   lunaState;
     Luna::TableRef apiTable;
+
+    void addImplicitEntitySelf(entt::registry&, entt::entity);
 
     int addComponent(Luna::Stack, Luna::TypeVector);
     int getComponent(Luna::Stack, Luna::TypeVector);
