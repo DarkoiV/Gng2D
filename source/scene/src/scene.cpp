@@ -68,6 +68,8 @@ void Scene::update()
         system->onUpdate();
     }
 
+    entityLuaApi.onUpdate();
+
     if (lunaOnUpdate) luna.getStack().callFunction(*lunaOnUpdate);
 }
 

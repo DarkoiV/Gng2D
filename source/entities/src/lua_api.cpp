@@ -37,6 +37,17 @@ EntityLuaApi::~EntityLuaApi()
     reg.on_update<LuaScript>().disconnect<&EntityLuaApi::addImplicitEntitySelf>(*this);
 }
 
+void EntityLuaApi::onUpdate()
+{
+    for (auto&& [e, script]: reg.view<LuaScript>().each())
+    {
+        if (auto onUpdate = script.entityEnv.get("OnUpdate"); onUpdate.isFunction())
+        {
+            lunaState.getStack().callFunction(onUpdate.asFunction());
+        }
+    }
+}
+
 void EntityLuaApi::addImplicitEntitySelf(entt::registry& r, entt::entity e)
 {
     auto& env = r.get<LuaScript>(e).entityEnv;

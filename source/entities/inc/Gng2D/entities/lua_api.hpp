@@ -14,7 +14,7 @@ struct EntityLuaApi : SystemInterface
     auto operator=(EntityLuaApi&)  = delete;
     auto operator=(EntityLuaApi&&) = delete;
 
-    void onUpdate() override { }
+    void onUpdate() override final;
 
   private:
     Luna::State&   lunaState;
