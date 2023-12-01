@@ -13,7 +13,8 @@ using ComponentFieldGetter = ComponentFieldType;
 enum ComponentFieldProperties : StringHash {
     MAX        = "max"_hash,
     MIN        = "min"_hash,
-    FIELD_TYPE = "fieldType"_hash
+    FIELD_NAME = "fieldName"_hash,
+    FIELD_TYPE = "fieldType"_hash,
 };
 
 template <typename C>

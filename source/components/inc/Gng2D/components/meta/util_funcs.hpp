@@ -4,6 +4,19 @@
 
 namespace Gng2D {
 
+inline void ensureDatumBounds(entt::meta_data data, auto& value)
+{
+    using Type = std::remove_reference_t<decltype(value)>;
+    if (auto minProp = data.prop("min"_hash))
+    {
+        if (auto min = minProp.value().try_cast<Type>()) value = *min > value ? *min : value;
+    }
+    if (auto maxProp = data.prop("max"_hash))
+    {
+        if (auto max = maxProp.value().try_cast<Type>()) value = *max < value ? *max : value;
+    }
+}
+
 [[nodiscard]] inline ErrOrSuccess tryPushDatumOnStack(Gng2D::Luna::Stack& stack,
                                                       entt::meta_any&     component,
                                                       Gng2D::StringHash   datumHash)

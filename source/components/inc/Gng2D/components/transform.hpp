@@ -45,6 +45,7 @@ namespace detail {
 struct Position
 {
     component_property_name(Position);
+    component_property_is_detail;
 
     float x;
     float y;
@@ -56,6 +57,7 @@ struct Position
 struct Layer
 {
     component_property_name(Layer);
+    component_property_is_detail;
 
     int16_t main;
     int16_t sub;

@@ -24,6 +24,7 @@ std::optional<Info> Info::fromArgs(const ArgsVector& args, entt::registry::conte
 
 void Info::registerData(MetaFactory factory)
 {
-    factory.data<&Info::name>("name"_hs).prop(ComponentFieldProperties::FIELD_TYPE,
-                                              ComponentFieldType::STRING);
+    factory.data<&Info::name>("name"_hs)
+        .prop(ComponentFieldProperties::FIELD_TYPE, ComponentFieldType::STRING)
+        .prop(ComponentFieldProperties::FIELD_NAME, "name");
 }

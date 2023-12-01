@@ -37,5 +37,6 @@ std::optional<LuaScript> LuaScript::fromArgs(const ArgsVector& args, entt::regis
 void LuaScript::registerData(MetaFactory mf)
 {
     mf.data<&LuaScript::scriptName>("script"_hs)
-        .prop(ComponentFieldProperties::FIELD_TYPE, ComponentFieldType::STRING);
+        .prop(ComponentFieldProperties::FIELD_TYPE, ComponentFieldType::STRING)
+        .prop(ComponentFieldProperties::FIELD_NAME, "script");
 }

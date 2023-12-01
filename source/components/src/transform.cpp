@@ -59,10 +59,13 @@ std::optional<Transform2d> Transform2d::fromArgs(const Gng2D::ArgsVector& args,
 
 void Transform2d::registerData(MetaFactory factory)
 {
-    factory.data<&Transform2d::x>("x"_hs).prop(ComponentFieldProperties::FIELD_TYPE,
-                                               ComponentFieldType::FLOAT);
-    factory.data<&Transform2d::y>("y"_hs).prop(ComponentFieldProperties::FIELD_TYPE,
-                                               ComponentFieldType::FLOAT);
+    factory.data<&Transform2d::x>("x"_hs)
+        .prop(ComponentFieldProperties::FIELD_TYPE, ComponentFieldType::FLOAT)
+        .prop(ComponentFieldProperties::FIELD_NAME, "x");
+
+    factory.data<&Transform2d::y>("y"_hs)
+        .prop(ComponentFieldProperties::FIELD_TYPE, ComponentFieldType::FLOAT)
+        .prop(ComponentFieldProperties::FIELD_NAME, "y");
 }
 
 // TRANSFORM LAYER ////////////////////////////////////////////////////////////////////////////////
@@ -120,11 +123,13 @@ void TransformLayer::registerData(MetaFactory factory)
     factory.data<&TransformLayer::main>("main"_hs)
         .prop(ComponentFieldProperties::MAX, INT8_MAX)
         .prop(ComponentFieldProperties::MIN, INT8_MIN)
-        .prop(ComponentFieldProperties::FIELD_TYPE, Gng2D::ComponentFieldType::INTEGER);
+        .prop(ComponentFieldProperties::FIELD_TYPE, Gng2D::ComponentFieldType::INTEGER)
+        .prop(ComponentFieldProperties::FIELD_NAME, "main");
     factory.data<&TransformLayer::sub>("sub"_hs)
         .prop(ComponentFieldProperties::MAX, INT8_MAX)
         .prop(ComponentFieldProperties::MIN, INT8_MIN)
-        .prop(ComponentFieldProperties::FIELD_TYPE, Gng2D::ComponentFieldType::STRING);
+        .prop(ComponentFieldProperties::FIELD_TYPE, Gng2D::ComponentFieldType::INTEGER)
+        .prop(ComponentFieldProperties::FIELD_NAME, "sub");
 }
 
 // DETAIL POSITIION ///////////////////////////////////////////////////////////////////////////////

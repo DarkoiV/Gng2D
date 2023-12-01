@@ -33,20 +33,17 @@ template <Component Comp>
 void Repository::registerComponent()
 {
     using namespace entt::literals;
-    auto meta_factory = entt::meta<Comp>()
-                            .type(Comp::ID)
-                            .template func<&detail::getComponentRef<Comp>>("getRef"_hs)
-                            .template func<&detail::patchComponentSignal<Comp>>("patchSignal"_hs);
+    auto meta_factory = entt::meta<Comp>().type(Comp::ID).prop("name"_hs, Comp::NAME);
+
+    if constexpr (requires { Comp::IS_DETAIL; }) meta_factory.prop("isDetail"_hs);
+
+    if constexpr (HasRegisteredData<Comp>) Comp::registerData(meta_factory);
+
+    meta_factory.template func<&detail::getComponentRef<Comp>>("getRef"_hs)
+        .template func<&detail::patchComponentSignal<Comp>>("patchSignal"_hs);
 
     if constexpr (IsArgsConstructible<Comp>)
-    {
         meta_factory.template func<&detail::emplaceComponent<Comp>>("emplace"_hs);
-    }
-
-    if constexpr (HasRegisteredData<Comp>)
-    {
-        Comp::registerData(meta_factory);
-    }
 
     if constexpr (HasAnyHook<Comp>)
     {
