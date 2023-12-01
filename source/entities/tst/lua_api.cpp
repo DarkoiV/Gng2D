@@ -136,7 +136,7 @@ TEST_F(LuaApiTest, component__newindexCanSetComponentDataInsideLuaScript)
     auto stack = luna.getStack();
 
     stack.pushGlobal("changeTransform");
-    stack.callFunctionFS({Luna::Integer(e), 91.f, -22.f});
+    stack.callFunctionFS({Luna::Integer(e), 91u, -22.f});
     ASSERT_EQ(transform.x, 91.f);
     ASSERT_EQ(transform.y, -22.f);
 

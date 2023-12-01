@@ -17,9 +17,10 @@ static int component__index(Luna::Stack stack, Luna::TypeVector args)
     GNG2D_ASSERT(args.at(0).isUserdata(), ARGS_ERROR);
     GNG2D_ASSERT(args.at(1).isString(), ARGS_ERROR);
 
-    entt::meta_any component = args.at(0).asUserdata().toMetaAny();
-    auto           var       = component.get(args.at(1).asStringHash());
-    if (not var) [[unlikely]]
+    entt::meta_any component   = args.at(0).asUserdata().toMetaAny();
+    auto           datumHash   = args.at(1).asStringHash();
+    auto           datumHandle = component.get(datumHash);
+    if (not datumHandle) [[unlikely]]
     {
         LOG::ERROR("Failed to get", args.at(0).asString(), "from component",
                    component.type().info().name());
@@ -27,7 +28,7 @@ static int component__index(Luna::Stack stack, Luna::TypeVector args)
     }
 
     auto field = component.type()
-                     .data(args.at(1).asStringHash())
+                     .data(datumHash)
                      .prop(Gng2D::ComponentFieldProperties::FIELD_TYPE)
                      .value()
                      .cast<Gng2D::ComponentFieldType>();
@@ -36,18 +37,18 @@ static int component__index(Luna::Stack stack, Luna::TypeVector args)
     {
     case Gng2D::INTEGER:
     case Gng2D::STRING_HASH:
-        if (not var.allow_cast<Luna::Integer>()) break;
-        stack.pushInt(var.cast<Luna::Integer>());
+        if (not datumHandle.allow_cast<Luna::Integer>()) break;
+        stack.pushInt(datumHandle.cast<Luna::Integer>());
         return 1;
     case Gng2D::FLOAT:
-        if (not var.allow_cast<Luna::Float>()) break;
-        stack.pushFloat(var.cast<Luna::Float>());
+        if (not datumHandle.allow_cast<Luna::Float>()) break;
+        stack.pushFloat(datumHandle.cast<Luna::Float>());
         return 1;
     case Gng2D::STRING:
-        if (not var.allow_cast<Luna::String>()) break;
-        stack.pushString(var.cast<Luna::String>());
+        if (not datumHandle.allow_cast<Luna::String>()) break;
+        stack.pushString(datumHandle.cast<Luna::String>());
         return 1;
-    case Gng2D::UNDEF:
+    [[unlikely]] case Gng2D::UNDEF:
         break;
     }
 
@@ -67,41 +68,66 @@ static int component__newindex(Luna::Stack stack, Luna::TypeVector args)
     GNG2D_ASSERT(args.at(1).isString(), ARGS_ERROR);
 
     auto component = args.at(0).asUserdata().toMetaAny();
-    auto compDatum = args.at(1).asStringHash();
+    auto datumHash = args.at(1).asStringHash();
 
-    auto datum = component.type().data(compDatum);
-    if (datum.type().is_arithmetic())
+    auto datumType = component.type().data(datumHash);
+    auto field     = component.type()
+                     .data(datumHash)
+                     .prop(Gng2D::ComponentFieldProperties::FIELD_TYPE)
+                     .value()
+                     .cast<Gng2D::ComponentFieldType>();
+    switch (field)
     {
-        if (args.at(2).isInteger())
+    case Gng2D::STRING_HASH:
+        if (args.at(2).isString())
         {
-            if (datum.set(component, args.at(2).asInteger()))
+            if (datumType.set(component, args.at(2).asStringHash())) [[unlikely]]
+            {
                 LOG::ERROR("Failed to set", args.at(1).asString(), "in",
                            component.type().info().name(), "with integer");
+            }
+            return 0;
         }
-        else if (args.at(2).isFloat())
+        goto INTEGER_CASE_LABEL;
+    case Gng2D::FLOAT:
+        if (args.at(2).isFloat())
         {
-            if (datum.set(component, args.at(2).asFloat()))
+            if (datumType.set(component, args.at(2).asFloat())) [[unlikely]]
+            {
                 LOG::ERROR("Failed to set", args.at(1).asString(), "in",
                            component.type().info().name(), "with float");
+            }
+            return 0;
         }
-        else
+    /* NO BREAK! */
+    case Gng2D::INTEGER:
+    INTEGER_CASE_LABEL:
+        if (args.at(2).isInteger())
         {
-            LOG::ERROR("Cannot set datum", args.at(1).asString(), "of",
-                       component.type().info().name());
+            if (datumType.set(component, args.at(2).asInteger())) [[unlikely]]
+            {
+                LOG::ERROR("Failed to set", args.at(1).asString(), "in",
+                           component.type().info().name(), "with integer");
+            }
+            return 0;
         }
+        break;
+    case Gng2D::STRING:
+        if (args.at(2).isString())
+        {
+            if (not datumType.set(component, args.at(2).asString())) [[unlikely]]
+            {
+                LOG::ERROR("Failed to set", args.at(1).asString(), "in",
+                           component.type().info().name());
+            }
+            return 0;
+        }
+        break;
+    [[unlikely]] case Gng2D::UNDEF:
+        break;
     }
-    else if (datum.type().info() == entt::type_id<std::string>())
-    {
-        if (not datum.set(component, args.at(2).asString()))
-            LOG::ERROR("Failed to set", args.at(1).asString(), "in",
-                       component.type().info().name());
-    }
-    else
-    {
-        LOG::ERROR("Unhandled type at __newindex, for", args.at(1).asString(), "in",
-                   component.type().info().name());
-    }
-
+    LOG::ERROR("Unhandled type at __newindex, for", args.at(1).asString(), "in",
+               component.type().info().name());
     return 0;
 }
 
