@@ -1,6 +1,7 @@
 #include "Gng2D/entities/lua_api.hpp"
 #include "Gng2D/commons/repository.hpp"
 #include "Gng2D/components/info.hpp"
+#include "Gng2D/components/meta/util_funcs.hpp"
 #include "Gng2D/components/transform.hpp"
 #include "gtest/gtest.h"
 

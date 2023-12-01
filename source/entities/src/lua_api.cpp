@@ -1,6 +1,7 @@
 #include "Gng2D/entities/lua_api.hpp"
 #include "Gng2D/commons/args_vector.hpp"
 #include "Gng2D/components/meta/properties.hpp"
+#include "Gng2D/components/meta/util_funcs.hpp"
 
 using Gng2D::EntityLuaApi;
 namespace Luna = Gng2D::Luna;
@@ -20,39 +21,12 @@ static int component__index(Luna::Stack stack, Luna::TypeVector args)
     entt::meta_any component   = args.at(0).asUserdata().toMetaAny();
     auto           datumHash   = args.at(1).asStringHash();
     auto           datumHandle = component.get(datumHash);
-    if (not datumHandle) [[unlikely]]
-    {
-        LOG::ERROR("Failed to get", args.at(0).asString(), "from component",
-                   component.type().info().name());
-        return 0;
-    }
 
-    auto field = component.type()
-                     .data(datumHash)
-                     .prop(Gng2D::ComponentFieldProperties::FIELD_TYPE)
-                     .value()
-                     .cast<Gng2D::ComponentFieldType>();
+    auto res = Gng2D::tryPushDatumOnStack(stack, component, datumHash);
+    if (res.isSuccess()) return 1;
 
-    switch (field)
-    {
-    case Gng2D::INTEGER:
-    case Gng2D::STRING_HASH:
-        if (not datumHandle.allow_cast<Luna::Integer>()) break;
-        stack.pushInt(datumHandle.cast<Luna::Integer>());
-        return 1;
-    case Gng2D::FLOAT:
-        if (not datumHandle.allow_cast<Luna::Float>()) break;
-        stack.pushFloat(datumHandle.cast<Luna::Float>());
-        return 1;
-    case Gng2D::STRING:
-        if (not datumHandle.allow_cast<Luna::String>()) break;
-        stack.pushString(datumHandle.cast<Luna::String>());
-        return 1;
-    [[unlikely]] case Gng2D::UNDEF:
-        break;
-    }
-
-    LOG::ERROR("Failed to convert component datum to lua type in __index call");
+    LOG::ERROR("Failed __index call of", component.type().info().name(), "\n  -- ", res.asErr(),
+               "for datum:", args.at(1).asString());
     return 0;
 }
 
@@ -70,64 +44,12 @@ static int component__newindex(Luna::Stack stack, Luna::TypeVector args)
     auto component = args.at(0).asUserdata().toMetaAny();
     auto datumHash = args.at(1).asStringHash();
 
-    auto datumType = component.type().data(datumHash);
-    auto field     = component.type()
-                     .data(datumHash)
-                     .prop(Gng2D::ComponentFieldProperties::FIELD_TYPE)
-                     .value()
-                     .cast<Gng2D::ComponentFieldType>();
-    switch (field)
-    {
-    case Gng2D::STRING_HASH:
-        if (args.at(2).isString())
-        {
-            if (datumType.set(component, args.at(2).asStringHash())) [[unlikely]]
-            {
-                LOG::ERROR("Failed to set", args.at(1).asString(), "in",
-                           component.type().info().name(), "with integer");
-            }
-            return 0;
-        }
-        goto INTEGER_CASE_LABEL;
-    case Gng2D::FLOAT:
-        if (args.at(2).isFloat())
-        {
-            if (datumType.set(component, args.at(2).asFloat())) [[unlikely]]
-            {
-                LOG::ERROR("Failed to set", args.at(1).asString(), "in",
-                           component.type().info().name(), "with float");
-            }
-            return 0;
-        }
-    /* NO BREAK! */
-    case Gng2D::INTEGER:
-    INTEGER_CASE_LABEL:
-        if (args.at(2).isInteger())
-        {
-            if (datumType.set(component, args.at(2).asInteger())) [[unlikely]]
-            {
-                LOG::ERROR("Failed to set", args.at(1).asString(), "in",
-                           component.type().info().name(), "with integer");
-            }
-            return 0;
-        }
-        break;
-    case Gng2D::STRING:
-        if (args.at(2).isString())
-        {
-            if (not datumType.set(component, args.at(2).asString())) [[unlikely]]
-            {
-                LOG::ERROR("Failed to set", args.at(1).asString(), "in",
-                           component.type().info().name());
-            }
-            return 0;
-        }
-        break;
-    [[unlikely]] case Gng2D::UNDEF:
-        break;
-    }
-    LOG::ERROR("Unhandled type at __newindex, for", args.at(1).asString(), "in",
-               component.type().info().name());
+    auto res = Gng2D::trySetDatumFromLunaType(args.at(2), component, datumHash);
+    if (res.isSuccess()) return 0;
+
+    LOG::ERROR("Failed __newindex call of", component.type().info().name(), "\n  --", res.asErr(),
+               "for datum:", args.at(1).asString());
+
     return 0;
 }
 
