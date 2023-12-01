@@ -1,4 +1,5 @@
 #pragma once
+#include "Gng2D/commons/args_vector.hpp"
 #include "Gng2D/commons/assert.hpp"
 #include "Gng2D/commons/log.hpp"
 #include "repository.hpp"
@@ -9,12 +10,9 @@ template <Component Comp>
 void emplaceComponent(entt::registry* r, entt::entity e, ArgsVector* av)
 {
     using namespace entt::literals;
-    const auto& metaInfo = *(Comp::metaInfo());
-    LOG::TRACE("Emplacing", metaInfo.name);
-
     auto componentOpt = Comp::fromArgs(*av, r->ctx());
     if (componentOpt) r->emplace<Comp>(e, std::move(*componentOpt));
-    else [[unlikely]] LOG::ERROR("Failed to initialzie component,", metaInfo.name);
+    else [[unlikely]] LOG::ERROR("Failed to initialzie component,", Comp::NAME);
 }
 
 template <Component Comp>
@@ -35,46 +33,17 @@ template <Component Comp>
 void Repository::registerComponent()
 {
     using namespace entt::literals;
-    auto& metaInfo = *(Comp::metaInfo());
-    auto& name     = metaInfo.name;
+    auto meta_factory = entt::meta<Comp>().type(Comp::ID).prop("name"_hs, Comp::NAME);
 
-    auto&& context =
-        metaInfo.isDetail ? detailComponentCtx : entt::locator<entt::meta_ctx>::value_or();
+    if constexpr (requires { Comp::IS_DETAIL; }) meta_factory.prop("isDetail"_hs);
 
-    // Ensure no hash collision, or repeated registration
-    auto id = entt::hashed_string::value(name.c_str());
-    if (auto it = componentNames.find(id); it != componentNames.end())
-    {
-        if (it->second == name) LOG::FATAL("Component", name, "already registered");
-        else LOG::FATAL("Component hash collision", name, "has the same hash as", it->second);
-    }
-    else
-    {
-        LOG::INFO("Registering component:", name, "with id:", id);
-        componentNames[id] = name;
-    }
+    if constexpr (HasRegisteredData<Comp>) Comp::registerData(meta_factory);
 
-    auto meta_factory = entt::meta<Comp>(context)
-                            .type(id)
-                            .prop("metaInfo"_hs, Comp::metaInfo())
-                            .template func<&detail::getComponentRef<Comp>>("getRef"_hs)
-                            .template func<&detail::patchComponentSignal<Comp>>("patchSignal"_hs);
+    meta_factory.template func<&detail::getComponentRef<Comp>>("getRef"_hs)
+        .template func<&detail::patchComponentSignal<Comp>>("patchSignal"_hs);
 
     if constexpr (IsArgsConstructible<Comp>)
-    {
-        GNG2D_ASSERT(metaInfo.args,
-                     "Component has fromArgs ctor,"
-                     " yet does not define metaInfo for arguments");
         meta_factory.template func<&detail::emplaceComponent<Comp>>("emplace"_hs);
-    }
-
-    if constexpr (HasRegisteredData<Comp>)
-    {
-        GNG2D_ASSERT(metaInfo.data,
-                     "Component has register data,"
-                     " yet does not define metaInfo for it");
-        meta_factory = Comp::registerData(meta_factory);
-    }
 
     if constexpr (HasAnyHook<Comp>)
     {

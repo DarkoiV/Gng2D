@@ -6,19 +6,6 @@
 #include <entt/entt.hpp>
 
 using Gng2D::Sprite;
-using Arg = Gng2D::ComponentArg;
-using entt::type_id;
-
-const static Gng2D::ComponentArgs SPRITE_ARGS{
-    Arg{.name          = "sprite",
-        .description   = "Name or numeric hash of loaded sprite to display",
-        .acceptedTypes = {type_id<Gng2D::StringHash>(), type_id<std::string>()},
-        .required      = true}
-};
-
-const static Gng2D::ComponentMetaInfo SPRITE_META{.id   = entt::hashed_string::value("Sprite"),
-                                                  .name = "Sprite",
-                                                  .args = SPRITE_ARGS};
 
 std::optional<Sprite> Sprite::fromArgs(const Gng2D::ArgsVector& args, entt::registry::context&)
 {
@@ -51,9 +38,4 @@ std::optional<Sprite> Sprite::fromArgs(const Gng2D::ArgsVector& args, entt::regi
 
     if (not sprite.texture) return std::nullopt;
     else return sprite;
-}
-
-const Gng2D::ComponentMetaInfo* Sprite::metaInfo()
-{
-    return &SPRITE_META;
 }

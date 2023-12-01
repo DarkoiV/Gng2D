@@ -1,11 +1,13 @@
 #pragma once
-#include "Gng2D/components/meta/component_meta_info.hpp"
+#include "Gng2D/components/meta/properties_macro.hpp"
 #include <entt/entt.hpp>
 #include <vector>
 
 namespace Gng2D {
 struct Parent
 {
+    component_property_name(Parent);
+
     Parent(entt::entity p)
         : id_(p)
     {
@@ -16,14 +18,14 @@ struct Parent
     static void onCreate(entt::registry&, entt::entity);
     static void onDelete(entt::registry&, entt::entity);
 
-    static const ComponentMetaInfo* metaInfo();
-
   private:
     entt::entity id_;
 };
 
 struct Children
 {
+    component_property_name(Children);
+
     using value_type = entt::entity;
 
     auto begin() const { return list.begin(); }
@@ -34,8 +36,6 @@ struct Children
     auto size() const { return list.size(); }
 
     static void onDelete(entt::registry&, entt::entity);
-
-    static const ComponentMetaInfo* metaInfo();
 
   private:
     friend Parent;

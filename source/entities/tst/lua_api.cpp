@@ -1,6 +1,7 @@
 #include "Gng2D/entities/lua_api.hpp"
 #include "Gng2D/commons/repository.hpp"
 #include "Gng2D/components/info.hpp"
+#include "Gng2D/components/meta/util_funcs.hpp"
 #include "Gng2D/components/transform.hpp"
 #include "gtest/gtest.h"
 
@@ -136,7 +137,7 @@ TEST_F(LuaApiTest, component__newindexCanSetComponentDataInsideLuaScript)
     auto stack = luna.getStack();
 
     stack.pushGlobal("changeTransform");
-    stack.callFunctionFS({Luna::Integer(e), 91.f, -22.f});
+    stack.callFunctionFS({Luna::Integer(e), 91u, -22.f});
     ASSERT_EQ(transform.x, 91.f);
     ASSERT_EQ(transform.y, -22.f);
 

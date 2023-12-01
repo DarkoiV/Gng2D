@@ -1,5 +1,7 @@
 #include "Gng2D/entities/lua_api.hpp"
 #include "Gng2D/commons/args_vector.hpp"
+#include "Gng2D/components/meta/properties.hpp"
+#include "Gng2D/components/meta/util_funcs.hpp"
 
 using Gng2D::EntityLuaApi;
 namespace Luna = Gng2D::Luna;
@@ -16,32 +18,15 @@ static int component__index(Luna::Stack stack, Luna::TypeVector args)
     GNG2D_ASSERT(args.at(0).isUserdata(), ARGS_ERROR);
     GNG2D_ASSERT(args.at(1).isString(), ARGS_ERROR);
 
-    entt::meta_any component = args.at(0).asUserdata().toMetaAny();
-    auto           var       = component.get(args.at(1).asStringHash());
-    if (not var) [[unlikely]]
-    {
-        LOG::ERROR("Failed to get", args.at(0).asString(), "from component",
-                   component.type().info().name());
-        return 0;
-    }
+    entt::meta_any component   = args.at(0).asUserdata().toMetaAny();
+    auto           datumHash   = args.at(1).asStringHash();
+    auto           datumHandle = component.get(datumHash);
 
-    if (var.type().is_integral())
-    {
-        stack.pushInt(var.cast<Luna::Integer>());
-        return 1;
-    }
-    else if (var.type().is_arithmetic() and var.allow_cast<Luna::Float>())
-    {
-        stack.pushFloat(var.cast<Luna::Float>());
-        return 1;
-    }
-    else if (var.allow_cast<Luna::String>())
-    {
-        stack.pushString(var.cast<Luna::String>());
-        return 1;
-    }
+    auto res = Gng2D::tryPushDatumOnStack(stack, component, datumHash);
+    if (res.isSuccess()) return 1;
 
-    LOG::ERROR("Failed to convert component datum to lua type");
+    LOG::ERROR("Failed __index call of", component.type().info().name(), "\n  -- ", res.asErr(),
+               "for datum:", args.at(1).asString());
     return 0;
 }
 
@@ -57,40 +42,13 @@ static int component__newindex(Luna::Stack stack, Luna::TypeVector args)
     GNG2D_ASSERT(args.at(1).isString(), ARGS_ERROR);
 
     auto component = args.at(0).asUserdata().toMetaAny();
-    auto compDatum = args.at(1).asStringHash();
+    auto datumHash = args.at(1).asStringHash();
 
-    auto datum = component.type().data(compDatum);
-    if (datum.type().is_arithmetic())
-    {
-        if (args.at(2).isInteger())
-        {
-            if (datum.set(component, args.at(2).asInteger()))
-                LOG::ERROR("Failed to set", args.at(1).asString(), "in",
-                           component.type().info().name(), "with integer");
-        }
-        else if (args.at(2).isFloat())
-        {
-            if (datum.set(component, args.at(2).asFloat()))
-                LOG::ERROR("Failed to set", args.at(1).asString(), "in",
-                           component.type().info().name(), "with float");
-        }
-        else
-        {
-            LOG::ERROR("Cannot set datum", args.at(1).asString(), "of",
-                       component.type().info().name());
-        }
-    }
-    else if (datum.type().info() == entt::type_id<std::string>())
-    {
-        if (not datum.set(component, args.at(2).asString()))
-            LOG::ERROR("Failed to set", args.at(1).asString(), "in",
-                       component.type().info().name());
-    }
-    else
-    {
-        LOG::ERROR("Unhandled type at __newindex, for", args.at(1).asString(), "in",
-                   component.type().info().name());
-    }
+    auto res = Gng2D::trySetDatumFromLunaType(args.at(2), component, datumHash);
+    if (res.isSuccess()) return 0;
+
+    LOG::ERROR("Failed __newindex call of", component.type().info().name(), "\n  --", res.asErr(),
+               "for datum:", args.at(1).asString());
 
     return 0;
 }

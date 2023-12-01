@@ -2,8 +2,8 @@
 #include "Gng2D/commons/imgui.hpp"
 #include "Gng2D/commons/log.hpp"
 #include "Gng2D/components/info.hpp"
-#include "Gng2D/components/meta/component_meta_info.hpp"
 #include "Gng2D/components/meta/properties.hpp"
+#include "Gng2D/components/meta/util_funcs.hpp"
 #include "Gng2D/components/sprite.hpp"
 #include "Gng2D/core/global.hpp"
 #include <SDL2/SDL.h>
@@ -75,8 +75,6 @@ void ImguiOverlay::entityList()
 static void displayComponent(entt::registry& reg, entt::entity e, entt::meta_type type)
 {
     using namespace entt::literals;
-    const auto* metaInfo = Gng2D::getMetaInfo(type);
-    ImGui::Text("%s", metaInfo->name.c_str());
 
     auto getRef      = type.func("getRef"_hs);
     auto patchSignal = type.func("patchSignal"_hs);
@@ -84,10 +82,13 @@ static void displayComponent(entt::registry& reg, entt::entity e, entt::meta_typ
     GNG2D_ASSERT(patchSignal);
 
     entt::meta_any componentHandle{getRef.invoke({}, &reg, e)};
-    GNG2D_ASSERT(componentHandle.type().id() == metaInfo->id);
+    GNG2D_ASSERT(componentHandle);
+    auto compName = type.prop("name"_hs).value();
+    GNG2D_ASSERT(compName);
+    ImGui::Text(" -- %s -- ", compName.cast<const char* const>());
 
     /* SPRITE IS SPECIAL CASE */
-    if (metaInfo->id == "Sprite"_hs)
+    if (type.id() == "Sprite"_hs)
     {
         const auto& sprite = componentHandle.cast<Gng2D::Sprite>();
 
@@ -102,14 +103,12 @@ static void displayComponent(entt::registry& reg, entt::entity e, entt::meta_typ
         return;
     }
 
-    /* Display components data */
-    if (not metaInfo->data) return;
-    auto data = *(metaInfo->data);
-    for (auto& datum: data)
+    for (auto&& [id, datum]: type.data())
     {
         auto displayField = [&]<typename FieldType>(std::function<bool(FieldType*)> input)
         {
-            auto datumHandle = componentHandle.get(datum.id);
+            auto datumHandle = componentHandle.get(id);
+            GNG2D_ASSERT(datumHandle);
             if (not datumHandle.allow_cast<FieldType>()) [[unlikely]]
             {
                 ImGui::Text("INVALID INPUT TYPE");
@@ -119,34 +118,30 @@ static void displayComponent(entt::registry& reg, entt::entity e, entt::meta_typ
             FieldType oldValue = value;
             input(&value);
 
-            if (auto minProp = type.data(datum.id).prop("min"_hs))
-            {
-                if (auto min = minProp.value().try_cast<FieldType>())
-                    value = *min > value ? *min : value;
-            }
-            if (auto maxProp = type.data(datum.id).prop("max"_hs))
-            {
-                if (auto max = maxProp.value().try_cast<FieldType>())
-                    value = *max < value ? *max : value;
-            }
-
-            type.data(datum.id).set(componentHandle, value);
+            Gng2D::ensureDatumBounds(datum, value);
+            datum.set(componentHandle, value);
             if (value != oldValue) patchSignal.invoke({}, &reg, e);
         };
 
-        switch (datum.type)
+        auto field = datum.prop(Gng2D::ComponentFieldProperties::FIELD_TYPE)
+                         .value()
+                         .cast<Gng2D::ComponentFieldType>();
+        auto  fieldName = datum.prop(Gng2D::ComponentFieldProperties::FIELD_NAME);
+        auto* shownName = fieldName ? fieldName.value().cast<const char* const>() : "???";
+
+        switch (field)
         {
-        case Gng2D::FIELD_TYPE::FLOAT:
+        case Gng2D::FLOAT:
             displayField.operator()<float>([&](float* value) -> bool
-            { return ImGui::InputFloat(datum.name.c_str(), value, 0.0f, 0.0f, "%.1f"); });
+            { return ImGui::InputFloat(shownName, value, 0.0f, 0.0f, "%.1f"); });
             break;
-        case Gng2D::FIELD_TYPE::INTEGER:
+        case Gng2D::INTEGER:
             displayField.operator()<int>([&](int* value) -> bool
-            { return ImGui::InputInt(datum.name.c_str(), value); });
+            { return ImGui::InputInt(shownName, value); });
             break;
-        case Gng2D::FIELD_TYPE::STRING:
+        case Gng2D::STRING:
             displayField.operator()<std::string>([&](std::string* value) -> bool
-            { return ImGui::InputText(datum.name.c_str(), value); });
+            { return ImGui::InputText(shownName, value); });
             break;
         default:
             ImGui::Text("UNHANDLED INPUT");
@@ -174,6 +169,7 @@ void ImguiOverlay::editedEntities()
         {
             auto* storage = reg.storage(id);
             if (not storage or not storage->contains(e)) continue;
+            if (type.prop("isDetail"_hs)) continue;
 
             std::string childWindowId = "Comp" + std::to_string(id);
             if (ImGui::BeginChild(childWindowId.c_str(), ImVec2(0, 0),
