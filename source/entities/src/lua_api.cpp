@@ -1,57 +1,13 @@
 #include "Gng2D/entities/lua_api.hpp"
 #include "Gng2D/commons/args_vector.hpp"
+#include "Gng2D/components/meta/component_userdata.hpp"
 #include "Gng2D/components/meta/properties.hpp"
 #include "Gng2D/components/meta/util_funcs.hpp"
 
 using Gng2D::EntityLuaApi;
-namespace Luna = Gng2D::Luna;
-using LOG      = Gng2D::LOG;
+using LOG = Gng2D::LOG;
 using namespace entt::literals;
-
-static int component__index(Luna::Stack stack, Luna::TypeVector args)
-{
-    constexpr auto ARGS_ERROR =
-        "component __index requires 2 arguments, "
-        "first should be component handle, "
-        "second should be component variable";
-    GNG2D_ASSERT(args.size() == 2, ARGS_ERROR);
-    GNG2D_ASSERT(args.at(0).isUserdata(), ARGS_ERROR);
-    GNG2D_ASSERT(args.at(1).isString(), ARGS_ERROR);
-
-    entt::meta_any component   = args.at(0).asUserdata().toMetaAny();
-    auto           datumHash   = args.at(1).asStringHash();
-    auto           datumHandle = component.get(datumHash);
-
-    auto res = Gng2D::tryPushDatumOnStack(stack, component, datumHash);
-    if (res.isSuccess()) return 1;
-
-    LOG::ERROR("Failed __index call of", component.type().info().name(), "\n  -- ", res.asErr(),
-               "for datum:", args.at(1).asString());
-    return 0;
-}
-
-static int component__newindex(Luna::Stack stack, Luna::TypeVector args)
-{
-    constexpr auto ARGS_ERROR =
-        "component __index requires 3 arguments, "
-        "first should be component handle, "
-        "second should be component variable, "
-        "third should be new value of this variable";
-    GNG2D_ASSERT(args.size() == 3, ARGS_ERROR);
-    GNG2D_ASSERT(args.at(0).isUserdata(), ARGS_ERROR);
-    GNG2D_ASSERT(args.at(1).isString(), ARGS_ERROR);
-
-    auto component = args.at(0).asUserdata().toMetaAny();
-    auto datumHash = args.at(1).asStringHash();
-
-    auto res = Gng2D::trySetDatumFromLunaType(args.at(2), component, datumHash);
-    if (res.isSuccess()) return 0;
-
-    LOG::ERROR("Failed __newindex call of", component.type().info().name(), "\n  --", res.asErr(),
-               "for datum:", args.at(1).asString());
-
-    return 0;
-}
+using CompUserdata = Gng2D::ComponentUserdata;
 
 EntityLuaApi::EntityLuaApi(entt::registry& r, Luna::State& ls)
     : SystemInterface(r)
@@ -59,10 +15,12 @@ EntityLuaApi::EntityLuaApi(entt::registry& r, Luna::State& ls)
     , apiTable(lunaState.createTableRef())
 {
     apiTable.createSubTable("componentMeta");
-    auto componentMetaTable = apiTable.get("componentMeta").asTable();
+    auto compMetaTable = apiTable.get("componentMeta").asTable();
 
-    lunaState.registerFunction<component__index>("__index", componentMetaTable);
-    lunaState.registerFunction<component__newindex>("__newindex", componentMetaTable);
+    constexpr auto comp_idx  = &EntityLuaApi::component__index;
+    constexpr auto comp_nidx = &EntityLuaApi::component__newindex;
+    lunaState.registerMethod<comp_idx>(*this, "__index", compMetaTable);
+    lunaState.registerMethod<comp_nidx>(*this, "__newindex", compMetaTable);
 
     // REGISTER COMPONENTS
     lunaState.registerMethod<&EntityLuaApi::getComponent>(*this, "getComponent");
@@ -115,8 +73,58 @@ int EntityLuaApi::getComponent(Luna::Stack stack, Luna::TypeVector args)
     auto getRef = componentType.func("getRef"_hs);
     GNG2D_ASSERT(getRef);
 
-    auto component = stack.newUserdata<entt::meta_any>(getRef.invoke({}, &reg, eid));
+    auto component = stack.newUserdata<ComponentUserdata>(eid, getRef.invoke({}, &reg, eid));
     component.setMetaTable(apiTable.get("componentMeta").asTable());
 
     return 1;
+}
+
+int EntityLuaApi::component__index(Luna::Stack stack, Luna::TypeVector args)
+{
+    constexpr auto ARGS_ERROR =
+        "component __index requires 2 arguments, "
+        "first should be component handle, "
+        "second should be component variable";
+    GNG2D_ASSERT(args.size() == 2, ARGS_ERROR);
+    GNG2D_ASSERT(args.at(0).isUserdata(), ARGS_ERROR);
+    GNG2D_ASSERT(args.at(1).isString(), ARGS_ERROR);
+
+    entt::meta_any component   = args.at(0).asUserdata().get<CompUserdata>().ref();
+    auto           datumHash   = args.at(1).asStringHash();
+    auto           datumHandle = component.get(datumHash);
+
+    auto res = Gng2D::tryPushDatumOnStack(stack, component, datumHash);
+    if (res.isSuccess()) return 1;
+
+    LOG::ERROR("Failed __index call of", component.type().info().name(), "\n  -- ", res.asErr(),
+               "for datum:", args.at(1).asString());
+    return 0;
+}
+
+int EntityLuaApi::component__newindex(Luna::Stack stack, Luna::TypeVector args)
+{
+    constexpr auto ARGS_ERROR =
+        "component __index requires 3 arguments, "
+        "first should be component handle, "
+        "second should be component variable, "
+        "third should be new value of this variable";
+    GNG2D_ASSERT(args.size() == 3, ARGS_ERROR);
+    GNG2D_ASSERT(args.at(0).isUserdata(), ARGS_ERROR);
+    GNG2D_ASSERT(args.at(1).isString(), ARGS_ERROR);
+
+    auto component = args.at(0).asUserdata().get<CompUserdata>().ref();
+    auto datumHash = args.at(1).asStringHash();
+
+    auto res = Gng2D::trySetDatumFromLunaType(args.at(2), component, datumHash);
+    if (res.isSuccess())
+    {
+        entt::entity e = args.at(0).asUserdata().get<CompUserdata>().owner;
+        component.invoke("patchSignal"_hs, &reg, e);
+        return 0;
+    }
+
+    LOG::ERROR("Failed __newindex call of", component.type().info().name(), "\n  --", res.asErr(),
+               "for datum:", args.at(1).asString());
+
+    return 0;
 }

@@ -1,33 +1,8 @@
 #pragma once
-#include "Gng2D/commons/args_vector.hpp"
-#include "Gng2D/commons/assert.hpp"
-#include "Gng2D/commons/log.hpp"
+#include "Gng2D/components/meta/api_calls.hpp"
 #include "repository.hpp"
 
 namespace Gng2D {
-namespace detail {
-template <Component Comp>
-void emplaceComponent(entt::registry* r, entt::entity e, ArgsVector* av)
-{
-    using namespace entt::literals;
-    auto componentOpt = Comp::fromArgs(*av, r->ctx());
-    if (componentOpt) r->emplace<Comp>(e, std::move(*componentOpt));
-    else [[unlikely]] LOG::ERROR("Failed to initialzie component,", Comp::NAME);
-}
-
-template <Component Comp>
-entt::meta_any getComponentRef(entt::registry* r, entt::entity e)
-{
-    return entt::forward_as_meta(r->get<Comp>(e));
-}
-
-template <Component Comp>
-void patchComponentSignal(entt::registry* r, entt::entity e)
-{
-    r->patch<Comp>(e);
-}
-
-} // namespace detail
 
 template <Component Comp>
 void Repository::registerComponent()
@@ -39,11 +14,11 @@ void Repository::registerComponent()
 
     if constexpr (HasRegisteredData<Comp>) Comp::registerData(meta_factory);
 
-    meta_factory.template func<&detail::getComponentRef<Comp>>("getRef"_hs)
-        .template func<&detail::patchComponentSignal<Comp>>("patchSignal"_hs);
+    meta_factory.template func<&getComponentRef<Comp>>("getRef"_hs)
+        .template func<&patchComponentSignal<Comp>>("patchSignal"_hs);
 
     if constexpr (IsArgsConstructible<Comp>)
-        meta_factory.template func<&detail::emplaceComponent<Comp>>("emplace"_hs);
+        meta_factory.template func<&emplaceComponent<Comp>>("emplace"_hs);
 
     if constexpr (HasAnyHook<Comp>)
     {

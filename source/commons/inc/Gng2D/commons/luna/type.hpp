@@ -145,10 +145,15 @@ struct UserdataRef
     UserdataRef& operator=(const UserdataRef&);
     UserdataRef& operator=(UserdataRef&&);
 
-    void*          get() { return value; }
-    entt::meta_any toMetaAny() { return ((entt::meta_any*)value)->as_ref(); }
-    void           setMetaTable(const TableRef&);
-    TableRef       getMetaTable();
+    void*    get() { return value; }
+    void     setMetaTable(const TableRef&);
+    TableRef getMetaTable();
+
+    template <typename T>
+    T& get()
+    {
+        return *(T*)value;
+    }
 
     friend bool operator==(const UserdataRef& lhs, const UserdataRef& rhs)
     {
@@ -189,7 +194,7 @@ struct Type : TypesVariant
     const auto&    asInteger() const { return std::get<Integer>(*this); }
     const auto&    asFloat() const { return std::get<Float>(*this); }
     const auto&    asString() const { return std::get<String>(*this); }
-    const auto     asStringHash() const { return entt::hashed_string::value(asString().c_str()); }
+    auto           asStringHash() const { return entt::hashed_string::value(asString().c_str()); }
     const auto&    asBool() const { return std::get<Bool>(*this); }
     const auto&    asTable() const { return std::get<TableRef>(*this); }
     const auto&    asFunction() const { return std::get<FunctionRef>(*this); }

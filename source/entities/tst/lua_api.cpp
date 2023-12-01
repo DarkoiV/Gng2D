@@ -1,7 +1,7 @@
 #include "Gng2D/entities/lua_api.hpp"
 #include "Gng2D/commons/repository.hpp"
 #include "Gng2D/components/info.hpp"
-#include "Gng2D/components/meta/util_funcs.hpp"
+#include "Gng2D/components/meta/component_userdata.hpp"
 #include "Gng2D/components/transform.hpp"
 #include "gtest/gtest.h"
 
@@ -16,6 +16,8 @@ struct LuaApiTest : ::testing::Test
         Gng2D::Repository::registerComponent<Gng2D::Info>();
     }
     static void TearDownTestSuite() { Gng2D::Repository::freeResources(); }
+
+    LuaApiTest() { Gng2D::Repository::attachComponentHooks(&reg); }
 
     Luna::State    luna;
     entt::registry reg;
@@ -40,7 +42,7 @@ TEST_F(LuaApiTest, getComponent_canAccessReferenceToComponentThroughMetaAny)
     stack.callFunctionFS({Luna::Integer(e)});
     ASSERT_TRUE(stack.read(-1).isUserdata());
 
-    entt::meta_any transform = stack.read(-1).asUserdata().toMetaAny();
+    entt::meta_any transform = stack.read(-1).asUserdata().get<Gng2D::ComponentUserdata>().ref();
     auto&          res       = transform.cast<Gng2D::Transform2d&>();
     ASSERT_EQ(res.x, reg.get<Gng2D::Transform2d>(e).x);
     ASSERT_EQ(res.y, reg.get<Gng2D::Transform2d>(e).y);
@@ -144,4 +146,26 @@ TEST_F(LuaApiTest, component__newindexCanSetComponentDataInsideLuaScript)
     stack.pushGlobal("changeName");
     stack.callFunctionFS({Luna::Integer(e), "namev2"});
     ASSERT_EQ(info.name, "namev2");
+}
+
+TEST_F(LuaApiTest, component__newindexSendsPatchSignal)
+{
+    auto e = reg.create();
+    reg.emplace<Gng2D::Transform2d>(e, 100.f, 77.f);
+    auto& pos = reg.get<Gng2D::detail::Position>(e);
+    ASSERT_EQ(pos.x, 100.f);
+    ASSERT_EQ(pos.y, 77.f);
+
+    luna.doString(
+        "function changeTransform(self, x, y) \n"
+        "  local transform = getComponent(self, 'Transform2d') \n"
+        "  transform.x = x \n"
+        "  transform.y = y \n"
+        "end");
+
+    auto stack = luna.getStack();
+    stack.pushGlobal("changeTransform");
+    stack.callFunctionFS({Luna::Integer(e), 91u, -22.f});
+    ASSERT_EQ(pos.x, 91.f);
+    ASSERT_EQ(pos.y, -22.f);
 }
