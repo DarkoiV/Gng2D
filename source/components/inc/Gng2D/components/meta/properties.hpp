@@ -48,5 +48,10 @@ constexpr bool HasOnDeleteHook =
     requires(entt::registry& reg, entt::entity e) { C::onDelete(reg, e); };
 
 template <Component C>
-constexpr bool HasAnyHook = HasOnCreateHook<C> or HasOnUpdateHook<C> or HasOnDeleteHook<C>;
+constexpr bool HasOnSpawnHook =
+    requires(entt::registry& reg, entt::entity e) { C::onSpawn(reg, e); };
+
+template <Component C>
+constexpr bool HasAnyHook =
+    HasOnCreateHook<C> or HasOnUpdateHook<C> or HasOnDeleteHook<C> or HasOnSpawnHook<C>;
 } // namespace Gng2D

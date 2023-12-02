@@ -1,5 +1,6 @@
 #pragma once
 #include "Gng2D/components/meta/api_calls.hpp"
+#include "Gng2D/components/meta/signals.hpp"
 #include "repository.hpp"
 
 namespace Gng2D {
@@ -30,6 +31,8 @@ void Repository::registerComponent()
                 r->on_update<Comp>().template connect<&Comp::onUpdate>();
             if constexpr (HasOnDeleteHook<Comp>)
                 r->on_destroy<Comp>().template connect<&Comp::onDelete>();
+            if constexpr (HasOnSpawnHook<Comp>)
+                r->ctx().get<CompSig>(CompSigHook::ON_SPAWN).connect<&Comp::onSpawn>();
         };
         cachedHooks.emplace_back(attach);
     }

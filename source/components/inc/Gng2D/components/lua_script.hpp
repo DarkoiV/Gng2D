@@ -13,6 +13,8 @@ struct LuaScript
     std::string    scriptName;
     Luna::TableRef entityEnv;
 
+    static void onSpawn(entt::registry&, entt::entity);
+
     static std::optional<LuaScript> fromArgs(const ArgsVector&, entt::registry::context&);
 
     using MetaFactory = entt::meta_factory<LuaScript>;

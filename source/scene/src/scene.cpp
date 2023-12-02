@@ -18,6 +18,7 @@ Scene::Scene(const std::string& n, const std::filesystem::path& dir)
     , sceneDir(dir)
 {
     EMPLACE_IMGUI_SYSEM;
+    insertSignalsIntoCtx();
     Repository::attachComponentHooks(&reg);
 
     GNG2D_ASSERT(std::filesystem::is_directory(sceneDir));
@@ -87,6 +88,11 @@ const std::string& Scene::getName() const
     return name;
 }
 
+void Scene::insertSignalsIntoCtx()
+{
+    reg.ctx().emplace_as<CompSig>(CompSigHook::ON_SPAWN, onSpawnSignal);
+}
+
 int Scene::lunaSpawnEntity(Luna::Stack stack, Luna::TypeVector args)
 {
     GNG2D_ASSERT(args.size() == 1 or args.size() == 2,
@@ -133,6 +139,7 @@ int Scene::lunaSpawnEntity(Luna::Stack stack, Luna::TypeVector args)
         }
     }
 
+    onSpawnSignal.publish(reg, e);
     return 0;
 }
 

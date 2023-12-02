@@ -7,6 +7,16 @@
 using Gng2D::LuaScript;
 using namespace entt::literals;
 
+void LuaScript::onSpawn(entt::registry& reg, entt::entity e)
+{
+    auto& env = reg.get<LuaScript>(e).entityEnv;
+    if (auto onSpawn = env.get("OnSpawn"); onSpawn.isFunction())
+    {
+        auto stack = reg.ctx().get<Luna::State>().getStack();
+        stack.callFunction(onSpawn.asFunction());
+    }
+}
+
 std::optional<LuaScript> LuaScript::fromArgs(const ArgsVector& args, entt::registry::context& ctx)
 {
     std::string scriptName;

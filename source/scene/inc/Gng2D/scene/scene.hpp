@@ -46,6 +46,11 @@ struct Scene : SceneInterface
     std::unordered_map<std::string, EntityRecipe> entityRecipes;
 
   private:
+    entt::sigh<void(entt::registry&, entt::entity)> onSpawnSignal;
+
+    void insertSignalsIntoCtx();
+
+  private:
     Luna::TableRef                   lunaSceneEnv;
     std::optional<Luna::FunctionRef> lunaOnEnter;
     std::optional<Luna::FunctionRef> lunaOnUpdate;
