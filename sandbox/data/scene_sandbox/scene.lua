@@ -3,10 +3,6 @@ local function createRedX()
     components.Sprite = {
         ['sprite'] = "red_x"
     }
-    components.Transform2d = {
-        ['x'] = 10.0,
-        ['y'] = 11.22
-    }
     components.TransformLayer = {
         ['main'] = 0,
         ['sub']  = -1
@@ -18,13 +14,13 @@ local function createRedX()
         ['script'] = "entities/redx"
     }
 
-    newEntityRecipe("RedX", components)
+    NewEntityRecipe("RedX", components)
 end
 
 function OnEnter()
     createRedX()
-    spawnEntity("RedX")
-    spawnEntity("RedX")
+    SpawnEntity("RedX", { ['Transform2d'] = { ['x'] = 100 } })
+    SpawnEntity("RedX", { ['Transform2d'] = { ['x'] = -100 } })
 end
 
 function OnUpdate()

@@ -36,8 +36,8 @@ Scene::Scene(const std::string& n, const std::filesystem::path& dir)
     if (OnUpdateRef.isFunction()) lunaOnUpdate = OnUpdateRef.asFunction();
     else if (not OnUpdateRef.isNil()) LOG::WARN("OnUpdate should be a lua function!");
 
-    luna.registerMethod<&Scene::lunaSpawnEntity>(*this, "spawnEntity", lunaSceneEnv);
-    luna.registerMethod<&Scene::lunaNewEntityRecipe>(*this, "newEntityRecipe", lunaSceneEnv);
+    luna.registerMethod<&Scene::lunaSpawnEntity>(*this, "SpawnEntity", lunaSceneEnv);
+    luna.registerMethod<&Scene::lunaNewEntityRecipe>(*this, "NewEntityRecipe", lunaSceneEnv);
 }
 
 Scene::~Scene()
@@ -89,13 +89,49 @@ const std::string& Scene::getName() const
 
 int Scene::lunaSpawnEntity(Luna::Stack stack, Luna::TypeVector args)
 {
-    GNG2D_ASSERT(args.size() == 1);
+    GNG2D_ASSERT(args.size() == 1 or args.size() == 2,
+                 "spawnEntity requires 1 argument with optional 2nd, "
+                 "first is name of entity, "
+                 "second can be components table");
     GNG2D_ASSERT(args.at(0).isString());
     auto& entityName = args.at(0).asString();
 
     auto recipeIt = entityRecipes.find(entityName);
-    if (recipeIt == entityRecipes.end()) return 0;
-    recipeIt->second.spawn();
+    if (recipeIt == entityRecipes.end())
+    {
+        LOG::ERROR("Did not find entity recipe:", entityName);
+        return 0;
+    }
+    auto e = recipeIt->second.spawn();
+
+    if (args.size() == 2 and args.at(1).isTable())
+    {
+        auto& componentsTable = args.at(1).asTable();
+        for (const auto&& [compName, compArgs]: componentsTable)
+        {
+            if (not compArgs.isTable())
+            {
+                LOG::ERROR("in lunaSpawnEntity, value of componentArgs has to be table");
+                continue;
+            }
+            StringHash hash = compName.asStringHash();
+            auto       type = entt::resolve(hash);
+            if (not type)
+            {
+                LOG::ERROR("Faile to resolve:", compName.asString());
+                continue;
+            }
+            LOG::TRACE("Resolved to component:", type.info().name(), hash);
+            auto       emplace = type.func("emplace"_hash);
+            ArgsVector av      = compArgs.asTable();
+            if (not emplace or not emplace.invoke({}, &reg, e, &av))
+            {
+                LOG::ERROR("Failed to resolve or call emplace function");
+                continue;
+            }
+            LOG::TRACE("Component added");
+        }
+    }
 
     return 0;
 }
@@ -103,7 +139,9 @@ int Scene::lunaSpawnEntity(Luna::Stack stack, Luna::TypeVector args)
 int Scene::lunaNewEntityRecipe(Luna::Stack stack, Luna::TypeVector args)
 {
     GNG2D_ASSERT(args.size() == 2 and args.at(0).isString() and args.at(1).isTable(),
-                 "newEntityRecipe requires 2 args 1 of type string, and components table");
+                 "newEntityRecipe requires 2 args, "
+                 "first is name of entity, "
+                 "second is components table");
     auto& entityName      = args.at(0).asString();
     auto& componentsTable = args.at(1).asTable();
     LOG::INFO("Registering entity from lua:", args.at(0).asString());
@@ -111,9 +149,9 @@ int Scene::lunaNewEntityRecipe(Luna::Stack stack, Luna::TypeVector args)
     EntityRecipe recipe(&reg);
     for (auto&& [compName, compArgs]: componentsTable)
     {
-        if (not compName.isInteger() and not compName.isString())
+        if (not compName.isString())
         {
-            LOG::ERROR("in lunaNewEntityRecipe, key of table has to be string or hash");
+            LOG::ERROR("in lunaNewEntityRecipe, component name has to be string");
             continue;
         }
         if (not compArgs.isTable())
@@ -121,15 +159,11 @@ int Scene::lunaNewEntityRecipe(Luna::Stack stack, Luna::TypeVector args)
             LOG::ERROR("in lunaNewEntityRecipe, value of componentArgs has to be table");
             continue;
         }
-        StringHash hash = compName.isInteger()
-                            ? compName.asInteger()
-                            : entt::hashed_string::value(compName.asString().c_str());
-
-        auto type = entt::resolve(hash);
+        StringHash hash = compName.asStringHash();
+        auto       type = entt::resolve(hash);
         if (not type)
         {
-            LOG::ERROR("Faile to resolve:",
-                       compName.isString() ? compName.asString() : std::to_string(hash));
+            LOG::ERROR("Faile to resolve:", compName.asString());
             continue;
         }
         LOG::TRACE("Resolved to component:", type.info().name(), hash);

@@ -1,6 +1,14 @@
 HDirection = 'left'
 VDirection = 'up'
 
+function OnCreate()
+    local transform = Self:getComponent('Transform2d')
+    if transform.x < 0 then
+        HDirection = 'right'
+    else
+        HDirection = 'left'
+    end
+end
 
 function OnUpdate()
     local transform = Self:getComponent('Transform2d')
