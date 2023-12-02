@@ -7,11 +7,6 @@
 using Gng2D::LuaScript;
 using namespace entt::literals;
 
-void LuaScript::OnCreate(entt::registry& reg, entt::entity e)
-{
-    auto& state = reg.ctx().get<Luna::State&>();
-}
-
 std::optional<LuaScript> LuaScript::fromArgs(const ArgsVector& args, entt::registry::context& ctx)
 {
     std::string scriptName;

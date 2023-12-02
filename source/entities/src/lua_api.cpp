@@ -25,16 +25,16 @@ EntityLuaApi::EntityLuaApi(entt::registry& r, Luna::State& ls)
 
     reg.ctx().emplace<EntityLuaApi&>(*this);
 
-    reg.on_construct<LuaScript>().connect<&EntityLuaApi::addImplicitEntitySelf>(*this);
-    reg.on_update<LuaScript>().connect<&EntityLuaApi::addImplicitEntitySelf>(*this);
+    reg.on_construct<LuaScript>().connect<&EntityLuaApi::setupEntityEnvInLuaScript>(*this);
+    reg.on_update<LuaScript>().connect<&EntityLuaApi::setupEntityEnvInLuaScript>(*this);
 }
 
 EntityLuaApi::~EntityLuaApi()
 {
     reg.ctx().erase<EntityLuaApi&>();
 
-    reg.on_construct<LuaScript>().disconnect<&EntityLuaApi::addImplicitEntitySelf>(*this);
-    reg.on_update<LuaScript>().disconnect<&EntityLuaApi::addImplicitEntitySelf>(*this);
+    reg.on_construct<LuaScript>().disconnect<&EntityLuaApi::setupEntityEnvInLuaScript>(*this);
+    reg.on_update<LuaScript>().disconnect<&EntityLuaApi::setupEntityEnvInLuaScript>(*this);
 }
 
 void EntityLuaApi::onUpdate()
@@ -48,7 +48,7 @@ void EntityLuaApi::onUpdate()
     }
 }
 
-void EntityLuaApi::addImplicitEntitySelf(entt::registry& r, entt::entity e)
+void EntityLuaApi::setupEntityEnvInLuaScript(entt::registry& r, entt::entity e)
 {
     auto& env = r.get<LuaScript>(e).entityEnv;
     env.set("Self", env);

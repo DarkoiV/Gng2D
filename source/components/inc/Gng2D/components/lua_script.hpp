@@ -15,8 +15,6 @@ struct LuaScript
 
     static std::optional<LuaScript> fromArgs(const ArgsVector&, entt::registry::context&);
 
-    static void OnCreate(entt::registry&, entt::entity);
-
     using MetaFactory = entt::meta_factory<LuaScript>;
     static void registerData(MetaFactory);
 };
