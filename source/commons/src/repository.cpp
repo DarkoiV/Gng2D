@@ -95,8 +95,8 @@ void Repository::indexScripts()
 {
     namespace fs   = std::filesystem;
     namespace sv   = std::views;
-    auto scriptDir = GLOBAL::DATA_DIRECTORY / "scripts";
-    LOG::INFO("indexingScripts from:", scriptDir);
+    auto scriptDir = GLOBAL::DATA_DIRECTORY / "scripts/";
+    LOG::INFO("Indexing scripts from:", scriptDir);
     GNG2D_ASSERT(fs::is_directory(scriptDir));
 
     auto rdi         = fs::recursive_directory_iterator(scriptDir);
@@ -104,14 +104,14 @@ void Repository::indexScripts()
     for (auto script: rdi | sv::filter(isLuaScript))
     {
         auto scriptName = script.path().lexically_relative(scriptDir).string();
-        scriptName      = scriptName.substr(0, scriptName.find_last_of("."));
+        scriptName      = scriptName.substr(0, scriptName.find_last_of('.'));
 
         LOG::INFO("Found script:", scriptName);
         scripts.emplace(scriptName, script.path());
     }
 }
 
-std::optional<std::filesystem::path> Repository::getScript(const std::string& name)
+std::optional<std::filesystem::path> Repository::getScriptPath(const std::string& name)
 {
     if (auto it = scripts.find(name); it != scripts.end())
     {
@@ -122,6 +122,44 @@ std::optional<std::filesystem::path> Repository::getScript(const std::string& na
     return std::nullopt;
 }
 
+void Repository::indexScenes()
+{
+    namespace fs = std::filesystem;
+    namespace sv = std::views;
+    LOG::INFO("Indexing scene folders from:", GLOBAL::DATA_DIRECTORY);
+    auto rdi             = fs::recursive_directory_iterator(GLOBAL::DATA_DIRECTORY);
+    auto hasScene_Prefix = [](const fs::directory_entry& e)
+    { return e.path().filename().string().starts_with("scene_"); };
+
+    for (auto&& sceneDir: rdi | sv::filter(hasScene_Prefix))
+    {
+        auto sceneName = sceneDir.path().lexically_relative(GLOBAL::DATA_DIRECTORY).string();
+        sceneName      = sceneName.substr(sceneName.find_first_of('_') + 1);
+
+        LOG::INFO("Found scene:", sceneName);
+        LOG::INFO(" ---", sceneDir.path(), "--- ");
+        scenes.emplace(sceneName, sceneDir.path());
+    }
+}
+
+std::optional<std::filesystem::path> Repository::getScenePath(const std::string& name)
+{
+    if (auto it = scenes.find(name); it != scripts.end())
+    {
+        return it->second;
+    }
+
+    LOG::ERROR("Scene", name, "not found");
+    return std::nullopt;
+}
+
+void Repository::loadDefaultResources()
+{
+    registerDefaultComponents();
+    indexScripts();
+    indexScenes();
+}
+
 void Repository::freeResources()
 {
     LOG::INFO("Deleting global assets");
@@ -129,10 +167,15 @@ void Repository::freeResources()
     {
         SDL_DestroyTexture(sprite.texture);
     }
+
     sprites.clear();
     spriteNames.clear();
+
     componentNames.clear();
     cachedHooks.clear();
+
+    scripts.clear();
+    scenes.clear();
+
     entt::meta_reset();
-    entt::meta_reset(detailComponentCtx);
 }

@@ -116,11 +116,12 @@ static void displayComponent(entt::registry& reg, entt::entity e, entt::meta_typ
             }
             FieldType value    = datumHandle.cast<FieldType>();
             FieldType oldValue = value;
-            input(&value);
-
-            Gng2D::ensureDatumBounds(datum, value);
-            datum.set(componentHandle, value);
-            if (value != oldValue) patchSignal.invoke({}, &reg, e);
+            if (input(&value))
+            {
+                Gng2D::ensureDatumBounds(datum, value);
+                datum.set(componentHandle, value);
+                if (value != oldValue) patchSignal.invoke({}, &reg, e);
+            }
         };
 
         auto field = datum.prop(Gng2D::ComponentFieldProperties::FIELD_TYPE)

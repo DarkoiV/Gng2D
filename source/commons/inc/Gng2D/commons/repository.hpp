@@ -22,9 +22,15 @@ struct Repository
     static const std::string& componentNameFromHash(const StringHash);
     static void               attachComponentHooks(entt::registry*);
 
-    static void                                 indexScripts();
-    static std::optional<std::filesystem::path> getScript(const std::string&);
+    using Path = std::filesystem::path;
 
+    static void                indexScripts();
+    static std::optional<Path> getScriptPath(const std::string&);
+
+    static void                indexScenes();
+    static std::optional<Path> getScenePath(const std::string&);
+
+    static void loadDefaultResources();
     static void freeResources();
 
   private:
@@ -38,8 +44,7 @@ struct Repository
     inline static std::vector<HookCache>            cachedHooks;
 
     inline static std::map<std::string, std::filesystem::path> scripts;
-
-    inline static entt::meta_ctx detailComponentCtx;
+    inline static std::map<std::string, std::filesystem::path> scenes;
 };
 } // namespace Gng2D
 #include "repository.ipp"

@@ -24,7 +24,7 @@ std::optional<LuaScript> LuaScript::fromArgs(const ArgsVector& args, entt::regis
         }
     }
 
-    if (auto pathOpt = Repository::getScript(scriptName))
+    if (auto pathOpt = Repository::getScriptPath(scriptName))
     {
         auto& luna      = ctx.get<Luna::State&>();
         auto  entityEnv = luna.createTableRef();

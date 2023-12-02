@@ -61,7 +61,7 @@ target_link_libraries(imgui
     SDL2)
 
 ### Gng2D #####################################################################
-add_library(Gng2D)
+add_executable(Gng2D)
 target_link_libraries(Gng2D
     SDL2
     SDL2_image
@@ -70,10 +70,14 @@ target_link_libraries(Gng2D
 set_property(TARGET Gng2D PROPERTY CXX_STANDARD 20)
 set_property(TARGET Gng2D PROPERTY ENABLE_EXPORTS TRUE)
 add_compile_options(-Wall -Wextra -Wpedantic)
+add_custom_target(run 
+    COMMAND Gng2D)
 
 ### SANDBOX ###################################################################
-if(NOT DEFINED GAME_NAME)
-    add_subdirectory(sandbox)
+if(NOT DEFINED Gng2D_GAME_NAME)
+    message(STATUS "Building in sandbox mode")
+    set_property(TARGET Gng2D PROPERTY OUTPUT_NAME "sandbox")
+    set_property(TARGET Gng2D PROPERTY RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/sandbox")
     set(ENABLE_IMGUI True)
 endif()
 

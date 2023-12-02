@@ -4,13 +4,16 @@
 #include "Gng2D/commons/repository.hpp"
 #include "Gng2D/core/global.hpp"
 #include "Gng2D/core/main_loop.hpp"
+#include "Gng2D/scene/scene.hpp"
 #include <SDL2/SDL_image.h>
 #include <filesystem>
 
 using Gng2D::LOG;
+using namespace Gng2D;
 using namespace Gng2D::GLOBAL;
-namespace Luna = Gng2D::Luna;
-namespace fs   = std::filesystem;
+namespace fs = std::filesystem;
+
+static std::string FIRST_SCENE;
 
 static Luna::TableRef loadConfigToTable(const fs::path& path)
 {
@@ -50,6 +53,9 @@ static void loadAppSettings()
         cfgTable.get("RENDER_HEIGHT").tryAssignTo(RENDER_HEIGHT);
         cfgTable.get("RENDER_SCALE").tryAssignTo(RENDER_SCALE);
         cfgTable.get("LOGIC_TICK").tryAssignTo(LOGIC_TICK);
+
+        if (not cfgTable.get("FIRST_SCENE").tryAssignTo(FIRST_SCENE))
+            LOG::FATAL("First scene has to be set in config!");
     }
     else
     {
@@ -116,14 +122,22 @@ static void closeImGui()
 #endif
 }
 
+static void setFirstScene()
+{
+    if (auto fsp = Repository::getScenePath(FIRST_SCENE))
+    {
+        GLOBAL::NEXT_SCENE = std::make_unique<Scene>(FIRST_SCENE, *fsp);
+    }
+}
+
 void Gng2D::initApp()
 {
     LOG::INFO("App init");
     loadAppSettings();
     createSdlWindow();
+    Repository::loadDefaultResources();
     initImGui();
-    Repository::registerDefaultComponents();
-    Repository::indexScripts();
+    setFirstScene();
 }
 
 void Gng2D::runApp()

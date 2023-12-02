@@ -2,7 +2,6 @@
 #include "Gng2D/commons/imgui.hpp"
 #include "Gng2D/commons/log.hpp"
 #include "Gng2D/commons/repository.hpp"
-#include "Gng2D/core/global.hpp"
 
 #ifdef GNG2D_IMGUI_ENABLED
 #include "Gng2D/scene/debug/imgui_overlay.hpp"
@@ -13,10 +12,10 @@
 
 using Gng2D::Scene;
 
-Scene::Scene(const std::string& n)
+Scene::Scene(const std::string& n, const std::filesystem::path& dir)
     : lunaSceneEnv(luna.createTableRef())
     , name(n)
-    , sceneDir(GLOBAL::DATA_DIRECTORY / ("scene_" + name))
+    , sceneDir(dir)
 {
     EMPLACE_IMGUI_SYSEM;
     Repository::attachComponentHooks(&reg);

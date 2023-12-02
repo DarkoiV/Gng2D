@@ -12,7 +12,7 @@
 namespace Gng2D {
 struct Scene : SceneInterface
 {
-    Scene(const std::string&);
+    Scene(const std::string&, const std::filesystem::path&);
     Scene(const Scene&) = delete;
     Scene(Scene&&)      = delete;
     virtual ~Scene();
@@ -32,8 +32,8 @@ struct Scene : SceneInterface
     virtual const std::string& getName() const override;
 
   protected:
-    const std::string           name;
     entt::registry              reg;
+    const std::string           name;
     const std::filesystem::path sceneDir;
 
     Luna::State  luna;
