@@ -30,17 +30,17 @@ function OnUpdate()
         transform.y = transform.y - 0.5
     end
 
-    if transform.x < -308 then
+    if transform.x < -314 then
         HDirection = 'right'
     end
-    if transform.x > 308 then
+    if transform.x > 314 then
         HDirection = 'left'
     end
 
-    if transform.y > 188 then
+    if transform.y > 194 then
         VDirection = 'down'
     end
-    if transform.y < -188 then
+    if transform.y < -194 then
         VDirection = 'up'
     end
 end

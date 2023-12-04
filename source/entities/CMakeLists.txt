@@ -1,7 +1,7 @@
 target_include_directories(Gng2D PUBLIC
     inc/)
 target_sources(Gng2D PRIVATE
-    src/entity_recipe.cpp
+    src/recipe.cpp
     src/lua_api.cpp)
 
 # TESTS

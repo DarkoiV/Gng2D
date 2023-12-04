@@ -1,4 +1,4 @@
-#include "Gng2D/entities/entity_recipe.hpp"
+#include "Gng2D/entities/recipe.hpp"
 #include "Gng2D/commons/assert.hpp"
 
 using Gng2D::EntityRecipe;

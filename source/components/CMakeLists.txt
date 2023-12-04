@@ -1,6 +1,7 @@
 target_include_directories(Gng2D PUBLIC
     inc/)
 target_sources(Gng2D PRIVATE
+    src/collider.cpp
     src/info.cpp
     src/lua_script.cpp
     src/relationship.cpp

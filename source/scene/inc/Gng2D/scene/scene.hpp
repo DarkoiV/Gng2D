@@ -2,8 +2,9 @@
 #include "Gng2D/commons/luna/state.hpp"
 #include "Gng2D/commons/scene_interface.hpp"
 #include "Gng2D/commons/system_interface.hpp"
-#include "Gng2D/entities/entity_recipe.hpp"
 #include "Gng2D/entities/lua_api.hpp"
+#include "Gng2D/entities/recipe.hpp"
+#include "Gng2D/scene/collision_system.hpp"
 #include "Gng2D/scene/entity_renderer.hpp"
 #include "Gng2D/scene/input_handler.hpp"
 #include <entt/entt.hpp>
@@ -36,9 +37,10 @@ struct Scene : SceneInterface
     const std::string           name;
     const std::filesystem::path sceneDir;
 
-    Luna::State  luna;
-    InputHandler inputHandler{reg};
-    EntityLuaApi entityLuaApi{reg, luna};
+    Luna::State     luna;
+    InputHandler    inputHandler{reg};
+    CollisionSystem collisionSystem{reg};
+    EntityLuaApi    entityLuaApi{reg, luna};
 
     EntityRenderer entityRenderer{reg};
 
