@@ -24,6 +24,7 @@ struct EntityLuaApi : SystemInterface
 
     int addComponent(Luna::Stack, Luna::TypeVector);
     int getComponent(Luna::Stack, Luna::TypeVector);
+    int hasComponent(Luna::Stack, Luna::TypeVector);
 
     int component__newindex(Luna::Stack, Luna::TypeVector);
     int component__index(Luna::Stack, Luna::TypeVector);

@@ -16,7 +16,8 @@ void Repository::registerComponent()
     if constexpr (HasRegisteredData<Comp>) Comp::registerData(meta_factory);
 
     meta_factory.template func<&getComponentRef<Comp>>("getRef"_hs)
-        .template func<&patchComponentSignal<Comp>>("patchSignal"_hs);
+        .template func<&patchComponentSignal<Comp>>("patchSignal"_hs)
+        .template func<&hasComponent<Comp>>("hasComponent"_hs);
 
     if constexpr (IsArgsConstructible<Comp>)
         meta_factory.template func<&emplaceComponent<Comp>>("emplace"_hs);

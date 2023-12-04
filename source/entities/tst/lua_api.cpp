@@ -4,6 +4,7 @@
 #include "Gng2D/components/lua_script.hpp"
 #include "Gng2D/components/meta/component_userdata.hpp"
 #include "Gng2D/components/transform.hpp"
+#include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
 namespace Luna = Gng2D::Luna;
@@ -24,6 +25,7 @@ struct LuaApiTest : ::testing::Test
 
     LuaApiTest()
     {
+        reg.ctx().emplace_as<Gng2D::CompSig>(Gng2D::CompSigHook::ON_SPAWN, onSpawnSignal);
         Gng2D::Repository::attachComponentHooks(&reg);
         reg.emplace<Gng2D::LuaScript>(e, "custom", entityEnv);
     }
@@ -33,6 +35,8 @@ struct LuaApiTest : ::testing::Test
     EntityLuaApi          sut{reg, luna};
     entt::entity          e         = reg.create();
     Gng2D::Luna::TableRef entityEnv = luna.createTableRef();
+
+    entt::sigh<void(entt::registry&, entt::entity)> onSpawnSignal;
 };
 
 TEST_F(LuaApiTest, EntityLuaApi_DuringLuaScriptCosntruction_attachesImplicitSelf)
@@ -97,6 +101,27 @@ TEST_F(LuaApiTest, addComponent_canAddRegisteredComponentToEntity)
 
     ASSERT_TRUE(reg.all_of<Gng2D::Info>(e));
     ASSERT_EQ(reg.get<Gng2D::Info>(e).name, "coolEntity");
+}
+
+TEST_F(LuaApiTest, hasComponentCanCheckWhetherEntityHasGivenComponentAssigned)
+{
+    luna.doString(
+        "function hasTransform() \n"
+        "  return Self:hasComponent('Transform2d') \n"
+        "end",
+        entityEnv);
+    auto stack        = luna.getStack();
+    auto hasTransform = entityEnv.get("hasTransform");
+
+    stack.callFunction(hasTransform.asFunction(), {Luna::Integer(e)});
+    ASSERT_TRUE(stack.read(-1).isBool());
+    ASSERT_FALSE(stack.read(-1).asBool());
+    stack.pop(1);
+
+    reg.emplace<Gng2D::Transform2d>(e);
+    stack.callFunction(hasTransform.asFunction(), {Luna::Integer(e)});
+    ASSERT_TRUE(stack.read(-1).isBool());
+    ASSERT_TRUE(stack.read(-1).asBool());
 }
 
 TEST_F(LuaApiTest, component__indexCanAccessComponentDataInsideLuaScript)

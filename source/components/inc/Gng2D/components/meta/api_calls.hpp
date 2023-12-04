@@ -21,6 +21,12 @@ entt::meta_any getComponentRef(entt::registry* r, entt::entity e)
 }
 
 template <Component Comp>
+bool hasComponent(entt::registry* r, entt::entity e)
+{
+    return r->all_of<Comp>(e);
+}
+
+template <Component Comp>
 void patchComponentSignal(entt::registry* r, entt::entity e)
 {
     r->patch<Comp>(e);

@@ -56,12 +56,13 @@ void EntityLuaApi::setupEntityEnvInLuaScript(entt::registry& r, entt::entity e)
 
     lunaState.registerMethod<&EntityLuaApi::getComponent>(*this, "getComponent", env);
     lunaState.registerMethod<&EntityLuaApi::addComponent>(*this, "addComponent", env);
+    lunaState.registerMethod<&EntityLuaApi::hasComponent>(*this, "hasComponent", env);
 }
 
 int EntityLuaApi::addComponent(Luna::Stack, Luna::TypeVector args)
 {
     constexpr auto ARGS_ERROR =
-        "add components requires 3 arguments, "
+        "add component requires 3 arguments, "
         "first should be entity table, "
         "second should be component name, "
         "third should be table with args";
@@ -89,7 +90,7 @@ int EntityLuaApi::addComponent(Luna::Stack, Luna::TypeVector args)
 int EntityLuaApi::getComponent(Luna::Stack stack, Luna::TypeVector args)
 {
     constexpr auto ARGS_ERROR =
-        "get components requires 2 arguments, "
+        "get component requires 2 arguments, "
         "first should be entity table, "
         "second should be component name";
     GNG2D_ASSERT(args.size() == 2, ARGS_ERROR);
@@ -108,6 +109,32 @@ int EntityLuaApi::getComponent(Luna::Stack stack, Luna::TypeVector args)
 
     auto component = stack.newUserdata<ComponentUserdata>(eid, getRef.invoke({}, &reg, eid));
     component.setMetaTable(apiTable.get("componentMeta").asTable());
+
+    return 1;
+}
+
+int EntityLuaApi::hasComponent(Luna::Stack stack, Luna::TypeVector args)
+{
+    constexpr auto ARGS_ERROR =
+        "has component requires 2 arguments, "
+        "first should be entity table, "
+        "second should be component name";
+    GNG2D_ASSERT(args.size() == 2, ARGS_ERROR);
+    GNG2D_ASSERT(args.at(0).isTable(), ARGS_ERROR);
+    GNG2D_ASSERT(args.at(1).isString(), ARGS_ERROR);
+
+    auto& enttable = args.at(0).asTable();
+    auto  eid      = (entt::entity)enttable.get("entity"_hash).asInteger();
+    GNG2D_ASSERT(reg.valid(eid), "Invalid entity in getComponent call");
+    auto compHash      = args.at(1).asStringHash();
+    auto componentType = entt::resolve(compHash);
+    GNG2D_ASSERT(componentType);
+
+    auto hasComponent = componentType.func("hasComponent"_hs);
+    GNG2D_ASSERT(hasComponent);
+
+    bool res = hasComponent.invoke({}, &reg, eid).cast<bool>();
+    stack.pushBool(res);
 
     return 1;
 }

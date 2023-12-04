@@ -21,6 +21,7 @@ function OnEnter()
     createRedX()
     SpawnEntity("RedX", { ['Transform2d'] = { ['x'] = 100 } })
     SpawnEntity("RedX", { ['Transform2d'] = { ['x'] = -100 } })
+    SpawnEntity("RedX")
 end
 
 function OnUpdate()
