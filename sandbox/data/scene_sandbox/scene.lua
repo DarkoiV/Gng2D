@@ -28,6 +28,15 @@ function OnEnter()
     SpawnEntity("RedX")
 end
 
-function OnUpdate()
+local function mov(entity)
+    if entity:hasComponent('Transform2d') then
+        local transform = entity:getComponent('Transform2d')
+        if transform.x > 0 then
+            transform.x = transform.x - 0.25
+        end
+    end
+end
 
+function OnUpdate()
+    ViewEach(mov)
 end

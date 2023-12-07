@@ -48,15 +48,20 @@ void EntityLuaApi::onUpdate()
     }
 }
 
-void EntityLuaApi::setupEntityEnvInLuaScript(entt::registry& r, entt::entity e)
+void EntityLuaApi::setEntityTable(entt::entity e, Luna::TableRef& env)
 {
-    auto& env = r.get<LuaScript>(e).entityEnv;
     env.set("Self", env);
     env.set("entity"_hash, (Luna::Integer)e);
 
     lunaState.registerMethod<&EntityLuaApi::getComponent>(*this, "getComponent", env);
     lunaState.registerMethod<&EntityLuaApi::addComponent>(*this, "addComponent", env);
     lunaState.registerMethod<&EntityLuaApi::hasComponent>(*this, "hasComponent", env);
+}
+
+void EntityLuaApi::setupEntityEnvInLuaScript(entt::registry& r, entt::entity e)
+{
+    auto& env = r.get<LuaScript>(e).entityEnv;
+    setEntityTable(e, env);
 }
 
 int EntityLuaApi::addComponent(Luna::Stack, Luna::TypeVector args)

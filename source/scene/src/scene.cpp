@@ -2,6 +2,7 @@
 #include "Gng2D/commons/imgui.hpp"
 #include "Gng2D/commons/log.hpp"
 #include "Gng2D/commons/repository.hpp"
+#include "Gng2D/components/lua_script.hpp"
 
 #ifdef GNG2D_IMGUI_ENABLED
 #include "Gng2D/scene/debug/imgui_overlay.hpp"
@@ -39,6 +40,7 @@ Scene::Scene(const std::string& n, const std::filesystem::path& dir)
 
     luna.registerMethod<&Scene::lunaSpawnEntity>(*this, "SpawnEntity", lunaSceneEnv);
     luna.registerMethod<&Scene::lunaNewEntityRecipe>(*this, "NewEntityRecipe", lunaSceneEnv);
+    luna.registerMethod<&Scene::lunaViewEach>(*this, "ViewEach", lunaSceneEnv);
 }
 
 Scene::~Scene()
@@ -180,5 +182,29 @@ int Scene::lunaNewEntityRecipe(Luna::Stack stack, Luna::TypeVector args)
     }
     entityRecipes.insert_or_assign(entityName, std::move(recipe));
     LOG::OK("Created recipe for Entity:", entityName);
+    return 0;
+}
+
+int Scene::lunaViewEach(Luna::Stack stack, Luna::TypeVector args)
+{
+    constexpr auto ARGS_ERROR =
+        "ViewEach requries at least one argument, "
+        "zero or more component names, "
+        "and last one being callback to call on each entity + component pack";
+    GNG2D_ASSERT(args.size() > 0, ARGS_ERROR);
+    GNG2D_ASSERT(args.at(args.size() - 1).isFunction(), ARGS_ERROR);
+    auto&              callback = args.at(args.size() - 1).asFunction();
+    entt::runtime_view view{};
+    if (args.size() == 1) view.iterate(reg.storage<entt::entity>());
+
+    for (auto e: view)
+    {
+        stack.subscope();
+        stack.newTable();
+        auto entityEnv = stack.read(-1).asTable();
+        entityLuaApi.setEntityTable(e, entityEnv);
+        stack.callFunction(callback, {entityEnv});
+    }
+
     return 0;
 }
