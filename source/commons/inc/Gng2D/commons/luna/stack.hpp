@@ -2,6 +2,7 @@
 #include "Gng2D/commons/luna/type.hpp"
 
 namespace Gng2D::Luna {
+struct StackLock;
 struct Stack
 {
     Stack(lua_State* L)
@@ -41,6 +42,8 @@ struct Stack
 
     int callFunction(const FunctionRef&, TypeVector args = {});
     int callFunctionFS(TypeVector args = {});
+
+    StackLock subscope();
 
     template <typename T, typename... Args>
     UserdataRef newUserdata(Args&&... args)

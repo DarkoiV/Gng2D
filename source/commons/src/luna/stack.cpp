@@ -233,6 +233,11 @@ int Stack::callFunctionFS(std::vector<Type> args)
     return retNo;
 }
 
+StackLock Stack::subscope()
+{
+    return StackLock(L);
+}
+
 StackLock::StackLock(lua_State* state)
     : L(state)
 {
