@@ -218,17 +218,17 @@ void Stack::pushTableFieldFS(int tableIndx)
 int Stack::callFunction(const FunctionRef& fn, std::vector<Type> args)
 {
     push(fn);
-    return callFunctionFS(std::move(args));
-}
-
-int Stack::callFunctionFS(std::vector<Type> args)
-{
-    int retNo = top();
     for (auto& arg: args)
         push(arg);
-    const auto RES = lua_pcall(L, args.size(), LUA_MULTRET, 0);
+    return callFunctionFS(args.size());
+}
+
+int Stack::callFunctionFS(int argsOnStack)
+{
+    int        retNo = top() - argsOnStack - 1; // -1 for function
+    const auto RES   = lua_pcall(L, argsOnStack, LUA_MULTRET, 0);
     GNG2D_ASSERT(RES == LUA_OK, lua_tostring(L, -1));
-    retNo = top() - retNo + 1; // +1 'cause pcall pops function too
+    retNo = top() - retNo;
 
     return retNo;
 }

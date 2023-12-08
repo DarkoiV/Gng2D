@@ -147,12 +147,34 @@ TEST_F(LunaStackTest, CanCallFunctionWithMultipleArgsAndReturns)
                   "end");
     Stack stack(L);
     stack.pushGlobal("foo");
+    auto             foo           = stack.read(-1).asFunction();
     constexpr int    ARGS_NO       = 3;
     constexpr int    RET_NO        = 2;
     constexpr double ARGS[ARGS_NO] = {1.3, 3.2, 9.0};
-    ASSERT_EQ(stack.callFunctionFS({ARGS[0], ARGS[1], ARGS[2]}), RET_NO);
+    ASSERT_EQ(stack.callFunction(foo, {ARGS[0], ARGS[1], ARGS[2]}), RET_NO);
     ASSERT_EQ(stack.read(-1), ARGS[0] * ARGS[1] * ARGS[2]);
     ASSERT_EQ(stack.read(-2), ARGS[0] + ARGS[1] + ARGS[2]);
+}
+
+TEST_F(LunaStackTest, CanCallFunctionWithArgsAlreadyOnStack)
+{
+    luaL_dostring(L,
+                  "function foo(x, y, z, d) \n"
+                  "  local sum = x + y \n"
+                  "  local sum2 = z + d \n"
+                  "  return sum, sum2 \n"
+                  "end");
+    Stack stack(L);
+    stack.pushGlobal("foo");
+    stack.pushInt(1);
+    stack.pushInt(10);
+    stack.pushFloat(88.12);
+    stack.pushFloat(100.);
+    stack.callFunctionFS(4);
+    ASSERT_TRUE(stack.read(-1).isFloat());
+    ASSERT_TRUE(stack.read(-2).isInteger());
+    ASSERT_EQ(stack.read(-1), 88.12 + 100.);
+    ASSERT_EQ(stack.read(-2), 1 + 10);
 }
 
 TEST_F(LunaStackTest, CanAssignMetaTables)

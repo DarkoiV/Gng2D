@@ -4,7 +4,6 @@
 #include "Gng2D/components/lua_script.hpp"
 #include "Gng2D/components/meta/component_userdata.hpp"
 #include "Gng2D/components/transform.hpp"
-#include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
 namespace Luna = Gng2D::Luna;
@@ -146,15 +145,15 @@ TEST_F(LuaApiTest, component__indexCanAccessComponentDataInsideLuaScript)
 
     auto stack = luna.getStack();
 
-    stack.push(entityEnv.get("readTransform"));
-    stack.callFunctionFS({Luna::Integer(e)});
+    auto readTransform = entityEnv.get("readTransform").asFunction();
+    stack.callFunction(readTransform, {Luna::Integer(e)});
     ASSERT_TRUE(stack.read(-1).isFloat());
     ASSERT_TRUE(stack.read(-2).isFloat());
     ASSERT_EQ(stack.read(-2).asFloat(), TRANSFORM2D_X);
     ASSERT_EQ(stack.read(-1).asFloat(), TRANSFORM2D_Y);
 
-    stack.push(entityEnv.get("readInfo"));
-    stack.callFunctionFS({Luna::Integer(e)});
+    auto readInfo = entityEnv.get("readInfo").asFunction();
+    stack.callFunction(readInfo, {Luna::Integer(e)});
     ASSERT_TRUE(stack.read(-1).isString());
     ASSERT_EQ(stack.read(-1), "eName");
 }
@@ -184,13 +183,13 @@ TEST_F(LuaApiTest, component__newindexCanSetComponentDataInsideLuaScript)
 
     auto stack = luna.getStack();
 
-    stack.push(entityEnv.get("changeTransform"));
-    stack.callFunctionFS({91u, -22.f});
+    auto changeTransform = entityEnv.get("changeTransform").asFunction();
+    stack.callFunction(changeTransform, {91u, -22.f});
     ASSERT_EQ(transform.x, 91.f);
     ASSERT_EQ(transform.y, -22.f);
 
-    stack.push(entityEnv.get("changeName"));
-    stack.callFunctionFS({"namev2"});
+    auto changeName = entityEnv.get("changeName").asFunction();
+    stack.callFunction(changeName, {"namev2"});
     ASSERT_EQ(info.name, "namev2");
 }
 
@@ -209,9 +208,9 @@ TEST_F(LuaApiTest, component__newindexSendsPatchSignal)
         "end",
         entityEnv);
 
-    auto stack = luna.getStack();
-    stack.push(entityEnv.get("changeTransform"));
-    stack.callFunctionFS({91u, -22.f});
+    auto stack           = luna.getStack();
+    auto changeTransform = entityEnv.get("changeTransform").asFunction();
+    stack.callFunction(changeTransform, {91u, -22.f});
     ASSERT_EQ(pos.x, 91.f);
     ASSERT_EQ(pos.y, -22.f);
 }

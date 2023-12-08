@@ -41,7 +41,7 @@ struct Stack
     void pushTableFieldFS(int tableIndx = -2);
 
     int callFunction(const FunctionRef&, TypeVector args = {});
-    int callFunctionFS(TypeVector args = {});
+    int callFunctionFS(int argsOnStack = 0);
 
     StackLock subscope();
 
