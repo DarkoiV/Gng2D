@@ -17,6 +17,7 @@ struct EntityLuaApi : SystemInterface
     void onUpdate() override final;
 
     void setEntityTable(entt::entity, Luna::TableRef&);
+    void pushComponent(Luna::Stack&, entt::entity, entt::meta_type);
 
   private:
     Luna::State&   lunaState;

@@ -188,22 +188,49 @@ int Scene::lunaNewEntityRecipe(Luna::Stack stack, Luna::TypeVector args)
 int Scene::lunaViewEach(Luna::Stack stack, Luna::TypeVector args)
 {
     constexpr auto ARGS_ERROR =
-        "ViewEach requries at least one argument, "
-        "zero or more component names, "
-        "and last one being callback to call on each entity + component pack";
+        "ViewEach requries at least one argument,\n"
+        "first one being callback to call on each entity + component pack\n"
+        "after that, zero or more component names for component pack";
     GNG2D_ASSERT(args.size() > 0, ARGS_ERROR);
-    GNG2D_ASSERT(args.at(args.size() - 1).isFunction(), ARGS_ERROR);
-    auto&              callback = args.at(args.size() - 1).asFunction();
+    GNG2D_ASSERT(args.at(0).isFunction(), ARGS_ERROR);
+    GNG2D_ASSERT(std::all_of(args.begin() + 1, args.end(), [](auto& t) { return t.isString(); }),
+                 ARGS_ERROR);
+
+    std::vector<entt::meta_type> compTypes;
+    compTypes.reserve(args.size() - 1);
+
     entt::runtime_view view{};
     if (args.size() == 1) view.iterate(reg.storage<entt::entity>());
+    else
+    {
+        for (int i = 1; i < args.size(); i++)
+        {
+            auto compType = entt::resolve(args.at(i).asStringHash());
+            GNG2D_ASSERT(compType, "Failed to resolve:", args.at(i).asString());
+            compTypes.push_back(compType);
+            auto* storage = reg.storage(compType.info().hash());
+            GNG2D_ASSERT(storage, "Failed to find storage for", args.at(i).asString());
+            view.iterate(*storage);
+        }
+    }
+
+    auto pushComponents = [&](Luna::Stack& stack, entt::entity e)
+    {
+        for (auto& compType: compTypes)
+        {
+            entityLuaApi.pushComponent(stack, e, compType);
+        }
+    };
 
     for (auto e: view)
     {
         stack.subscope();
+        stack.push(args.at(0));
         stack.newTable();
-        auto entityEnv = stack.read(-1).asTable();
-        entityLuaApi.setEntityTable(e, entityEnv);
-        stack.callFunction(callback, {entityEnv});
+        auto entityTable = stack.read(-1).asTable();
+        entityLuaApi.setEntityTable(e, entityTable);
+        pushComponents(stack, e);
+        stack.callFunctionFS(args.size()); // Comp pack size (which is args - 1) and entity table
     }
 
     return 0;

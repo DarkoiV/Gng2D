@@ -58,6 +58,15 @@ void EntityLuaApi::setEntityTable(entt::entity e, Luna::TableRef& env)
     lunaState.registerMethod<&EntityLuaApi::hasComponent>(*this, "hasComponent", env);
 }
 
+void EntityLuaApi::pushComponent(Luna::Stack& stack, entt::entity e, entt::meta_type type)
+{
+    auto getRef = type.func("getRef"_hs);
+    GNG2D_ASSERT(getRef);
+
+    auto component = stack.newUserdata<ComponentUserdata>(e, getRef.invoke({}, &reg, e));
+    component.setMetaTable(apiTable.get("componentMeta").asTable());
+}
+
 void EntityLuaApi::setupEntityEnvInLuaScript(entt::registry& r, entt::entity e)
 {
     auto& env = r.get<LuaScript>(e).entityEnv;
@@ -108,12 +117,7 @@ int EntityLuaApi::getComponent(Luna::Stack stack, Luna::TypeVector args)
     auto compHash      = args.at(1).asStringHash();
     auto componentType = entt::resolve(compHash);
     GNG2D_ASSERT(componentType);
-
-    auto getRef = componentType.func("getRef"_hs);
-    GNG2D_ASSERT(getRef);
-
-    auto component = stack.newUserdata<ComponentUserdata>(eid, getRef.invoke({}, &reg, eid));
-    component.setMetaTable(apiTable.get("componentMeta").asTable());
+    pushComponent(stack, eid, componentType);
 
     return 1;
 }
