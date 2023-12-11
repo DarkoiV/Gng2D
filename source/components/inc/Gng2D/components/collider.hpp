@@ -16,4 +16,10 @@ struct BoxCollider
     using MetaFactory = entt::meta_factory<BoxCollider>;
     static void registerData(MetaFactory);
 };
+
+struct Collider
+{
+    component_property_name(Collider);
+    enum class Type { BOX } type;
+};
 } // namespace Gng2D

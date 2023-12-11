@@ -1,4 +1,5 @@
 #pragma once
+#include "Gng2D/commons/luna/stack.hpp"
 #include "Gng2D/components/meta/properties_macro.hpp"
 #include <compare>
 #include <cstdint>
@@ -17,6 +18,9 @@ struct Transform2d
     static void onCreate(entt::registry&, entt::entity);
     static void onUpdate(entt::registry&, entt::entity);
     static void onDelete(entt::registry&, entt::entity);
+
+    static int __index(Luna::Stack, Luna::TypeVector);
+    static int __newindex(Luna::Stack, Luna::TypeVector);
 
     static std::optional<Transform2d> fromArgs(const ArgsVector&, entt::registry::context&);
 

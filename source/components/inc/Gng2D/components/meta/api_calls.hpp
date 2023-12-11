@@ -2,6 +2,7 @@
 #include "Gng2D/commons/args_vector.hpp"
 #include "Gng2D/commons/assert.hpp"
 #include "Gng2D/commons/log.hpp"
+#include "Gng2D/commons/luna/state.hpp"
 #include "Gng2D/components/meta/properties.hpp"
 
 namespace Gng2D {
@@ -30,5 +31,14 @@ template <Component Comp>
 void patchComponentSignal(entt::registry* r, entt::entity e)
 {
     r->patch<Comp>(e);
+}
+
+template <Component Comp>
+void createComponentMetaTable(Luna::State* state, Luna::TableRef* tableRef)
+{
+    constexpr auto comp_idx  = &Comp::__index;
+    constexpr auto comp_nidx = &Comp::__newindex;
+    state->registerFunction<comp_idx>("__index", *tableRef);
+    state->registerFunction<comp_nidx>("__newindex", *tableRef);
 }
 } // namespace Gng2D

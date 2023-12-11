@@ -1,9 +1,11 @@
 #include "Gng2D/entities/lua_api.hpp"
 #include "Gng2D/commons/args_vector.hpp"
 #include "Gng2D/components/lua_script.hpp"
+#include "Gng2D/components/meta/api_calls.hpp"
 #include "Gng2D/components/meta/component_userdata.hpp"
 #include "Gng2D/components/meta/properties.hpp"
 #include "Gng2D/components/meta/util_funcs.hpp"
+#include "Gng2D/components/transform.hpp"
 
 using Gng2D::EntityLuaApi;
 using LOG = Gng2D::LOG;
@@ -16,12 +18,16 @@ EntityLuaApi::EntityLuaApi(entt::registry& r, Luna::State& ls)
     , apiTable(lunaState.createTableRef())
 {
     apiTable.createSubTable("componentMeta");
-    auto compMetaTable = apiTable.get("componentMeta").asTable();
+    apiTable.createSubTable("transformMeta");
+    auto compMetaTable      = apiTable.get("componentMeta").asTable();
+    auto transformMetaTable = apiTable.get("transformMeta").asTable();
 
     constexpr auto comp_idx  = &EntityLuaApi::component__index;
     constexpr auto comp_nidx = &EntityLuaApi::component__newindex;
     lunaState.registerMethod<comp_idx>(*this, "__index", compMetaTable);
     lunaState.registerMethod<comp_nidx>(*this, "__newindex", compMetaTable);
+
+    createComponentMetaTable<Transform2d>(&lunaState, &transformMetaTable);
 
     reg.ctx().emplace<EntityLuaApi&>(*this);
 }
@@ -39,6 +45,10 @@ void EntityLuaApi::onUpdate()
         {
             lunaState.getStack().callFunction(*script.onUpdate);
         }
+    }
+    for (auto&& [e, transform]: reg.view<Transform2d>().each())
+    {
+        reg.patch<Transform2d>(e);
     }
 }
 
@@ -58,7 +68,11 @@ void EntityLuaApi::pushComponent(Luna::Stack& stack, entt::entity e, entt::meta_
     GNG2D_ASSERT(getRef);
 
     auto component = stack.newUserdata<ComponentUserdata>(e, getRef.invoke({}, &reg, e));
-    component.setMetaTable(apiTable.get("componentMeta").asTable());
+    if (type.info() == entt::type_id<Transform2d>())
+    {
+        component.setMetaTable(apiTable.get("transformMeta").asTable());
+    }
+    else component.setMetaTable(apiTable.get("componentMeta").asTable());
 }
 
 int EntityLuaApi::addComponent(Luna::Stack, Luna::TypeVector args)

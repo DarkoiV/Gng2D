@@ -1,5 +1,6 @@
 #include "Gng2D/components/transform.hpp"
 #include "Gng2D/commons/args_vector.hpp"
+#include "Gng2D/components/meta/component_userdata.hpp"
 #include "Gng2D/components/meta/properties.hpp"
 #include "Gng2D/components/relationship.hpp"
 #include "util_macros.hpp"
@@ -38,6 +39,59 @@ void Transform2d::onUpdate(entt::registry& reg, entt::entity e)
 void Transform2d::onDelete(entt::registry& reg, entt::entity e)
 {
     reg.remove<detail::Position>(e);
+}
+
+int Transform2d::__index(Luna::Stack stack, Luna::TypeVector args)
+{
+    constexpr auto ARGS_ERROR =
+        "component __index requires 2 arguments, "
+        "first should be component handle, "
+        "second should be component variable";
+    GNG2D_ASSERT(args.size() == 2, ARGS_ERROR);
+    GNG2D_ASSERT(args.at(0).isUserdata(), ARGS_ERROR);
+    GNG2D_ASSERT(args.at(1).isString(), ARGS_ERROR);
+
+    entt::meta_any component = args.at(0).asUserdata().get<ComponentUserdata>().ref();
+    auto&          transform = component.cast<Transform2d&>();
+    if (args.at(1).asString() == "x")
+    {
+        stack.pushFloat(transform.x);
+        return 1;
+    }
+    else if (args.at(1).asString() == "y")
+    {
+        stack.pushFloat(transform.y);
+        return 1;
+    }
+
+    return 0;
+}
+
+int Transform2d::__newindex(Luna::Stack stack, Luna::TypeVector args)
+{
+    constexpr auto ARGS_ERROR =
+        "component __index requires 3 arguments, "
+        "first should be component handle, "
+        "second should be component variable, "
+        "third should be new value of this variable";
+    GNG2D_ASSERT(args.size() == 3, ARGS_ERROR);
+    GNG2D_ASSERT(args.at(0).isUserdata(), ARGS_ERROR);
+    GNG2D_ASSERT(args.at(1).isString(), ARGS_ERROR);
+
+    entt::meta_any component = args.at(0).asUserdata().get<ComponentUserdata>().ref();
+    auto&          transform = component.cast<Transform2d&>();
+    if (args.at(1).asString() == "x")
+    {
+        args.at(2).tryAssignTo(transform.x);
+        return 1;
+    }
+    else if (args.at(1).asString() == "y")
+    {
+        args.at(2).tryAssignTo(transform.y);
+        return 1;
+    }
+
+    return 0;
 }
 
 std::optional<Transform2d> Transform2d::fromArgs(const Gng2D::ArgsVector& args,
