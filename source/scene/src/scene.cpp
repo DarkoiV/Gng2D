@@ -81,10 +81,7 @@ void Scene::render(SDL_Renderer* r)
     entityRenderer(r);
 }
 
-void Scene::onKeyPress(SDL_KeyboardEvent& e)
-{
-    inputHandler.handleKeyPress(e);
-}
+void Scene::onKeyPress(SDL_KeyboardEvent& e) { }
 
 const std::string& Scene::getName() const
 {

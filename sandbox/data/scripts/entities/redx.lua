@@ -1,17 +1,30 @@
 HDirection = 'left'
 VDirection = 'up'
 
+OnAction = {};
+OnAction.Up = function()
+    local transform2d = Self:getComponent('Transform2d')
+    transform2d.y = transform2d.y + 1;
+end
+
+OnAction.Down = function()
+    local transform2d = Self:getComponent('Transform2d')
+    transform2d.y = transform2d.y - 1;
+end
+
+
 function OnSpawn()
     if Self:hasComponent('Transform2d') == false then
         Self:addComponent('Transform2d', {})
-        HDirection = 'none'
-        return
-    end
-    local transform = Self:getComponent('Transform2d')
-    if transform.x < 0 then
-        HDirection = 'right'
+        HDirection = nil
+        VDirection = nil
     else
-        HDirection = 'left'
+        local transform = Self:getComponent('Transform2d')
+        if transform.x < 0 then
+            HDirection = 'right'
+        else
+            HDirection = 'left'
+        end
     end
 end
 
@@ -26,7 +39,7 @@ function OnUpdate()
 
     if VDirection == 'up' then
         transform.y = transform.y + 0.5
-    else
+    elseif VDirection == 'down' then
         transform.y = transform.y - 0.5
     end
 
