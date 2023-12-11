@@ -3,15 +3,36 @@
 #include "Gng2D/commons/luna/state.hpp"
 #include "Gng2D/commons/repository.hpp" // IWYU pragma: keep
 #include "Gng2D/entities/lua_api.hpp"
+#include "Gng2D/scene/actions_handler.hpp"
 #include "util_macros.hpp"
 
 using Gng2D::LuaScript;
 using namespace entt::literals;
 
+void LuaScript::invokeAction(entt::registry& reg, HashedString action)
+{
+    auto stack    = reg.ctx().get<Luna::State>().getStack();
+    auto callback = entityEnv.get("OnAction").asTable().get(action.data());
+    stack.callFunction(callback.asFunction());
+}
+
 void LuaScript::onCreate(entt::registry& reg, entt::entity e)
 {
-    auto& env = reg.get<LuaScript>(e).entityEnv;
+    auto& luaScript = reg.get<LuaScript>(e);
+    auto& env       = luaScript.entityEnv;
     reg.ctx().get<EntityLuaApi>().setEntityTable(e, env);
+
+    if (auto OnAction = env.get("OnAction"); OnAction.isTable())
+    {
+        auto& aHandler = reg.ctx().get<ActionsHandler>();
+        for (auto&& [action, callback]: OnAction.asTable())
+        {
+            GNG2D_ASSERT(action.isString() and callback.isFunction());
+            auto sink       = aHandler.getActionSink(HashedString{action.asString().c_str()});
+            auto connection = sink.connect<&LuaScript::invokeAction>(luaScript);
+            luaScript.connections.emplace_back(std::move(connection));
+        }
+    }
 }
 
 void LuaScript::onSpawn(entt::registry& reg, entt::entity e)
@@ -21,6 +42,15 @@ void LuaScript::onSpawn(entt::registry& reg, entt::entity e)
     {
         auto stack = reg.ctx().get<Luna::State>().getStack();
         stack.callFunction(onSpawn.asFunction());
+    }
+}
+
+void LuaScript::onDelete(entt::registry& reg, entt::entity e)
+{
+    auto& luaScript = reg.get<LuaScript>(e);
+    for (auto& connection: luaScript.connections)
+    {
+        connection.release();
     }
 }
 

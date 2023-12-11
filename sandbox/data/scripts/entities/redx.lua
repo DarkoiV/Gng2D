@@ -2,12 +2,12 @@ HDirection = 'left'
 VDirection = 'up'
 
 OnAction = {};
-OnAction.Up = function()
+OnAction.up = function()
     local transform2d = Self:getComponent('Transform2d')
     transform2d.y = transform2d.y + 1;
 end
 
-OnAction.Down = function()
+OnAction.down = function()
     local transform2d = Self:getComponent('Transform2d')
     transform2d.y = transform2d.y - 1;
 end

@@ -4,6 +4,7 @@
 #include "Gng2D/commons/system_interface.hpp"
 #include "Gng2D/entities/lua_api.hpp"
 #include "Gng2D/entities/recipe.hpp"
+#include "Gng2D/scene/actions_handler.hpp"
 #include "Gng2D/scene/collision_system.hpp"
 #include "Gng2D/scene/entity_renderer.hpp"
 #include <entt/entt.hpp>
@@ -37,6 +38,7 @@ struct Scene : SceneInterface
     const std::filesystem::path sceneDir;
 
     Luna::State     luna;
+    ActionsHandler  actionsHandler{reg};
     CollisionSystem collisionSystem{reg};
     EntityLuaApi    entityLuaApi{reg, luna};
 

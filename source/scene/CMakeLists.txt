@@ -2,6 +2,7 @@ target_include_directories(Gng2D PUBLIC
     inc/)
 target_sources(Gng2D PRIVATE
     src/scene.cpp
+    src/actions_handler.cpp
     src/collision_system.cpp
     src/entity_renderer.cpp)
 
