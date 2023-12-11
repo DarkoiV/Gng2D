@@ -195,6 +195,7 @@ struct Type : TypesVariant
     const auto&    asFloat() const { return std::get<Float>(*this); }
     const auto&    asString() const { return std::get<String>(*this); }
     auto           asStringHash() const { return entt::hashed_string::value(asString().c_str()); }
+    auto           asHashedString() const { return entt::hashed_string(asString().c_str()); }
     const auto&    asBool() const { return std::get<Bool>(*this); }
     const auto&    asTable() const { return std::get<TableRef>(*this); }
     const auto&    asFunction() const { return std::get<FunctionRef>(*this); }

@@ -28,7 +28,7 @@ void LuaScript::onCreate(entt::registry& reg, entt::entity e)
         for (auto&& [action, callback]: OnAction.asTable())
         {
             GNG2D_ASSERT(action.isString() and callback.isFunction());
-            auto sink       = aHandler.getActionSink(HashedString{action.asString().c_str()});
+            auto sink       = aHandler.getActionSink(action.asHashedString());
             auto connection = sink.connect<&LuaScript::invokeAction>(luaScript);
             luaScript.connections.emplace_back(std::move(connection));
         }
