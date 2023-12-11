@@ -45,7 +45,11 @@ void MainLoop::eventsProcessing()
             APP_RUNNING = false;
             break;
         case SDL_KEYDOWN:
+            if (event.key.repeat) break;
             CURRENT_SCENE->onKeyPress(event.key);
+            break;
+        case SDL_KEYUP:
+            CURRENT_SCENE->onKeyRelease(event.key);
             break;
         case SDL_MOUSEMOTION:
             CURRENT_SCENE->onMouseMotion(event.motion);

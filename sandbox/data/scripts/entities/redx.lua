@@ -1,30 +1,34 @@
 HDirection = 'left'
 VDirection = 'up'
+PlayerControlled = false
 
 OnAction = {};
 OnAction.up = function()
-    local transform2d = Self:getComponent('Transform2d')
-    transform2d.y = transform2d.y + 1;
+    if not PlayerControlled then return end
+    VDirection = 'up'
 end
 
 OnAction.down = function()
-    local transform2d = Self:getComponent('Transform2d')
-    transform2d.y = transform2d.y - 1;
+    if not PlayerControlled then return end
+    VDirection = 'down'
 end
 
+OnAction.left = function()
+    if not PlayerControlled then return end
+    HDirection = 'left'
+end
+
+OnAction.right = function()
+    if not PlayerControlled then return end
+    HDirection = 'right'
+end
 
 function OnSpawn()
     if Self:hasComponent('Transform2d') == false then
         Self:addComponent('Transform2d', {})
         HDirection = nil
         VDirection = nil
-    else
-        local transform = Self:getComponent('Transform2d')
-        if transform.x < 0 then
-            HDirection = 'right'
-        else
-            HDirection = 'left'
-        end
+        PlayerControlled = true
     end
 end
 

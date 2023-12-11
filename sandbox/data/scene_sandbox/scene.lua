@@ -28,18 +28,5 @@ function OnEnter()
     SpawnEntity("RedX")
 end
 
-local function mov(entity, transform2d)
-    transform2d.x = -transform2d.x
-    transform2d.y = -transform2d.y
-end
-
-local counter = 0;
 function OnUpdate()
-    counter = counter + 1
-
-    -- every 175 ticks flip positions
-    if counter == 175 then
-        ViewEach(mov, 'Transform2d')
-        counter = 0
-    end
 end

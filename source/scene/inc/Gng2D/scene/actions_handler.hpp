@@ -17,6 +17,7 @@ struct ActionsHandler
     auto operator=(ActionsHandler&&) = delete;
 
     void onKeyPress(SDL_KeyboardEvent&);
+    void onKeyRelease(SDL_KeyboardEvent&);
 
     auto getActionSink(HashedString action)
     {
@@ -27,7 +28,8 @@ struct ActionsHandler
   private:
     entt::registry& reg;
 
-    std::map<SDL_Scancode, HashedString>     keyActions;
+    std::map<SDL_Scancode, HashedString>     keyPressActions;
+    std::map<SDL_Scancode, HashedString>     keyReleaseActions;
     std::map<HashedString, ActionSigHandler> actionsCallback;
 
     void registerDefaultActions();

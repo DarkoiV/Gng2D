@@ -27,6 +27,7 @@ struct Scene : SceneInterface
     virtual void render(SDL_Renderer*) override;
 
     virtual void onKeyPress(SDL_KeyboardEvent&) override;
+    virtual void onKeyRelease(SDL_KeyboardEvent&) override;
     virtual void onMouseMotion(SDL_MouseMotionEvent&) override { }
     virtual void onMouseButton(SDL_MouseButtonEvent&) override { }
 

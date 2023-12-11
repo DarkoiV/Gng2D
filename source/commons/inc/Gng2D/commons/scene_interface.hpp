@@ -20,6 +20,7 @@ struct SceneInterface
     virtual void render(SDL_Renderer*) = 0;
 
     virtual void onKeyPress(SDL_KeyboardEvent&)       = 0;
+    virtual void onKeyRelease(SDL_KeyboardEvent&)     = 0;
     virtual void onMouseMotion(SDL_MouseMotionEvent&) = 0;
     virtual void onMouseButton(SDL_MouseButtonEvent&) = 0;
 

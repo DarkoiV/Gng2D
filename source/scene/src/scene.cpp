@@ -86,6 +86,11 @@ void Scene::onKeyPress(SDL_KeyboardEvent& e)
     actionsHandler.onKeyPress(e);
 }
 
+void Scene::onKeyRelease(SDL_KeyboardEvent& e)
+{
+    actionsHandler.onKeyRelease(e);
+}
+
 const std::string& Scene::getName() const
 {
     return name;
