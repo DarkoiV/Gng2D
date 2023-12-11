@@ -35,9 +35,9 @@ void EntityLuaApi::onUpdate()
 {
     for (auto&& [e, script]: reg.view<LuaScript>().each())
     {
-        if (auto onUpdate = script.entityEnv.get("OnUpdate"); onUpdate.isFunction())
+        if (script.onUpdate)
         {
-            lunaState.getStack().callFunction(onUpdate.asFunction());
+            lunaState.getStack().callFunction(*script.onUpdate);
         }
     }
 }

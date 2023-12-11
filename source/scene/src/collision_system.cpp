@@ -2,6 +2,7 @@
 #include "Gng2D/components/collider.hpp"
 #include "Gng2D/components/transform.hpp"
 #include <SDL2/SDL_rect.h>
+#include <algorithm>
 
 using namespace Gng2D;
 
@@ -15,9 +16,12 @@ void CollisionSystem::onUpdate()
     auto view = reg.view<BoxCollider, detail::Position>();
     for (auto&& [e1, collider1, pos1]: view.each())
     {
-        for (auto&& [e2, collider2, pos2]: view.each())
+        std::for_each(view.begin(), view.end(),
+                      [&](auto e2)
         {
-            if (e1 == e2) continue;
+            if (e1 == e2) return;
+            auto& pos2      = view.get<detail::Position>(e2);
+            auto& collider2 = view.get<BoxCollider>(e2);
 
             SDL_FRect rect1 = {.x = pos1.x - (float)collider1.width / 2.f,
                                .y = pos1.y - (float)collider1.width / 2.f,
@@ -28,6 +32,6 @@ void CollisionSystem::onUpdate()
                                .w = (float)collider2.width,
                                .h = (float)collider2.height};
             if (SDL_HasIntersectionF(&rect1, &rect2)) LOG::TRACE("COLLISION!");
-        }
+        });
     }
 }

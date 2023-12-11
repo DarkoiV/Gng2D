@@ -11,9 +11,10 @@ struct LuaScript
     component_property_name(LuaScript);
     using ScriptConnections = std::vector<entt::connection>;
 
-    std::string       scriptName;
-    Luna::TableRef    entityEnv;
-    ScriptConnections connections;
+    std::string                      scriptName;
+    Luna::TableRef                   entityEnv;
+    std::optional<Luna::FunctionRef> onUpdate;
+    ScriptConnections                connections;
 
     void invokeAction(entt::registry&, HashedString);
 

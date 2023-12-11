@@ -22,6 +22,11 @@ void LuaScript::onCreate(entt::registry& reg, entt::entity e)
     auto& env       = luaScript.entityEnv;
     reg.ctx().get<EntityLuaApi>().setEntityTable(e, env);
 
+    if (auto OnUpdate = env.get("OnUpdate"); OnUpdate.isFunction())
+    {
+        luaScript.onUpdate = OnUpdate.asFunction();
+    }
+
     if (auto OnAction = env.get("OnAction"); OnAction.isTable())
     {
         auto& aHandler = reg.ctx().get<ActionsHandler>();

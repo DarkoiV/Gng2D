@@ -28,5 +28,14 @@ function OnEnter()
     SpawnEntity("RedX")
 end
 
+local counter = 60;
+local ammount = 0;
 function OnUpdate()
+    if counter == 0 and ammount < 60 then
+        SpawnEntity("RedX", { ['Transform2d'] = { ['x'] = 100 } })
+        SpawnEntity("RedX", { ['Transform2d'] = { ['x'] = -100 } })
+        ammount = ammount + 2
+        counter = 60
+    end
+    if counter > 0 then counter = counter - 1 end
 end
