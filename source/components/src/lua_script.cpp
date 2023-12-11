@@ -2,10 +2,17 @@
 #include "Gng2D/commons/args_vector.hpp"
 #include "Gng2D/commons/luna/state.hpp"
 #include "Gng2D/commons/repository.hpp" // IWYU pragma: keep
+#include "Gng2D/entities/lua_api.hpp"
 #include "util_macros.hpp"
 
 using Gng2D::LuaScript;
 using namespace entt::literals;
+
+void LuaScript::onCreate(entt::registry& reg, entt::entity e)
+{
+    auto& env = reg.get<LuaScript>(e).entityEnv;
+    reg.ctx().get<EntityLuaApi>().setEntityTable(e, env);
+}
 
 void LuaScript::onSpawn(entt::registry& reg, entt::entity e)
 {

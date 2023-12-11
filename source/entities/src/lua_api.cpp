@@ -24,17 +24,11 @@ EntityLuaApi::EntityLuaApi(entt::registry& r, Luna::State& ls)
     lunaState.registerMethod<comp_nidx>(*this, "__newindex", compMetaTable);
 
     reg.ctx().emplace<EntityLuaApi&>(*this);
-
-    reg.on_construct<LuaScript>().connect<&EntityLuaApi::setupEntityEnvInLuaScript>(*this);
-    reg.on_update<LuaScript>().connect<&EntityLuaApi::setupEntityEnvInLuaScript>(*this);
 }
 
 EntityLuaApi::~EntityLuaApi()
 {
     reg.ctx().erase<EntityLuaApi&>();
-
-    reg.on_construct<LuaScript>().disconnect<&EntityLuaApi::setupEntityEnvInLuaScript>(*this);
-    reg.on_update<LuaScript>().disconnect<&EntityLuaApi::setupEntityEnvInLuaScript>(*this);
 }
 
 void EntityLuaApi::onUpdate()
@@ -65,12 +59,6 @@ void EntityLuaApi::pushComponent(Luna::Stack& stack, entt::entity e, entt::meta_
 
     auto component = stack.newUserdata<ComponentUserdata>(e, getRef.invoke({}, &reg, e));
     component.setMetaTable(apiTable.get("componentMeta").asTable());
-}
-
-void EntityLuaApi::setupEntityEnvInLuaScript(entt::registry& r, entt::entity e)
-{
-    auto& env = r.get<LuaScript>(e).entityEnv;
-    setEntityTable(e, env);
 }
 
 int EntityLuaApi::addComponent(Luna::Stack, Luna::TypeVector args)

@@ -23,8 +23,6 @@ struct EntityLuaApi : SystemInterface
     Luna::State&   lunaState;
     Luna::TableRef apiTable;
 
-    void setupEntityEnvInLuaScript(entt::registry&, entt::entity);
-
     int addComponent(Luna::Stack, Luna::TypeVector);
     int getComponent(Luna::Stack, Luna::TypeVector);
     int hasComponent(Luna::Stack, Luna::TypeVector);
