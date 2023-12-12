@@ -8,6 +8,10 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_compile_options(-Og)
+endif()
+
 ### 3RD PARTY LIBRARIES #######################################################
 find_package(SDL2 CONFIG REQUIRED)
 cmake_policy(SET CMP0135 NEW)
