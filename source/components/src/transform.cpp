@@ -51,16 +51,15 @@ int Transform2d::__index(Luna::Stack stack, Luna::TypeVector args)
     GNG2D_ASSERT(args.at(0).isUserdata(), ARGS_ERROR);
     GNG2D_ASSERT(args.at(1).isString(), ARGS_ERROR);
 
-    entt::meta_any component = args.at(0).asUserdata().get<ComponentUserdata>().ref();
-    auto&          transform = component.cast<Transform2d&>();
+    ComponentUserdata& component = args.at(0).asUserdata().get<ComponentUserdata>();
     if (args.at(1).asString() == "x")
     {
-        stack.pushFloat(transform.x);
+        stack.pushFloat(((Transform2d*)component.ptr)->x);
         return 1;
     }
     else if (args.at(1).asString() == "y")
     {
-        stack.pushFloat(transform.y);
+        stack.pushFloat(((Transform2d*)component.ptr)->y);
         return 1;
     }
 
@@ -78,17 +77,20 @@ int Transform2d::__newindex(Luna::Stack stack, Luna::TypeVector args)
     GNG2D_ASSERT(args.at(0).isUserdata(), ARGS_ERROR);
     GNG2D_ASSERT(args.at(1).isString(), ARGS_ERROR);
 
-    entt::meta_any component = args.at(0).asUserdata().get<ComponentUserdata>().ref();
-    auto&          transform = component.cast<Transform2d&>();
+    ComponentUserdata& component = args.at(0).asUserdata().get<ComponentUserdata>();
     if (args.at(1).asString() == "x")
     {
-        args.at(2).tryAssignTo(transform.x);
-        return 1;
+        if (args.at(2).isFloat()) ((Transform2d*)component.ptr)->x = args.at(2).asFloat();
+        else if (args.at(2).isInteger()) ((Transform2d*)component.ptr)->x = args.at(2).asInteger();
+        component.owner.patch<Transform2d>();
+        return 0;
     }
     else if (args.at(1).asString() == "y")
     {
-        args.at(2).tryAssignTo(transform.y);
-        return 1;
+        if (args.at(2).isFloat()) ((Transform2d*)component.ptr)->y = args.at(2).asFloat();
+        else if (args.at(2).isInteger()) ((Transform2d*)component.ptr)->y = args.at(2).asInteger();
+        component.owner.patch<Transform2d>();
+        return 0;
     }
 
     return 0;
@@ -153,6 +155,71 @@ void TransformLayer::onUpdate(entt::registry& reg, entt::entity e)
 void TransformLayer::onDelete(entt::registry& reg, entt::entity e)
 {
     reg.remove<detail::Layer>(e);
+}
+
+int TransformLayer::__index(Luna::Stack stack, Luna::TypeVector args)
+{
+    constexpr auto ARGS_ERROR =
+        "component __index requires 2 arguments, "
+        "first should be component handle, "
+        "second should be component variable";
+    GNG2D_ASSERT(args.size() == 2, ARGS_ERROR);
+    GNG2D_ASSERT(args.at(0).isUserdata(), ARGS_ERROR);
+    GNG2D_ASSERT(args.at(1).isString(), ARGS_ERROR);
+
+    ComponentUserdata& component = args.at(0).asUserdata().get<ComponentUserdata>();
+    if (args.at(1).asString() == "main")
+    {
+        stack.pushFloat(((TransformLayer*)component.ptr)->main);
+        return 1;
+    }
+    else if (args.at(1).asString() == "sub")
+    {
+        stack.pushFloat(((TransformLayer*)component.ptr)->sub);
+        return 1;
+    }
+
+    return 0;
+}
+
+int TransformLayer::__newindex(Luna::Stack stack, Luna::TypeVector args)
+{
+    constexpr auto ARGS_ERROR =
+        "component __index requires 3 arguments, "
+        "first should be component handle, "
+        "second should be component variable, "
+        "third should be new value of this variable";
+    GNG2D_ASSERT(args.size() == 3, ARGS_ERROR);
+    GNG2D_ASSERT(args.at(0).isUserdata(), ARGS_ERROR);
+    GNG2D_ASSERT(args.at(1).isString(), ARGS_ERROR);
+
+    ComponentUserdata& component = args.at(0).asUserdata().get<ComponentUserdata>();
+    if (args.at(1).asString() == "main")
+    {
+        if (args.at(2).isInteger())
+        {
+            auto value = args.at(2).asInteger();
+            if (value > INT8_MAX) value = INT8_MAX;
+            if (value < INT8_MIN) value = INT8_MIN;
+            ((TransformLayer*)component.ptr)->main = value;
+        }
+        component.owner.patch<TransformLayer>();
+        return 0;
+    }
+    else if (args.at(1).asString() == "sub")
+    {
+        if (args.at(2).isInteger())
+        {
+            auto value = args.at(2).asInteger();
+            if (value > INT8_MAX) value = INT8_MAX;
+            if (value < INT8_MIN) value = INT8_MIN;
+            ((TransformLayer*)component.ptr)->sub = value;
+        }
+        component.owner.patch<TransformLayer>();
+        return 0;
+    }
+
+    return 0;
 }
 
 std::optional<TransformLayer> TransformLayer::fromArgs(const Gng2D::ArgsVector& args,

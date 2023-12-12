@@ -39,6 +39,9 @@ struct TransformLayer
     static void onUpdate(entt::registry&, entt::entity);
     static void onDelete(entt::registry&, entt::entity);
 
+    static int __index(Luna::Stack, Luna::TypeVector);
+    static int __newindex(Luna::Stack, Luna::TypeVector);
+
     static std::optional<TransformLayer> fromArgs(const ArgsVector&, entt::registry::context&);
 
     using MetaFactory = entt::meta_factory<TransformLayer>;

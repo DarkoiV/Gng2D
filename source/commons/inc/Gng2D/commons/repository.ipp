@@ -13,6 +13,12 @@ void Repository::registerComponent()
 
     if constexpr (requires { Comp::IS_DETAIL; }) meta_factory.prop("isDetail"_hs);
 
+    if constexpr (ExposesLuaApi<Comp>)
+    {
+        meta_factory.prop("exposesLuaApi"_hs)
+            .template func<&createComponentMetaTable<Comp>>("createMetaTable"_hs);
+    }
+
     if constexpr (HasRegisteredData<Comp>) Comp::registerData(meta_factory);
 
     meta_factory.template func<&getComponentRef<Comp>>("getRef"_hs)

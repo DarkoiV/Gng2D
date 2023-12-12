@@ -1,4 +1,5 @@
 #pragma once
+#include "Gng2D/commons/luna/stack.hpp"
 #include "Gng2D/commons/types.hpp"
 #include <entt/entt.hpp>
 #include <optional>
@@ -30,6 +31,16 @@ constexpr bool IsArgsConstructible = requires(const ArgsVector& av, entt::regist
     {
         C::fromArgs(av, ctx)
     } -> std::same_as<std::optional<C>>;
+};
+
+template <Component C>
+constexpr bool ExposesLuaApi = requires(Luna::Stack ls, Luna::TypeVector tv) {
+    {
+        C::__index(ls, tv)
+    } -> std::same_as<int>;
+    {
+        C::__newindex(ls, tv)
+    } -> std::same_as<int>;
 };
 
 template <Component C>
