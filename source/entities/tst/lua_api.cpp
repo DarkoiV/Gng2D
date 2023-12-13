@@ -46,7 +46,7 @@ TEST_F(LuaApiTest, EntityLuaApi_DuringLuaScriptCosntruction_attachesImplicitSelf
     ASSERT_EQ(entityEnv.get("entity"_hash), (Luna::Integer)e);
 }
 
-TEST_F(LuaApiTest, getComponent_canAccessReferenceToComponentThroughMetaAny)
+TEST_F(LuaApiTest, getComponent_canAccessPointerToComponentThroughComponentUserdata)
 {
     reg.emplace<Gng2D::Transform2d>(e, TRANSFORM2D_X, TRANSFORM2D_Y);
     luna.doString(
@@ -60,8 +60,8 @@ TEST_F(LuaApiTest, getComponent_canAccessReferenceToComponentThroughMetaAny)
     stack.callFunctionFS({});
     ASSERT_TRUE(stack.read(-1).isUserdata());
 
-    entt::meta_any transform = stack.read(-1).asUserdata().get<Gng2D::ComponentUserdata>().ref();
-    auto&          res       = transform.cast<Gng2D::Transform2d&>();
+    void* transform = stack.read(-1).asUserdata().get<Gng2D::ComponentUserdata>().ptr;
+    auto& res       = *(Gng2D::Transform2d*)transform;
     ASSERT_EQ(res.x, reg.get<Gng2D::Transform2d>(e).x);
     ASSERT_EQ(res.y, reg.get<Gng2D::Transform2d>(e).y);
     res.x                            = 7.f;
