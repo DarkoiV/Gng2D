@@ -4,22 +4,30 @@
 #include <optional>
 
 namespace Gng2D {
+namespace detail {
 struct BoxCollider
 {
     component_property_name(BoxCollider);
+    component_property_is_detail;
 
     int width{};
     int height{};
-
-    static std::optional<BoxCollider> fromArgs(const ArgsVector&, entt::registry::context&);
-
-    using MetaFactory = entt::meta_factory<BoxCollider>;
-    static void registerData(MetaFactory);
 };
+} // namespace detail
 
 struct Collider
 {
     component_property_name(Collider);
-    enum class Type { BOX } type;
+
+    HashedString group;
+    enum class Type : StringHash { BOX = "Box"_hash } type;
+
+    float dimension1{};
+    float dimension2{};
+
+    static void onCreate(entt::registry&, entt::entity);
+    static void onDelete(entt::registry&, entt::entity);
+
+    static std::optional<Collider> fromArgs(const ArgsVector&, entt::registry::context&);
 };
 } // namespace Gng2D

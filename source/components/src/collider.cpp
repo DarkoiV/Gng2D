@@ -5,28 +5,56 @@
 using namespace Gng2D;
 using namespace entt::literals;
 
-std::optional<BoxCollider> BoxCollider::fromArgs(const ArgsVector& args, entt::registry::context&)
+void Collider::onCreate(entt::registry& reg, entt::entity e)
 {
-    BoxCollider collider;
+    auto& collider = reg.get<Collider>(e);
+    switch (collider.type)
+    {
+    case Collider::Type::BOX:
+        reg.emplace<detail::BoxCollider>(e, collider.dimension1, collider.dimension2);
+        return;
+    }
+}
+
+void Collider::onDelete(entt::registry& reg, entt::entity e)
+{
+    auto& collider = reg.get<Collider>(e);
+    switch (collider.type)
+    {
+    case Collider::Type::BOX:
+        reg.remove<detail::BoxCollider>(e);
+        return;
+    }
+}
+
+std::optional<Collider> Collider::fromArgs(const ArgsVector& args, entt::registry::context&)
+{
+    Collider    collider;
+    std::string type;
+    std::string group;
+
     for (auto&& [id, arg]: args)
     {
         switch (id)
         {
-            COMP_ARG_CASE("width", collider.width);
-            COMP_ARG_CASE("height", collider.height);
+            COMP_ARG_CASE("group", group);
+            COMP_ARG_CASE("type", type);
+            COMP_ARG_CASE("width", collider.dimension1);
+            COMP_ARG_CASE("height", collider.dimension2);
+            UNKNOWN_ARG_CASE;
         }
     }
 
-    return collider;
-}
+    collider.group = entt::hashed_string(group.c_str());
+    collider.type  = static_cast<Collider::Type>(entt::hashed_string::value(type.c_str()));
 
-void BoxCollider::registerData(MetaFactory mf)
-{
-    mf.data<&BoxCollider::width>("width"_hs)
-        .prop(ComponentFieldProperties::FIELD_TYPE, ComponentFieldType::INTEGER)
-        .prop(ComponentFieldProperties::FIELD_NAME, "width");
+    switch (collider.type)
+    {
+    case Collider::Type::BOX:
+        return collider;
+    }
 
-    mf.data<&BoxCollider::height>("height"_hs)
-        .prop(ComponentFieldProperties::FIELD_TYPE, ComponentFieldType::INTEGER)
-        .prop(ComponentFieldProperties::FIELD_NAME, "height");
+errReturn:
+    LOG::ERROR("Invalid collider type");
+    return std::nullopt;
 }

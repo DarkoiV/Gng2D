@@ -13,7 +13,9 @@ local function createRedX()
     components.LuaScript = {
         ['script'] = "entities/redx"
     }
-    components.BoxCollider = {
+    components.Collider = {
+        ['type'] = "Box",
+        ['group'] = "default",
         ['width'] = 12,
         ['height'] = 12
     }

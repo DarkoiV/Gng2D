@@ -13,7 +13,7 @@ CollisionSystem::CollisionSystem(entt::registry& r)
 
 void CollisionSystem::onUpdate()
 {
-    auto view = reg.view<BoxCollider, detail::Position>();
+    auto view = reg.view<detail::BoxCollider, detail::Position>();
     for (auto&& [e1, collider1, pos1]: view.each())
     {
         std::for_each(view.begin(), view.end(),
@@ -21,7 +21,7 @@ void CollisionSystem::onUpdate()
         {
             if (e1 == e2) return;
             auto& pos2      = view.get<detail::Position>(e2);
-            auto& collider2 = view.get<BoxCollider>(e2);
+            auto& collider2 = view.get<detail::BoxCollider>(e2);
 
             SDL_FRect rect1 = {.x = pos1.x - (float)collider1.width / 2.f,
                                .y = pos1.y - (float)collider1.width / 2.f,

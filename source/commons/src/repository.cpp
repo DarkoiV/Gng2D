@@ -69,13 +69,14 @@ void Repository::registerDefaultComponents()
     registerComponent<Sprite>();
     registerComponent<Transform2d>();
     registerComponent<TransformLayer>();
-    registerComponent<BoxCollider>();
+    registerComponent<Collider>();
     registerComponent<LuaScript>();
     registerComponent<Parent>();
     registerComponent<Children>();
 
     registerComponent<detail::Position>();
     registerComponent<detail::Layer>();
+    registerComponent<detail::BoxCollider>();
 }
 
 const std::string& Repository::componentNameFromHash(const StringHash hash)

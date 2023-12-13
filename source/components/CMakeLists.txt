@@ -10,5 +10,6 @@ target_sources(Gng2D PRIVATE
 
 #tests
 target_sources(Gng2D_TESTS PRIVATE
+    tst/collider.cpp
     tst/relationship.cpp
     tst/transform.cpp)

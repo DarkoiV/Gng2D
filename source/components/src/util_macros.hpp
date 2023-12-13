@@ -22,9 +22,17 @@
             }                                                                                      \
             else                                                                                   \
             {                                                                                      \
-                auto data = arg.allow_cast<ArgType>().try_cast<ArgType>();                         \
-                GNG2D_ASSERT(data, #ARG_NAME "invalid type:", arg.type().info().name());           \
-                ASSIGN_TO = *data;                                                                 \
+                if (arg.type().info() == entt::type_id<ArgType>())                                 \
+                {                                                                                  \
+                    ASSIGN_TO = arg.cast<ArgType>();                                               \
+                }                                                                                  \
+                else                                                                               \
+                {                                                                                  \
+                    auto data = arg.allow_cast<ArgType>().try_cast<ArgType>();                     \
+                    GNG2D_ASSERT(data, #ARG_NAME " has invalid type:", arg.type().info().name(),   \
+                                 "expected", entt::type_id<ArgType>().name());                     \
+                    ASSIGN_TO = *data;                                                             \
+                }                                                                                  \
             }                                                                                      \
         }                                                                                          \
         break
