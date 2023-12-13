@@ -28,7 +28,7 @@ entt::entity EntityRecipe::spawn()
     for (auto&& [component, args]: components)
     {
         auto emplace = component.func("emplace"_hs);
-        GNG2D_ASSERT(emplace);
+        GNG2D_ASSERT(emplace, "No emplace function for", component.info().name());
         emplace.invoke({}, reg, e, &args);
     }
 
