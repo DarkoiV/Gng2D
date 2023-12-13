@@ -28,6 +28,19 @@ TEST_F(ColliderTest, CreatingColliderFromArgs)
     ASSERT_TRUE(optCollider);
 }
 
+TEST_F(ColliderTest, InvalidColliderTypeWontCreateCollider)
+{
+    using namespace entt::literals;
+    Gng2D::ArgsVector args;
+    args.addArg("group"_hs, "default");
+    args.addArg("type"_hs, "Invalid");
+    args.addArg("width", 12.f);
+    args.addArg("height", 5);
+
+    auto optCollider = Collider::fromArgs(args, reg.ctx());
+    ASSERT_FALSE(optCollider);
+}
+
 TEST_F(ColliderTest, EmplacingColliderEmplacesDetailTypeCollider)
 {
     using namespace entt::literals;
