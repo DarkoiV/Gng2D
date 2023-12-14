@@ -214,3 +214,20 @@ TEST_F(LuaApiTest, component__newindexSendsPatchSignal)
     ASSERT_EQ(pos.x, 91.f);
     ASSERT_EQ(pos.y, -22.f);
 }
+
+TEST_F(LuaApiTest, getPositionReturnsRealPositon)
+{
+    reg.emplace<Gng2D::Transform2d>(e, 100.f, 77.f);
+    luna.doString(
+        "function pushPosition() \n"
+        "  local x, y = Self:getPosition() \n"
+        "  return x, y  \n"
+        "end",
+        entityEnv);
+
+    auto stack        = luna.getStack();
+    auto pushPosition = entityEnv.get("pushPosition").asFunction();
+    stack.callFunction(pushPosition);
+    ASSERT_EQ(stack.read(-1), 77.f);
+    ASSERT_EQ(stack.read(-2), 100.f);
+}

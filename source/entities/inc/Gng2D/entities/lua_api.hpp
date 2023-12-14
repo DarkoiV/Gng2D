@@ -26,5 +26,7 @@ struct EntityLuaApi : SystemInterface
     int addComponent(Luna::Stack, Luna::TypeVector);
     int getComponent(Luna::Stack, Luna::TypeVector);
     int hasComponent(Luna::Stack, Luna::TypeVector);
+
+    int getPosition(Luna::Stack, Luna::TypeVector);
 };
 }; // namespace Gng2D

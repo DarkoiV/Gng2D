@@ -55,6 +55,7 @@ void EntityLuaApi::setEntityTable(entt::entity e, Luna::TableRef& env)
     lunaState.registerMethod<&EntityLuaApi::getComponent>(*this, "getComponent", env);
     lunaState.registerMethod<&EntityLuaApi::addComponent>(*this, "addComponent", env);
     lunaState.registerMethod<&EntityLuaApi::hasComponent>(*this, "hasComponent", env);
+    lunaState.registerMethod<&EntityLuaApi::getPosition>(*this, "getPosition", env);
 }
 
 void EntityLuaApi::pushComponent(Luna::Stack& stack, entt::entity e, entt::meta_type type)
@@ -143,4 +144,22 @@ int EntityLuaApi::hasComponent(Luna::Stack stack, Luna::TypeVector args)
     stack.pushBool(res);
 
     return 1;
+}
+
+int EntityLuaApi::getPosition(Luna::Stack stack, Luna::TypeVector args)
+{
+    constexpr auto ARGS_ERROR =
+        "has component requires 1 argument, "
+        "which is entity table";
+    GNG2D_ASSERT(args.size() == 1, ARGS_ERROR);
+    GNG2D_ASSERT(args.at(0).isTable(), ARGS_ERROR);
+
+    auto eid = (entt::entity)args.at(0).asTable().get("entity"_hash).asInteger();
+    GNG2D_ASSERT(reg.all_of<detail::Position>(eid));
+    auto& pos = reg.get<detail::Position>(eid);
+
+    stack.pushFloat(pos.x);
+    stack.pushFloat(pos.y);
+
+    return 2;
 }
