@@ -10,8 +10,8 @@ struct BoxCollider
     component_property_name(BoxCollider);
     component_property_is_detail;
 
-    int width{};
-    int height{};
+    float width{};
+    float height{};
 };
 } // namespace detail
 
