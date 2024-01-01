@@ -9,7 +9,8 @@ struct ArgsVector;
 struct LuaScript
 {
     component_property_name(LuaScript);
-    using ScriptConnections = std::vector<entt::connection>;
+    static constexpr auto in_place_delete = true;
+    using ScriptConnections               = std::vector<entt::connection>;
 
     std::string                      scriptName;
     Luna::TableRef                   entityEnv;
