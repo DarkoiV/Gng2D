@@ -6,7 +6,7 @@
 namespace Gng2D {
 struct ActionsHandler
 {
-    using ActionSigHandler = entt::sigh<void(entt::registry&, HashedString)>;
+    using ActionSigHandler = entt::sigh<void(entt::registry&, HashedString, bool)>;
 
     ActionsHandler(entt::registry&);
     ActionsHandler(ActionsHandler&)  = delete;
@@ -29,7 +29,6 @@ struct ActionsHandler
     entt::registry& reg;
 
     std::map<SDL_Scancode, HashedString>     keyPressActions;
-    std::map<SDL_Scancode, HashedString>     keyReleaseActions;
     std::map<HashedString, ActionSigHandler> actionsCallback;
 
     void registerDefaultActions();

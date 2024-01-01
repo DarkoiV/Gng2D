@@ -23,17 +23,17 @@ void ActionsHandler::onKeyPress(SDL_KeyboardEvent& event)
 
     auto action = it->second;
     LOG::TRACE("Action:", action.data());
-    actionsCallback.at(action).publish(reg, action);
+    actionsCallback.at(action).publish(reg, action, false);
 }
 
 void ActionsHandler::onKeyRelease(SDL_KeyboardEvent& event)
 {
-    auto it = keyReleaseActions.find(event.keysym.scancode);
-    if (it == keyReleaseActions.end()) return;
+    auto it = keyPressActions.find(event.keysym.scancode);
+    if (it == keyPressActions.end()) return;
 
     auto action = it->second;
-    LOG::TRACE("Action:", action.data());
-    actionsCallback.at(action).publish(reg, action);
+    LOG::TRACE("Action release:", action.data());
+    actionsCallback.at(action).publish(reg, action, true);
 }
 
 void ActionsHandler::registerDefaultActions()
@@ -49,17 +49,6 @@ void ActionsHandler::registerDefaultActions()
     actionsCallback.emplace("down"_hs, ActionSigHandler{});
     actionsCallback.emplace("right"_hs, ActionSigHandler{});
     actionsCallback.emplace("left"_hs, ActionSigHandler{});
-
-    // DIRECTIONAL ARROW RELEASE
-    keyReleaseActions.emplace(SDL_SCANCODE_UP, "upRelease"_hs);
-    keyReleaseActions.emplace(SDL_SCANCODE_DOWN, "downRelease"_hs);
-    keyReleaseActions.emplace(SDL_SCANCODE_RIGHT, "rightRelease"_hs);
-    keyReleaseActions.emplace(SDL_SCANCODE_LEFT, "leftRelease"_hs);
-
-    actionsCallback.emplace("upRelease"_hs, ActionSigHandler{});
-    actionsCallback.emplace("downRelease"_hs, ActionSigHandler{});
-    actionsCallback.emplace("rightRelease"_hs, ActionSigHandler{});
-    actionsCallback.emplace("leftRelease"_hs, ActionSigHandler{});
 
     // CONFIRM / CANCELL
     keyPressActions.emplace(SDL_SCANCODE_RETURN, "confirm"_hs);

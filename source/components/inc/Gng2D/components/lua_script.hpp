@@ -17,7 +17,7 @@ struct LuaScript
     std::optional<Luna::FunctionRef> onUpdate = std::nullopt;
     ScriptConnections                connections{};
 
-    void invokeAction(entt::registry&, HashedString);
+    void invokeAction(entt::registry&, HashedString, bool);
 
     static void onCreate(entt::registry&, entt::entity);
     static void onSpawn(entt::registry&, entt::entity);
