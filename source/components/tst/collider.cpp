@@ -52,11 +52,12 @@ TEST_F(ColliderTest, EmplacingColliderEmplacesDetailTypeCollider)
 
     auto optCollider = Collider::fromArgs(args, reg.ctx());
     ASSERT_TRUE(optCollider);
-
     reg.emplace<Collider>(e1, *optCollider);
-    ASSERT_TRUE(reg.all_of<Gng2D::detail::BoxCollider>(e1));
 
-    auto& box = reg.get<Gng2D::detail::BoxCollider>(e1);
+    auto&& defaultStorage = reg.storage<Gng2D::detail::BoxCollider>("default"_hs);
+    ASSERT_TRUE(defaultStorage.contains(e1));
+
+    auto& box = defaultStorage.get(e1);
     ASSERT_EQ(box.width, 12.f);
     ASSERT_EQ(box.height, 5.f);
 }
@@ -72,10 +73,11 @@ TEST_F(ColliderTest, RemovingColliderRemovesDetailTypeCollider)
 
     auto optCollider = Collider::fromArgs(args, reg.ctx());
     ASSERT_TRUE(optCollider);
-
     reg.emplace<Collider>(e1, *optCollider);
-    ASSERT_TRUE(reg.all_of<Gng2D::detail::BoxCollider>(e1));
+
+    auto&& defaultStorage = reg.storage<Gng2D::detail::BoxCollider>("default"_hs);
+    ASSERT_TRUE(defaultStorage.contains(e1));
 
     reg.erase<Collider>(e1);
-    ASSERT_FALSE(reg.all_of<Gng2D::detail::BoxCollider>(e1));
+    ASSERT_FALSE(defaultStorage.contains(e1));
 }

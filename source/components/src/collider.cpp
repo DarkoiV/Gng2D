@@ -11,7 +11,8 @@ void Collider::onCreate(entt::registry& reg, entt::entity e)
     switch (collider.type)
     {
     case Collider::Type::BOX:
-        reg.emplace<detail::BoxCollider>(e, collider.dimension1, collider.dimension2);
+        auto&& groupStorage = reg.storage<detail::BoxCollider>(collider.group);
+        groupStorage.emplace(e, collider.dimension1, collider.dimension2);
         return;
     }
 }
@@ -22,7 +23,8 @@ void Collider::onDelete(entt::registry& reg, entt::entity e)
     switch (collider.type)
     {
     case Collider::Type::BOX:
-        reg.remove<detail::BoxCollider>(e);
+        auto&& groupStorage = reg.storage<detail::BoxCollider>(collider.group);
+        groupStorage.erase(e);
         return;
     }
 }
@@ -55,6 +57,6 @@ std::optional<Collider> Collider::fromArgs(const ArgsVector& args, entt::registr
     }
 
 errReturn:
-    LOG::ERROR("Invalid collider type");
+    LOG::ERROR("Failed to construct collider");
     return std::nullopt;
 }
