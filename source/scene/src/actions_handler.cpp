@@ -1,9 +1,9 @@
 #include "Gng2D/scene/actions_handler.hpp"
 #include "Gng2D/commons/log.hpp"
+#include "Gng2D/commons/luna/state.hpp"
 #include "Gng2D/components/collider.hpp"
 #include "Gng2D/components/lua_script.hpp"
 #include "Gng2D/components/transform.hpp"
-#include "Gng2D/core/global.hpp"
 
 using Gng2D::ActionsHandler;
 

@@ -33,7 +33,7 @@ void MainLoop::loop()
     rendering();
 }
 
-static void transformCordinates(int& x, int& y)
+static void transformCoordinates(int& x, int& y)
 {
 #ifdef GNG2D_IMGUI_ENABLED
     x -= IMGUI_LEFT_SIDEBAR;
@@ -69,7 +69,7 @@ void MainLoop::eventsProcessing()
             CURRENT_SCENE->onKeyRelease(event.key);
             break;
         case SDL_MOUSEMOTION:
-            transformCordinates(event.motion.x, event.motion.y);
+            transformCoordinates(event.motion.x, event.motion.y);
             CURRENT_SCENE->onMouseMotion(event.motion);
             break;
         case SDL_MOUSEBUTTONDOWN:
