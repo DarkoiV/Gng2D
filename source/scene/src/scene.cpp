@@ -91,6 +91,11 @@ void Scene::onKeyRelease(SDL_KeyboardEvent& e)
     actionsHandler.onKeyRelease(e);
 }
 
+void Scene::onMouseMotion(SDL_MouseMotionEvent& e)
+{
+    actionsHandler.onMouseMotion(e);
+}
+
 const std::string& Scene::getName() const
 {
     return name;

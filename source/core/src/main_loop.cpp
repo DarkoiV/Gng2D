@@ -33,6 +33,23 @@ void MainLoop::loop()
     rendering();
 }
 
+static void transformCordinates(int& x, int& y)
+{
+#ifdef GNG2D_IMGUI_ENABLED
+    x -= IMGUI_LEFT_SIDEBAR;
+#endif
+    {
+        const int xoff = Gng2D::GLOBAL::RENDER_WIDTH / 2;
+        const int yoff = Gng2D::GLOBAL::RENDER_HEIGHT / 2;
+
+        x /= Gng2D::GLOBAL::RENDER_SCALE;
+        y /= Gng2D::GLOBAL::RENDER_SCALE;
+        x -= xoff;
+        y -= yoff;
+        y  = y;
+    }
+}
+
 void MainLoop::eventsProcessing()
 {
     SDL_Event event;
@@ -52,6 +69,7 @@ void MainLoop::eventsProcessing()
             CURRENT_SCENE->onKeyRelease(event.key);
             break;
         case SDL_MOUSEMOTION:
+            transformCordinates(event.motion.x, event.motion.y);
             CURRENT_SCENE->onMouseMotion(event.motion);
             break;
         case SDL_MOUSEBUTTONDOWN:

@@ -18,6 +18,7 @@ struct ActionsHandler
 
     void onKeyPress(SDL_KeyboardEvent&);
     void onKeyRelease(SDL_KeyboardEvent&);
+    void onMouseMotion(SDL_MouseMotionEvent&);
 
     auto getActionSink(HashedString action)
     {

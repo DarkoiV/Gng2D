@@ -38,6 +38,11 @@ void LuaScript::onCreate(entt::registry& reg, entt::entity e)
             luaScript.connections.emplace_back(std::move(connection));
         }
     }
+
+    if (auto OnHover = env.get("OnHover"); OnHover.isFunction())
+    {
+        luaScript.hasOnHover = true;
+    }
 }
 
 void LuaScript::onSpawn(entt::registry& reg, entt::entity e)

@@ -35,6 +35,11 @@ OnAction.right = function(release)
     end
 end
 
+OnHover = function()
+    transform = Self:getComponent('Transform2d')
+    transform.x = transform.x + 10
+end
+
 function OnSpawn()
     if Self:hasComponent('Transform2d') == false then
         Self:addComponent('Transform2d', {})

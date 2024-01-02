@@ -1,5 +1,9 @@
 #include "Gng2D/scene/actions_handler.hpp"
 #include "Gng2D/commons/log.hpp"
+#include "Gng2D/components/collider.hpp"
+#include "Gng2D/components/lua_script.hpp"
+#include "Gng2D/components/transform.hpp"
+#include "Gng2D/core/global.hpp"
 
 using Gng2D::ActionsHandler;
 
@@ -34,6 +38,32 @@ void ActionsHandler::onKeyRelease(SDL_KeyboardEvent& event)
     auto action = it->second;
     LOG::TRACE("Action release:", action.data());
     actionsCallback.at(action).publish(reg, action, true);
+}
+
+void ActionsHandler::onMouseMotion(SDL_MouseMotionEvent& event)
+{
+    auto&&           mouseColliderStorage = reg.storage<detail::BoxCollider>("mouse"_hash);
+    entt::basic_view view{mouseColliderStorage, reg.storage<detail::Position>()};
+
+    for (auto&& [e, box, pos]: view.each())
+    {
+        auto hw = box.width / 2;
+        auto hh = box.height / 2;
+        if (event.x > (pos.x - hw) and event.x < (pos.x + hw) and event.y > (pos.y - hh) and
+            event.y < (pos.y + hh))
+        {
+            if (auto* luaScript = reg.try_get<LuaScript>(e))
+            {
+                if (not luaScript->hasOnHover) return;
+
+                auto onHover = luaScript->entityEnv.get("OnHover").asFunction();
+                auto stack   = reg.ctx().get<Luna::State>().getStack();
+                stack.callFunction(onHover);
+                LOG::TRACE("Hover:", (unsigned)e);
+            }
+            return;
+        }
+    }
 }
 
 void ActionsHandler::registerDefaultActions()

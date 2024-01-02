@@ -15,7 +15,7 @@ local function createRedX()
     }
     components.Collider = {
         ['type'] = "Box",
-        ['group'] = "default",
+        ['group'] = "mouse",
         ['width'] = 12,
         ['height'] = 12
     }

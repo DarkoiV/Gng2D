@@ -14,8 +14,9 @@ struct LuaScript
 
     std::string                      scriptName;
     Luna::TableRef                   entityEnv;
-    std::optional<Luna::FunctionRef> onUpdate = std::nullopt;
+    std::optional<Luna::FunctionRef> onUpdate{};
     ScriptConnections                connections{};
+    bool                             hasOnHover = false;
 
     void invokeAction(entt::registry&, HashedString, bool);
 
