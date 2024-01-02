@@ -36,10 +36,10 @@ constexpr bool IsArgsConstructible = requires(const ArgsVector& av, entt::regist
 template <Component C>
 constexpr bool ExposesLuaApi = requires(Luna::Stack ls, Luna::TypeVector tv) {
     {
-        C::__index(ls, tv)
+        C::lua__index(ls, tv)
     } -> std::same_as<int>;
     {
-        C::__newindex(ls, tv)
+        C::lua__newindex(ls, tv)
     } -> std::same_as<int>;
 };
 

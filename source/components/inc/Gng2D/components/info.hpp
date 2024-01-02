@@ -13,8 +13,8 @@ struct Info
 
     std::string name;
 
-    static int __index(Luna::Stack, Luna::TypeVector);
-    static int __newindex(Luna::Stack, Luna::TypeVector);
+    static int lua__index(Luna::Stack, Luna::TypeVector);
+    static int lua__newindex(Luna::Stack, Luna::TypeVector);
 
     static std::optional<Info> fromArgs(const ArgsVector&, entt::registry::context&);
 

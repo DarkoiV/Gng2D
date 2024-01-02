@@ -19,8 +19,8 @@ struct Transform2d
     static void onUpdate(entt::registry&, entt::entity);
     static void onDelete(entt::registry&, entt::entity);
 
-    static int __index(Luna::Stack, Luna::TypeVector);
-    static int __newindex(Luna::Stack, Luna::TypeVector);
+    static int lua__index(Luna::Stack, Luna::TypeVector);
+    static int lua__newindex(Luna::Stack, Luna::TypeVector);
 
     static std::optional<Transform2d> fromArgs(const ArgsVector&, entt::registry::context&);
 
@@ -39,8 +39,8 @@ struct TransformLayer
     static void onUpdate(entt::registry&, entt::entity);
     static void onDelete(entt::registry&, entt::entity);
 
-    static int __index(Luna::Stack, Luna::TypeVector);
-    static int __newindex(Luna::Stack, Luna::TypeVector);
+    static int lua__index(Luna::Stack, Luna::TypeVector);
+    static int lua__newindex(Luna::Stack, Luna::TypeVector);
 
     static std::optional<TransformLayer> fromArgs(const ArgsVector&, entt::registry::context&);
 

@@ -41,7 +41,7 @@ void Transform2d::onDelete(entt::registry& reg, entt::entity e)
     reg.remove<detail::Position>(e);
 }
 
-int Transform2d::__index(Luna::Stack stack, Luna::TypeVector args)
+int Transform2d::lua__index(Luna::Stack stack, Luna::TypeVector args)
 {
     constexpr auto ARGS_ERROR =
         "component __index requires 2 arguments, "
@@ -66,7 +66,7 @@ int Transform2d::__index(Luna::Stack stack, Luna::TypeVector args)
     return 0;
 }
 
-int Transform2d::__newindex(Luna::Stack stack, Luna::TypeVector args)
+int Transform2d::lua__newindex(Luna::Stack stack, Luna::TypeVector args)
 {
     constexpr auto ARGS_ERROR =
         "component __index requires 3 arguments, "
@@ -157,7 +157,7 @@ void TransformLayer::onDelete(entt::registry& reg, entt::entity e)
     reg.remove<detail::Layer>(e);
 }
 
-int TransformLayer::__index(Luna::Stack stack, Luna::TypeVector args)
+int TransformLayer::lua__index(Luna::Stack stack, Luna::TypeVector args)
 {
     constexpr auto ARGS_ERROR =
         "component __index requires 2 arguments, "
@@ -182,7 +182,7 @@ int TransformLayer::__index(Luna::Stack stack, Luna::TypeVector args)
     return 0;
 }
 
-int TransformLayer::__newindex(Luna::Stack stack, Luna::TypeVector args)
+int TransformLayer::lua__newindex(Luna::Stack stack, Luna::TypeVector args)
 {
     constexpr auto ARGS_ERROR =
         "component __index requires 3 arguments, "

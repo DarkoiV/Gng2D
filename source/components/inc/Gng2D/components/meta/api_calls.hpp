@@ -36,8 +36,8 @@ void patchComponentSignal(entt::registry* r, entt::entity e)
 template <Component Comp>
 void createComponentMetaTable(Luna::State* state, Luna::TableRef* tableRef)
 {
-    constexpr auto comp_idx  = &Comp::__index;
-    constexpr auto comp_nidx = &Comp::__newindex;
+    constexpr auto comp_idx  = &Comp::lua__index;
+    constexpr auto comp_nidx = &Comp::lua__newindex;
     state->registerFunction<comp_idx>("__index", *tableRef);
     state->registerFunction<comp_nidx>("__newindex", *tableRef);
 }

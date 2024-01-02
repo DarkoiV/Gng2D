@@ -24,7 +24,7 @@ void Collider::onDelete(entt::registry& reg, entt::entity e)
     {
     case Collider::Type::BOX:
         auto&& groupStorage = reg.storage<detail::BoxCollider>(collider.group);
-        groupStorage.erase(e);
+        groupStorage.remove(e);
         return;
     }
 }

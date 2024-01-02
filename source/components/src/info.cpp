@@ -7,7 +7,7 @@
 using namespace Gng2D;
 using namespace entt::literals;
 
-int Info::__index(Luna::Stack stack, Luna::TypeVector args)
+int Info::lua__index(Luna::Stack stack, Luna::TypeVector args)
 {
     constexpr auto ARGS_ERROR =
         "component __index requires 2 arguments, "
@@ -27,7 +27,7 @@ int Info::__index(Luna::Stack stack, Luna::TypeVector args)
     return 0;
 }
 
-int Info::__newindex(Luna::Stack stack, Luna::TypeVector args)
+int Info::lua__newindex(Luna::Stack stack, Luna::TypeVector args)
 {
     constexpr auto ARGS_ERROR =
         "component __index requires 3 arguments, "
