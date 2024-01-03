@@ -2,6 +2,7 @@
 #include "Gng2D/commons/args_vector.hpp" // IWYU pragma: keep
 #include "Gng2D/commons/log.hpp"
 #include "Gng2D/components/collider.hpp"
+#include "Gng2D/components/hoverable.hpp"
 #include "Gng2D/components/info.hpp"
 #include "Gng2D/components/lua_script.hpp"
 #include "Gng2D/components/relationship.hpp"
@@ -70,6 +71,7 @@ void Repository::registerDefaultComponents()
     registerComponent<Transform2d>();
     registerComponent<TransformLayer>();
     registerComponent<Collider>();
+    registerComponent<Hoverable>();
     registerComponent<LuaScript>();
     registerComponent<Parent>();
     registerComponent<Children>();

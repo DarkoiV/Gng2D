@@ -1,7 +1,7 @@
 #include "Gng2D/scene/actions_handler.hpp"
 #include "Gng2D/commons/log.hpp"
 #include "Gng2D/commons/luna/state.hpp"
-#include "Gng2D/components/collider.hpp"
+#include "Gng2D/components/hoverable.hpp"
 #include "Gng2D/components/lua_script.hpp"
 #include "Gng2D/components/transform.hpp"
 
@@ -42,8 +42,8 @@ void ActionsHandler::onKeyRelease(SDL_KeyboardEvent& event)
 
 void ActionsHandler::onMouseMotion(SDL_MouseMotionEvent& event)
 {
-    auto&&           mouseColliderStorage = reg.storage<detail::BoxCollider>("mouse"_hash);
-    entt::basic_view view{mouseColliderStorage, reg.storage<detail::Position>()};
+
+    auto view = reg.view<Hoverable, detail::Position>();
 
     for (auto&& [e, box, pos]: view.each())
     {

@@ -2,7 +2,7 @@
 #include "Gng2D/commons/assert.hpp"
 
 #define COMP_ARG_CASE(ARG_NAME, ASSIGN_TO)                                                         \
-    case ARG_NAME##_hs:                                                                            \
+    case ARG_NAME##_hash:                                                                          \
         {                                                                                          \
             using ArgType = decltype(ASSIGN_TO);                                                   \
             if constexpr (std::is_same_v<ArgType, std::string>)                                    \

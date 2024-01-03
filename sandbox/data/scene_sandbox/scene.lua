@@ -15,9 +15,13 @@ local function createRedX()
     }
     components.Collider = {
         ['type'] = "Box",
-        ['group'] = "mouse",
+        ['group'] = "default",
         ['width'] = 12,
         ['height'] = 12
+    }
+    components.Hoverable = {
+        ['width'] = 11,
+        ['height'] = 11,
     }
 
     NewEntityRecipe("RedX", components)
