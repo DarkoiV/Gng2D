@@ -1,12 +1,11 @@
 #pragma once
-#include "Gng2D/commons/assert.hpp"
 #include "Gng2D/commons/types.hpp"
 #include <SDL2/SDL_events.h>
 
 namespace Gng2D {
 struct ActionsHandler
 {
-    using ActionSigHandler = entt::sigh<void(entt::registry&, HashedString, bool)>;
+    using ActionSigHandler = entt::sigh<void(entt::registry&, HashedString)>;
 
     ActionsHandler(entt::registry&);
     ActionsHandler(ActionsHandler&)  = delete;
@@ -20,16 +19,17 @@ struct ActionsHandler
     void onKeyRelease(SDL_KeyboardEvent&);
     void onMouseMotion(SDL_MouseMotionEvent&);
 
-    auto getActionSink(HashedString action)
-    {
-        GNG2D_ASSERT(actionsCallback.count(action), "Action not registered:", action.data());
-        return entt::sink{actionsCallback.at(action)};
-    }
+    auto getActionSink(HashedString action) { return entt::sink{actionsCallback[action]}; }
 
   private:
     entt::registry& reg;
 
+    bool hoverablesNeedSorting{false};
+    void markHoverablesForSorting();
+    void sortHoverables();
+
     std::map<SDL_Scancode, HashedString>     keyPressActions;
+    std::map<SDL_Scancode, HashedString>     keyReleaseActions;
     std::map<HashedString, ActionSigHandler> actionsCallback;
 
     void registerDefaultActions();

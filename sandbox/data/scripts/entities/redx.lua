@@ -3,36 +3,36 @@ Hspeed = 0;
 Vel = 0.5;
 
 OnAction = {};
-OnAction.up = function(release)
-    if release then
-        Vspeed = Vspeed - Vel
-    else
-        Vspeed = Vspeed + Vel
-    end
+OnAction.up = function()
+    Vspeed = Vspeed + Vel
 end
 
-OnAction.down = function(release)
-    if release then
-        Vspeed = Vspeed + Vel
-    else
-        Vspeed = Vspeed - Vel
-    end
+OnAction.down = function()
+    Vspeed = Vspeed - Vel
 end
 
-OnAction.left = function(release)
-    if release then
-        Hspeed = Hspeed + Vel
-    else
-        Hspeed = Hspeed - Vel
-    end
+OnAction.left = function()
+    Hspeed = Hspeed - Vel
 end
 
-OnAction.right = function(release)
-    if release then
-        Hspeed = Hspeed - Vel
-    else
-        Hspeed = Hspeed + Vel
-    end
+OnAction.right = function()
+    Hspeed = Hspeed + Vel
+end
+
+OnAction.rUp = function()
+    Vspeed = Vspeed - Vel
+end
+
+OnAction.rDown = function()
+    Vspeed = Vspeed + Vel
+end
+
+OnAction.rLeft = function()
+    Hspeed = Hspeed + Vel
+end
+
+OnAction.rRight = function()
+    Hspeed = Hspeed - Vel
 end
 
 OnHover = function()

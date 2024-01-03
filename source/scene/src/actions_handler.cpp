@@ -7,16 +7,31 @@
 
 using Gng2D::ActionsHandler;
 
+#define HOVER_SORT_SIGNAL &ActionsHandler::markHoverablesForSorting
+
 ActionsHandler::ActionsHandler(entt::registry& r)
     : reg(r)
 {
     registerDefaultActions();
 
+    // clang-format off
+    entt::sigh_helper{reg}
+        .with<detail::Layer>()
+            .on_construct<HOVER_SORT_SIGNAL>(this)
+            .on_update<HOVER_SORT_SIGNAL>(this)
+            .on_destroy<HOVER_SORT_SIGNAL>(this);
+    // clang-format on
+
     reg.ctx().emplace<ActionsHandler&>(*this);
+    LOG::INFO("ActionsHandler created");
 }
 
 ActionsHandler::~ActionsHandler()
 {
+    reg.on_construct<detail::Layer>().disconnect(this);
+    reg.on_update<detail::Layer>().disconnect(this);
+    reg.on_destroy<detail::Layer>().disconnect(this);
+
     reg.ctx().erase<ActionsHandler&>();
 }
 
@@ -27,22 +42,22 @@ void ActionsHandler::onKeyPress(SDL_KeyboardEvent& event)
 
     auto action = it->second;
     LOG::TRACE("Action:", action.data());
-    actionsCallback.at(action).publish(reg, action, false);
+    actionsCallback.at(action).publish(reg, action);
 }
 
 void ActionsHandler::onKeyRelease(SDL_KeyboardEvent& event)
 {
-    auto it = keyPressActions.find(event.keysym.scancode);
-    if (it == keyPressActions.end()) return;
+    auto it = keyReleaseActions.find(event.keysym.scancode);
+    if (it == keyReleaseActions.end()) return;
 
     auto action = it->second;
-    LOG::TRACE("Action release:", action.data());
-    actionsCallback.at(action).publish(reg, action, true);
+    LOG::TRACE("Action:", action.data());
+    actionsCallback.at(action).publish(reg, action);
 }
 
 void ActionsHandler::onMouseMotion(SDL_MouseMotionEvent& event)
 {
-
+    if (hoverablesNeedSorting) sortHoverables();
     auto view = reg.view<Hoverable, detail::Position>();
 
     for (auto&& [e, box, pos]: view.each())
@@ -66,6 +81,27 @@ void ActionsHandler::onMouseMotion(SDL_MouseMotionEvent& event)
     }
 }
 
+void ActionsHandler::markHoverablesForSorting()
+{
+    hoverablesNeedSorting = true;
+}
+
+void ActionsHandler::sortHoverables()
+{
+    reg.sort<Hoverable>(
+        [&](entt::entity lhs, entt::entity rhs)
+    {
+        auto* leftLayer  = reg.try_get<detail::Layer>(lhs);
+        auto* rightLayer = reg.try_get<detail::Layer>(rhs);
+
+        if (not leftLayer and rightLayer) return false;
+        if (not rightLayer and leftLayer) return true;
+
+        return *leftLayer > *rightLayer;
+    });
+    hoverablesNeedSorting = false;
+}
+
 void ActionsHandler::registerDefaultActions()
 {
     using namespace entt::literals;
@@ -79,6 +115,17 @@ void ActionsHandler::registerDefaultActions()
     actionsCallback.emplace("down"_hs, ActionSigHandler{});
     actionsCallback.emplace("right"_hs, ActionSigHandler{});
     actionsCallback.emplace("left"_hs, ActionSigHandler{});
+
+    // DIRECTIONAL KEY RELEASE
+    keyReleaseActions.emplace(SDL_SCANCODE_UP, "rUp"_hs);
+    keyReleaseActions.emplace(SDL_SCANCODE_DOWN, "rDown"_hs);
+    keyReleaseActions.emplace(SDL_SCANCODE_RIGHT, "rRight"_hs);
+    keyReleaseActions.emplace(SDL_SCANCODE_LEFT, "rLeft"_hs);
+
+    actionsCallback.emplace("rUp"_hs, ActionSigHandler{});
+    actionsCallback.emplace("rDown"_hs, ActionSigHandler{});
+    actionsCallback.emplace("rRight"_hs, ActionSigHandler{});
+    actionsCallback.emplace("rLeft"_hs, ActionSigHandler{});
 
     // CONFIRM / CANCELL
     keyPressActions.emplace(SDL_SCANCODE_RETURN, "confirm"_hs);

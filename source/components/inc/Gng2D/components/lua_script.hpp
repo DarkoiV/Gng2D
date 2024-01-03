@@ -18,7 +18,7 @@ struct LuaScript
     ScriptConnections                connections{};
     bool                             hasOnHover = false;
 
-    void invokeAction(entt::registry&, HashedString, bool);
+    void invokeAction(entt::registry&, HashedString);
 
     static void onCreate(entt::registry&, entt::entity);
     static void onSpawn(entt::registry&, entt::entity);

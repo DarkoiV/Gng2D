@@ -9,11 +9,11 @@
 using Gng2D::LuaScript;
 using namespace entt::literals;
 
-void LuaScript::invokeAction(entt::registry& reg, HashedString action, bool release)
+void LuaScript::invokeAction(entt::registry& reg, HashedString action)
 {
     auto stack    = reg.ctx().get<Luna::State>().getStack();
     auto callback = entityEnv.get("OnAction").asTable().get(action.data());
-    stack.callFunction(callback.asFunction(), {release});
+    stack.callFunction(callback.asFunction());
 }
 
 void LuaScript::onCreate(entt::registry& reg, entt::entity e)
