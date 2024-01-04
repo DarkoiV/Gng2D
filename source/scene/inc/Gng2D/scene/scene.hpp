@@ -58,6 +58,11 @@ struct Scene : SceneInterface
     std::optional<Luna::FunctionRef> lunaOnEnter;
     std::optional<Luna::FunctionRef> lunaOnUpdate;
 
+    void initLunaEnv();
+    void registerLunaMethods();
+    void registerLunaOnAction();
+    void invokeAction(entt::registry&, HashedString);
+
     int lunaSpawnEntity(Luna::Stack, Luna::TypeVector);
     int lunaNewEntityRecipe(Luna::Stack, Luna::TypeVector);
     int lunaViewEach(Luna::Stack, Luna::TypeVector);

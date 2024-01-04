@@ -2,7 +2,6 @@ Vspeed = 0;
 Hspeed = 0;
 Vel = 0.5;
 
-OnAction = {};
 OnAction.up = function()
     Vspeed = Vspeed + Vel
 end

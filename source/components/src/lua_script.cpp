@@ -80,6 +80,7 @@ std::optional<LuaScript> LuaScript::fromArgs(const ArgsVector& args, entt::regis
     {
         auto& luna      = ctx.get<Luna::State&>();
         auto  entityEnv = luna.createTableRef();
+        entityEnv.createSubTable("OnAction");
         luna.doFile(*pathOpt, entityEnv);
         return LuaScript(scriptName, entityEnv);
     }

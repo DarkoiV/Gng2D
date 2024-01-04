@@ -26,21 +26,13 @@ Scene::Scene(const std::string& n, const std::filesystem::path& dir)
     GNG2D_ASSERT(std::filesystem::is_regular_file(sceneDir / "scene.lua"));
 
     LOG::INFO("Loading scene data from:", sceneDir);
-    luna.doFile(sceneDir / "scene.lua", lunaSceneEnv);
+
+    initLunaEnv();
+    registerLunaMethods();
+    registerLunaOnAction();
 
     reg.ctx().emplace<Luna::State&>(luna);
-
-    auto OnEnterRef = lunaSceneEnv.get("OnEnter");
-    if (OnEnterRef.isFunction()) lunaOnEnter = OnEnterRef.asFunction();
-    else if (not OnEnterRef.isNil()) LOG::WARN("OnEnter should be a lua function!");
-
-    auto OnUpdateRef = lunaSceneEnv.get("OnUpdate");
-    if (OnUpdateRef.isFunction()) lunaOnUpdate = OnUpdateRef.asFunction();
-    else if (not OnUpdateRef.isNil()) LOG::WARN("OnUpdate should be a lua function!");
-
-    luna.registerMethod<&Scene::lunaSpawnEntity>(*this, "SpawnEntity", lunaSceneEnv);
-    luna.registerMethod<&Scene::lunaNewEntityRecipe>(*this, "NewEntityRecipe", lunaSceneEnv);
-    luna.registerMethod<&Scene::lunaViewEach>(*this, "ViewEach", lunaSceneEnv);
+    reg.ctx().emplace_as<Luna::TableRef&>("sceneEnv"_hash, lunaSceneEnv);
 }
 
 Scene::~Scene()
@@ -104,6 +96,47 @@ const std::string& Scene::getName() const
 void Scene::insertSignalsIntoCtx()
 {
     reg.ctx().emplace_as<CompSig>(CompSigHook::ON_SPAWN, onSpawnSignal);
+}
+
+void Scene::initLunaEnv()
+{
+    lunaSceneEnv.createSubTable("OnAction");
+    luna.doFile(sceneDir / "scene.lua", lunaSceneEnv);
+}
+
+void Scene::registerLunaMethods()
+{
+    auto OnEnterRef = lunaSceneEnv.get("OnEnter");
+    if (OnEnterRef.isFunction()) lunaOnEnter = OnEnterRef.asFunction();
+    else if (not OnEnterRef.isNil()) LOG::WARN("OnEnter should be a lua function!");
+
+    auto OnUpdateRef = lunaSceneEnv.get("OnUpdate");
+    if (OnUpdateRef.isFunction()) lunaOnUpdate = OnUpdateRef.asFunction();
+    else if (not OnUpdateRef.isNil()) LOG::WARN("OnUpdate should be a lua function!");
+
+    luna.registerMethod<&Scene::lunaSpawnEntity>(*this, "SpawnEntity", lunaSceneEnv);
+    luna.registerMethod<&Scene::lunaNewEntityRecipe>(*this, "NewEntityRecipe", lunaSceneEnv);
+    luna.registerMethod<&Scene::lunaViewEach>(*this, "ViewEach", lunaSceneEnv);
+}
+
+void Scene::registerLunaOnAction()
+{
+    auto OnAction = lunaSceneEnv.get("OnAction");
+    if (not OnAction.isTable()) return;
+
+    for (auto&& [action, callback]: OnAction.asTable())
+    {
+        GNG2D_ASSERT(action.isString() and callback.isFunction());
+        auto sink       = actionsHandler.getActionSink(action.asHashedString());
+        auto connection = sink.connect<&Scene::invokeAction>(*this);
+    }
+}
+
+void Scene::invokeAction(entt::registry&, HashedString action)
+{
+    auto stack    = luna.getStack();
+    auto callback = lunaSceneEnv.get("OnAction").asTable().get(action.data());
+    stack.callFunction(callback.asFunction());
 }
 
 int Scene::lunaSpawnEntity(Luna::Stack stack, Luna::TypeVector args)

@@ -27,6 +27,10 @@ local function createRedX()
     NewEntityRecipe("RedX", components)
 end
 
+OnAction.confirm = function()
+    SpawnEntity("RedX")
+end
+
 function OnEnter()
     createRedX()
     SpawnEntity("RedX", { ['Transform2d'] = { ['x'] = 100 } })
