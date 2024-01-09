@@ -17,6 +17,7 @@ Scene::Scene(const std::string& n, const std::filesystem::path& dir)
     : lunaSceneEnv(luna.createTableRef())
     , name(n)
     , sceneDir(dir)
+    , onActionMetatable(luna.createTableRef())
 {
     EMPLACE_IMGUI_SYSEM;
     insertSignalsIntoCtx();
@@ -121,22 +122,93 @@ void Scene::registerLunaMethods()
 
 void Scene::registerLunaOnAction()
 {
-    auto OnAction = lunaSceneEnv.get("OnAction");
-    if (not OnAction.isTable()) return;
+    auto onAction = lunaSceneEnv.get("OnAction");
+    lunaSceneEnv.set("OnAction", Luna::Nil{});
+    lunaSceneEnv.createSubTable("OnAction");
+    auto onActionProxy = lunaSceneEnv.get("OnAction").asTable();
 
-    for (auto&& [action, callback]: OnAction.asTable())
+    luna.registerMethod<&Scene::onAction__newindex>(*this, "__newindex", onActionMetatable);
+    luna.registerMethod<&Scene::onAction__index>(*this, "__index", onActionMetatable);
+    onActionProxy.setMetaTable(onActionMetatable);
+
+    if (not onAction.isTable())
+    {
+        onActionProxy.createSubTable(0);
+        return;
+    }
+    onActionProxy.set(0, onAction);
+
+    for (auto&& [action, callback]: onAction.asTable())
     {
         GNG2D_ASSERT(action.isString() and callback.isFunction());
-        auto sink       = actionsHandler.getActionSink(action.asHashedString());
+        auto actionHS   = action.asHashedString();
+        auto sink       = actionsHandler.getActionSink(actionHS);
         auto connection = sink.connect<&Scene::invokeAction>(*this);
+        onActionConnection.emplace(actionHS, connection);
     }
 }
 
 void Scene::invokeAction(entt::registry&, HashedString action)
 {
     auto stack    = luna.getStack();
-    auto callback = lunaSceneEnv.get("OnAction").asTable().get(action.data());
+    auto onAction = lunaSceneEnv.get("OnAction").asTable().get(0);
+    auto callback = onAction.asTable().get(action.data());
     stack.callFunction(callback.asFunction());
+}
+
+int Scene::onAction__index(Luna::Stack stack, Luna::TypeVector args)
+{
+    constexpr auto ARGS_ERROR =
+        "OnAction __index requires 2 arguments, "
+        "first should be onAction proxy table, "
+        "second should be action name";
+    GNG2D_ASSERT(args.size() == 2, ARGS_ERROR);
+    GNG2D_ASSERT(args.at(0).isTable(), ARGS_ERROR);
+    GNG2D_ASSERT(args.at(1).isString(), ARGS_ERROR);
+
+    auto onAction = args.at(0).asTable().get(0).asTable();
+
+    stack.push(onAction.get(args.at(1)));
+
+    return 1;
+}
+
+int Scene::onAction__newindex(Luna::Stack stack, Luna::TypeVector args)
+{
+    constexpr auto ARGS_ERROR =
+        "OnAction __newindex requires 3 arguments, "
+        "first should be onAction proxy table, "
+        "second should be action name, "
+        "third should be function or integer";
+    GNG2D_ASSERT(args.size() == 3, ARGS_ERROR);
+    GNG2D_ASSERT(args.at(0).isTable(), ARGS_ERROR);
+    GNG2D_ASSERT(args.at(1).isString(), ARGS_ERROR);
+
+    auto onAction = args.at(0).asTable().get(0).asTable();
+
+    LOG::TRACE("newindex");
+    if (args.at(2).isInteger())
+    {
+        LOG::TRACE("IS NIL");
+        onAction.set(args.at(1), Luna::Nil{});
+        auto actionHS = args.at(1).asHashedString();
+        onActionConnection[actionHS].release();
+        onActionConnection.erase(actionHS);
+    }
+    else if (args.at(2).isFunction())
+    {
+        onAction.set(args.at(1), args.at(2));
+        auto actionHS                = args.at(1).asHashedString();
+        auto sink                    = actionsHandler.getActionSink(actionHS);
+        auto connection              = sink.connect<&Scene::invokeAction>(*this);
+        onActionConnection[actionHS] = connection;
+    }
+    else [[unlikely]]
+    {
+        LOG::ERROR(ARGS_ERROR);
+    }
+
+    return 0;
 }
 
 int Scene::lunaSpawnEntity(Luna::Stack stack, Luna::TypeVector args)

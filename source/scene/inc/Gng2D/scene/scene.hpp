@@ -63,6 +63,11 @@ struct Scene : SceneInterface
     void registerLunaOnAction();
     void invokeAction(entt::registry&, HashedString);
 
+    Luna::TableRef                           onActionMetatable;
+    int                                      onAction__index(Luna::Stack, Luna::TypeVector);
+    int                                      onAction__newindex(Luna::Stack, Luna::TypeVector);
+    std::map<HashedString, entt::connection> onActionConnection;
+
     int lunaSpawnEntity(Luna::Stack, Luna::TypeVector);
     int lunaNewEntityRecipe(Luna::Stack, Luna::TypeVector);
     int lunaViewEach(Luna::Stack, Luna::TypeVector);

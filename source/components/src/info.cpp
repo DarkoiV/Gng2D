@@ -30,7 +30,7 @@ int Info::lua__index(Luna::Stack stack, Luna::TypeVector args)
 int Info::lua__newindex(Luna::Stack stack, Luna::TypeVector args)
 {
     constexpr auto ARGS_ERROR =
-        "component __index requires 3 arguments, "
+        "component __newindex requires 3 arguments, "
         "first should be component handle, "
         "second should be component variable, "
         "third should be new value of this variable";

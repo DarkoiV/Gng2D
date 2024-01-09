@@ -27,8 +27,16 @@ local function createRedX()
     NewEntityRecipe("RedX", components)
 end
 
-OnAction.confirm = function()
+local spawnredx = function()
     SpawnEntity("RedX")
+end
+
+OnAction.cancel = function()
+    if OnAction.confirm ~= spawnredx then
+        OnAction.confirm = spawnredx
+    else
+        OnAction.confirm = 0
+    end
 end
 
 function OnEnter()
