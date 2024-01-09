@@ -85,6 +85,21 @@ Type TableRef::get(const Type& key) const
     return stack.read(-1);
 }
 
+void TableRef::setMetaTable(const TableRef& table)
+{
+    ScopedStack stack(L);
+    stack.push(*this);
+    stack.setMetaTable(-1, table);
+}
+
+TableRef TableRef::getMetaTable()
+{
+    ScopedStack stack(L);
+    stack.push(*this);
+    stack.pushMetaTable(-1);
+    return stack.read(-1).asTable();
+}
+
 TableRef::Iterator::Iterator(lua_State* L, const TableRef& t)
     : tableRef(t)
 {

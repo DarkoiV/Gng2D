@@ -50,9 +50,11 @@ struct TableRef
     TableRef& operator=(const TableRef&);
     TableRef& operator=(TableRef&&);
 
-    void createSubTable(const Type& key);
-    void set(const Type& key, const Type& value);
-    Type get(const Type& key) const;
+    void     createSubTable(const Type& key);
+    void     set(const Type& key, const Type& value);
+    Type     get(const Type& key) const;
+    void     setMetaTable(const TableRef&);
+    TableRef getMetaTable();
 
     friend bool operator==(const TableRef& lhs, const TableRef& rhs) { return lhs.ptr == rhs.ptr; }
 
