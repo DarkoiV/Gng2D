@@ -48,6 +48,11 @@ function OnEnter()
     SpawnEntity("RedX", { ['Transform2d'] = { ['x'] = 100 } })
     SpawnEntity("RedX", { ['Transform2d'] = { ['x'] = -100 } })
     SpawnEntity("RedX")
+
+    RegisterOnKeyPressAction('e', 'up')
+    RegisterOnKeyPressAction('d', 'down')
+    RegisterOnKeyPressAction('s', 'left')
+    RegisterOnKeyPressAction('f', 'right')
 end
 
 function OnUpdate()

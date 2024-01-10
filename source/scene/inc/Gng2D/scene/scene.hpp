@@ -73,5 +73,7 @@ struct Scene : SceneInterface
     int lunaNewEntityRecipe(Luna::Stack, Luna::TypeVector);
     int lunaViewEach(Luna::Stack, Luna::TypeVector);
     int lunaEmitAction(Luna::Stack, Luna::TypeVector);
+    int lunaRegisterOnKeyPressAction(Luna::Stack, Luna::TypeVector);
+    int lunaRegisterOnKeyReleaseAction(Luna::Stack, Luna::TypeVector);
 };
 } // namespace Gng2D

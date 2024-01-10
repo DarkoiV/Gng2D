@@ -81,6 +81,22 @@ void ActionsHandler::onMouseMotion(SDL_MouseMotionEvent& event)
     }
 }
 
+void ActionsHandler::registerOnKeyPressAction(SDL_Scancode key, HashedString action)
+{
+    const auto&& [it, _] = actionsCallback.try_emplace(action);
+    keyPressActions.emplace(key, it->first);
+    LOG::INFO("Registered press action:", SDL_GetKeyName(SDL_GetKeyFromScancode(key)),
+              action.data());
+}
+
+void ActionsHandler::registerOnKeyReleaseAction(SDL_Scancode key, HashedString action)
+{
+    const auto&& [it, _] = actionsCallback.try_emplace(action);
+    keyReleaseActions.emplace(key, it->first);
+    LOG::INFO("Registered release action:", SDL_GetKeyName(SDL_GetKeyFromScancode(key)),
+              action.data());
+}
+
 void ActionsHandler::markHoverablesForSorting()
 {
     hoverablesNeedSorting = true;

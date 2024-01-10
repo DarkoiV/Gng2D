@@ -19,6 +19,9 @@ struct ActionsHandler
     void onKeyRelease(SDL_KeyboardEvent&);
     void onMouseMotion(SDL_MouseMotionEvent&);
 
+    void registerOnKeyPressAction(SDL_Scancode, HashedString);
+    void registerOnKeyReleaseAction(SDL_Scancode, HashedString);
+
     auto emit(HashedString action) { actionsCallback[action].publish(reg, action); }
     auto getActionSink(HashedString action) { return entt::sink{actionsCallback[action]}; }
 

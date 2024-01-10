@@ -119,6 +119,10 @@ void Scene::registerLunaMethods()
     luna.registerMethod<&Scene::lunaNewEntityRecipe>(*this, "NewEntityRecipe", lunaSceneEnv);
     luna.registerMethod<&Scene::lunaViewEach>(*this, "ViewEach", lunaSceneEnv);
     luna.registerMethod<&Scene::lunaEmitAction>(*this, "EmitAction", lunaSceneEnv);
+    luna.registerMethod<&Scene::lunaRegisterOnKeyPressAction>(*this, "RegisterOnKeyPressAction",
+                                                              lunaSceneEnv);
+    luna.registerMethod<&Scene::lunaRegisterOnKeyReleaseAction>(*this, "RegisterOnKeyReleaseAction",
+                                                                lunaSceneEnv);
 }
 
 void Scene::registerLunaOnAction()
@@ -358,6 +362,53 @@ int Scene::lunaEmitAction(Luna::Stack stack, Luna::TypeVector args)
     GNG2D_ASSERT(args.at(0).isString(), ARGS_ERROR);
 
     actionsHandler.emit(args.at(0).asHashedString());
+
+    return 0;
+}
+
+int Scene::lunaRegisterOnKeyPressAction(Luna::Stack stack, Luna::TypeVector args)
+{
+    constexpr auto ARGS_ERROR =
+        "RegisterOnKeyPressAction requires two argumens, \n"
+        "first being scancode name,\n"
+        "second being action name";
+    GNG2D_ASSERT(args.size() == 2, ARGS_ERROR);
+    GNG2D_ASSERT(args.at(0).isString(), ARGS_ERROR);
+    GNG2D_ASSERT(args.at(1).isString(), ARGS_ERROR);
+
+    auto scancode = SDL_GetScancodeFromName(args.at(0).asString().c_str());
+    if (scancode == SDL_SCANCODE_UNKNOWN) [[unlikely]]
+    {
+        LOG::ERROR(args.at(0).asString(), "is unknown scancode");
+    }
+    else
+    {
+        actionsHandler.registerOnKeyPressAction(scancode, args.at(1).asHashedString());
+    }
+
+    return 0;
+}
+
+int Scene::lunaRegisterOnKeyReleaseAction(Luna::Stack stack, Luna::TypeVector args)
+{
+    constexpr auto ARGS_ERROR =
+        "RegisterOnKeyReleaseAction requires two argumens, \n"
+        "first being scancode name,\n"
+        "second being action name";
+    GNG2D_ASSERT(args.size() == 2, ARGS_ERROR);
+    GNG2D_ASSERT(args.at(0).isString(), ARGS_ERROR);
+    GNG2D_ASSERT(args.at(1).isString(), ARGS_ERROR);
+
+    auto scancode = SDL_GetScancodeFromName(args.at(0).asString().c_str());
+    if (scancode == SDL_SCANCODE_UNKNOWN) [[unlikely]]
+    {
+        LOG::ERROR(args.at(0).asString(), "is unknown scancode");
+    }
+    else
+    {
+        LOG::INFO(args.at(1).asString());
+        actionsHandler.registerOnKeyReleaseAction(scancode, args.at(1).asHashedString());
+    }
 
     return 0;
 }
