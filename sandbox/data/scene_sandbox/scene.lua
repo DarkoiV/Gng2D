@@ -35,7 +35,7 @@ OnAction.cancel = function()
     if OnAction.confirm ~= spawnredx then
         OnAction.confirm = spawnredx
     else
-        OnAction.confirm = 0
+        OnAction.confirm = nil
     end
 end
 

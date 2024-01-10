@@ -6,9 +6,9 @@
 
 #ifdef GNG2D_IMGUI_ENABLED
 #include "Gng2D/scene/debug/imgui_overlay.hpp"
-#define EMPLACE_IMGUI_SYSEM systems.emplace_back(std::make_unique<Gng2D::ImguiOverlay>(reg))
+#define EMPLACE_IMGUI_SYSEM() systems.emplace_back(std::make_unique<Gng2D::ImguiOverlay>(reg))
 #else
-#define EMPLACE_IMGUI_SYSEM (void(0))
+#define EMPLACE_IMGUI_SYSEM() (void(0))
 #endif
 
 using Gng2D::Scene;
@@ -19,7 +19,7 @@ Scene::Scene(const std::string& n, const std::filesystem::path& dir)
     , sceneDir(dir)
     , onActionMetatable(luna.createTableRef())
 {
-    EMPLACE_IMGUI_SYSEM;
+    EMPLACE_IMGUI_SYSEM();
     insertSignalsIntoCtx();
     Repository::attachComponentHooks(&reg);
 
@@ -133,10 +133,10 @@ void Scene::registerLunaOnAction()
 
     if (not onAction.isTable())
     {
-        onActionProxy.createSubTable(0);
+        onActionProxy.createSubTable("functions"_hash);
         return;
     }
-    onActionProxy.set(0, onAction);
+    onActionProxy.set("functions"_hash, onAction);
 
     for (auto&& [action, callback]: onAction.asTable())
     {
@@ -151,7 +151,7 @@ void Scene::registerLunaOnAction()
 void Scene::invokeAction(entt::registry&, HashedString action)
 {
     auto stack    = luna.getStack();
-    auto onAction = lunaSceneEnv.get("OnAction").asTable().get(0);
+    auto onAction = lunaSceneEnv.get("OnAction").asTable().get("functions"_hash);
     auto callback = onAction.asTable().get(action.data());
     stack.callFunction(callback.asFunction());
 }
@@ -166,7 +166,7 @@ int Scene::onAction__index(Luna::Stack stack, Luna::TypeVector args)
     GNG2D_ASSERT(args.at(0).isTable(), ARGS_ERROR);
     GNG2D_ASSERT(args.at(1).isString(), ARGS_ERROR);
 
-    auto onAction = args.at(0).asTable().get(0).asTable();
+    auto onAction = args.at(0).asTable().get("functions"_hash).asTable();
 
     stack.push(onAction.get(args.at(1)));
 
@@ -179,20 +179,17 @@ int Scene::onAction__newindex(Luna::Stack stack, Luna::TypeVector args)
         "OnAction __newindex requires 3 arguments, "
         "first should be onAction proxy table, "
         "second should be action name, "
-        "third should be function or integer";
+        "third should be function or nil";
     GNG2D_ASSERT(args.size() == 3, ARGS_ERROR);
     GNG2D_ASSERT(args.at(0).isTable(), ARGS_ERROR);
     GNG2D_ASSERT(args.at(1).isString(), ARGS_ERROR);
 
-    auto onAction = args.at(0).asTable().get(0).asTable();
+    auto onAction = args.at(0).asTable().get("functions"_hash).asTable();
 
-    LOG::TRACE("newindex");
-    if (args.at(2).isInteger())
+    if (args.at(2).isNil())
     {
-        LOG::TRACE("IS NIL");
         onAction.set(args.at(1), Luna::Nil{});
         auto actionHS = args.at(1).asHashedString();
-        onActionConnection[actionHS].release();
         onActionConnection.erase(actionHS);
     }
     else if (args.at(2).isFunction())
