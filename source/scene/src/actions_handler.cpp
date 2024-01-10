@@ -130,6 +130,8 @@ void ActionsHandler::registerDefaultActions()
     // CONFIRM / CANCELL
     keyPressActions.emplace(SDL_SCANCODE_RETURN, "confirm"_hs);
     keyPressActions.emplace(SDL_SCANCODE_ESCAPE, "cancel"_hs);
+    keyPressActions.emplace(SDL_SCANCODE_SPACE, "space"_hs);
     actionsCallback.emplace("confirm"_hs, ActionSigHandler{});
     actionsCallback.emplace("cancel"_hs, ActionSigHandler{});
+    actionsCallback.emplace("space"_hs, ActionSigHandler{});
 }

@@ -118,6 +118,7 @@ void Scene::registerLunaMethods()
     luna.registerMethod<&Scene::lunaSpawnEntity>(*this, "SpawnEntity", lunaSceneEnv);
     luna.registerMethod<&Scene::lunaNewEntityRecipe>(*this, "NewEntityRecipe", lunaSceneEnv);
     luna.registerMethod<&Scene::lunaViewEach>(*this, "ViewEach", lunaSceneEnv);
+    luna.registerMethod<&Scene::lunaEmitAction>(*this, "EmitAction", lunaSceneEnv);
 }
 
 void Scene::registerLunaOnAction()
@@ -344,6 +345,19 @@ int Scene::lunaViewEach(Luna::Stack stack, Luna::TypeVector args)
         pushComponents(stack, e);
         stack.callFunctionFS(args.size()); // Comp pack size (which is args - 1) and entity table
     }
+
+    return 0;
+}
+
+int Scene::lunaEmitAction(Luna::Stack stack, Luna::TypeVector args)
+{
+    constexpr auto ARGS_ERROR =
+        "EmitAction requries one argument,\n"
+        "it being action name to emit";
+    GNG2D_ASSERT(args.size() == 1, ARGS_ERROR);
+    GNG2D_ASSERT(args.at(0).isString(), ARGS_ERROR);
+
+    actionsHandler.emit(args.at(0).asHashedString());
 
     return 0;
 }

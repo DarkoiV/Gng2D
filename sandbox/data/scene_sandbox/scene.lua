@@ -39,6 +39,10 @@ OnAction.cancel = function()
     end
 end
 
+OnAction.space = function()
+    EmitAction('cancel')
+end
+
 function OnEnter()
     createRedX()
     SpawnEntity("RedX", { ['Transform2d'] = { ['x'] = 100 } })
