@@ -32,6 +32,10 @@ struct ActionsHandler
     void markHoverablesForSorting();
     void sortHoverables();
 
+    entt::entity currentHover = entt::null;
+    void         enterHover(entt::entity);
+    void         leaveHover(entt::entity);
+
     std::map<SDL_Scancode, HashedString>     keyPressActions;
     std::map<SDL_Scancode, HashedString>     keyReleaseActions;
     std::map<HashedString, ActionSigHandler> actionsCallback;

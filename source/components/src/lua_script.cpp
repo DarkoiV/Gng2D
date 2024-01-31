@@ -41,7 +41,7 @@ void LuaScript::onCreate(entt::registry& reg, entt::entity e)
 
     if (auto OnHover = env.get("OnHover"); OnHover.isFunction())
     {
-        luaScript.hasOnHover = true;
+        luaScript.onHover = OnHover.asFunction();
     }
 }
 

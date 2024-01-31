@@ -67,18 +67,16 @@ void ActionsHandler::onMouseMotion(SDL_MouseMotionEvent& event)
         if (event.x > (pos.x - hw) and event.x < (pos.x + hw) and event.y > (pos.y - hh) and
             event.y < (pos.y + hh))
         {
-            if (auto* luaScript = reg.try_get<LuaScript>(e))
-            {
-                if (not luaScript->hasOnHover) return;
-
-                auto onHover = luaScript->entityEnv.get("OnHover").asFunction();
-                auto stack   = reg.ctx().get<Luna::State>().getStack();
-                stack.callFunction(onHover);
-                LOG::TRACE("Hover:", (unsigned)e);
-            }
+            if (currentHover == e) return;
+            enterHover(e);
+            if (currentHover != entt::null) leaveHover(currentHover);
+            currentHover = e;
             return;
         }
     }
+
+    if (currentHover != entt::null) leaveHover(currentHover);
+    currentHover = entt::null;
 }
 
 void ActionsHandler::registerOnKeyPressAction(SDL_Scancode key, HashedString action)
@@ -116,6 +114,32 @@ void ActionsHandler::sortHoverables()
         return *leftLayer > *rightLayer;
     });
     hoverablesNeedSorting = false;
+}
+
+void ActionsHandler::enterHover(entt::entity e)
+{
+    LOG::TRACE("Enter hover:", (unsigned)e);
+    if (auto* luaScript = reg.try_get<LuaScript>(e))
+    {
+        if (not luaScript->onHover) return;
+
+        auto& onHover = luaScript->onHover.value();
+        auto  stack   = reg.ctx().get<Luna::State>().getStack();
+        stack.callFunction(onHover);
+    }
+}
+
+void ActionsHandler::leaveHover(entt::entity e)
+{
+    LOG::TRACE("Leave hover:", (unsigned)e);
+    if (auto* luaScript = reg.try_get<LuaScript>(e))
+    {
+        if (not luaScript->onLeaveHover) return;
+
+        auto& onLeave = luaScript->onLeaveHover.value();
+        auto  stack   = reg.ctx().get<Luna::State>().getStack();
+        stack.callFunction(onLeave);
+    }
 }
 
 void ActionsHandler::registerDefaultActions()
