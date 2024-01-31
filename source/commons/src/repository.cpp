@@ -139,7 +139,7 @@ std::optional<std::filesystem::path> Repository::getScriptPath(const std::string
     return std::nullopt;
 }
 
-const Repository::PathMap& Repository::acessEntityRecipes()
+const Repository::PathMap& Repository::accessEntityRecipes()
 {
     return entityRecipes;
 }

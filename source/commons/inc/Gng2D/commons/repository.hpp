@@ -27,7 +27,7 @@ struct Repository
 
     static void                indexScripts();
     static std::optional<Path> getScriptPath(const std::string&);
-    static const PathMap&      acessEntityRecipes();
+    static const PathMap&      accessEntityRecipes();
 
     static void                indexScenes();
     static std::optional<Path> getScenePath(const std::string&);

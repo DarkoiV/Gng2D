@@ -1,7 +1,6 @@
 #include "Gng2D/scene/scene.hpp"
 #include "Gng2D/commons/imgui.hpp"
 #include "Gng2D/commons/log.hpp"
-#include "Gng2D/commons/repository.hpp"
 #include "Gng2D/components/lua_script.hpp"
 
 #ifdef GNG2D_IMGUI_ENABLED
@@ -21,7 +20,7 @@ Scene::Scene(const std::string& n, const std::filesystem::path& dir)
 {
     EMPLACE_IMGUI_SYSEM();
     insertSignalsIntoCtx();
-    Repository::attachComponentHooks(&reg);
+    repository.attachComponentHooks(&reg);
 
     GNG2D_ASSERT(std::filesystem::is_directory(sceneDir));
     GNG2D_ASSERT(std::filesystem::is_regular_file(sceneDir / "scene.lua"));
@@ -35,6 +34,7 @@ Scene::Scene(const std::string& n, const std::filesystem::path& dir)
 
     reg.ctx().emplace<Luna::State&>(luna);
     reg.ctx().emplace_as<Luna::TableRef&>("sceneEnv"_hash, lunaSceneEnv);
+    reg.ctx().emplace<SceneRepository&>(repository);
 }
 
 Scene::~Scene()
@@ -156,7 +156,7 @@ void Scene::registerLunaOnAction()
 
 void Scene::loadRecipes()
 {
-    auto& globalRecipes = Repository::acessEntityRecipes();
+    auto& globalRecipes = repository.accessEntityRecipes();
     for (auto&& [name, recipe]: globalRecipes)
     {
         auto recipeTable = luna.createTableRef();

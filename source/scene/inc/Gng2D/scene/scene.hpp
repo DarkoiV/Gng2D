@@ -7,6 +7,7 @@
 #include "Gng2D/scene/actions_handler.hpp"
 #include "Gng2D/scene/collision_system.hpp"
 #include "Gng2D/scene/entity_renderer.hpp"
+#include "Gng2D/scene/scene_repository.hpp"
 #include <entt/entt.hpp>
 #include <filesystem>
 
@@ -35,6 +36,7 @@ struct Scene : SceneInterface
 
   protected:
     entt::registry              reg;
+    SceneRepository             repository;
     const std::string           name;
     const std::filesystem::path sceneDir;
 

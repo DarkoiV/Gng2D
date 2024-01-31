@@ -1,9 +1,9 @@
 #include "Gng2D/components/lua_script.hpp"
 #include "Gng2D/commons/args_vector.hpp"
 #include "Gng2D/commons/luna/state.hpp"
-#include "Gng2D/commons/repository.hpp" // IWYU pragma: keep
 #include "Gng2D/entities/lua_api.hpp"
 #include "Gng2D/scene/actions_handler.hpp"
+#include "Gng2D/scene/scene_repository.hpp"
 #include "util_macros.hpp"
 
 using Gng2D::LuaScript;
@@ -76,7 +76,8 @@ std::optional<LuaScript> LuaScript::fromArgs(const ArgsVector& args, entt::regis
         }
     }
 
-    if (auto pathOpt = Repository::getScriptPath(scriptName))
+    auto& repository = ctx.get<SceneRepository>();
+    if (auto pathOpt = repository.getScriptPath(scriptName))
     {
         auto& luna      = ctx.get<Luna::State&>();
         auto  entityEnv = luna.createTableRef();
