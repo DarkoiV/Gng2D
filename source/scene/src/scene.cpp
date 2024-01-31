@@ -31,6 +31,7 @@ Scene::Scene(const std::string& n, const std::filesystem::path& dir)
     initLunaEnv();
     registerLunaMethods();
     registerLunaOnAction();
+    loadRecipes();
 
     reg.ctx().emplace<Luna::State&>(luna);
     reg.ctx().emplace_as<Luna::TableRef&>("sceneEnv"_hash, lunaSceneEnv);
@@ -153,6 +154,17 @@ void Scene::registerLunaOnAction()
     }
 }
 
+void Scene::loadRecipes()
+{
+    auto& globalRecipes = Repository::acessEntityRecipes();
+    for (auto&& [name, recipe]: globalRecipes)
+    {
+        auto recipeTable = luna.createTableRef();
+        luna.doFile(recipe, recipeTable);
+        lunaNewEntityRecipe(luna.getStack(), {name, recipeTable});
+    }
+}
+
 void Scene::invokeAction(entt::registry&, HashedString action)
 {
     auto stack    = luna.getStack();
@@ -225,7 +237,7 @@ int Scene::lunaSpawnEntity(Luna::Stack stack, Luna::TypeVector args)
     auto recipeIt = entityRecipes.find(entityName);
     if (recipeIt == entityRecipes.end())
     {
-        LOG::ERROR("Did not find entity recipe:", entityName);
+        LOG::ERROR("Did not found entity recipe:", entityName);
         return 0;
     }
     auto e = recipeIt->second.spawn();
@@ -244,7 +256,7 @@ int Scene::lunaSpawnEntity(Luna::Stack stack, Luna::TypeVector args)
             auto       type = entt::resolve(hash);
             if (not type)
             {
-                LOG::ERROR("Faile to resolve:", compName.asString());
+                LOG::ERROR("Failed to resolve:", compName.asString());
                 continue;
             }
             LOG::TRACE("Resolved to component:", type.info().name(), hash);

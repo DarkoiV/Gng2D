@@ -61,6 +61,7 @@ struct Scene : SceneInterface
     void initLunaEnv();
     void registerLunaMethods();
     void registerLunaOnAction();
+    void loadRecipes();
     void invokeAction(entt::registry&, HashedString);
 
     using SceneActionConnections = std::map<HashedString, entt::scoped_connection>;

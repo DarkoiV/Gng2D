@@ -35,7 +35,7 @@ OnAction.rRight = function()
 end
 
 OnHover = function()
-    transform = Self:getComponent('Transform2d')
+    local transform = Self:getComponent('Transform2d')
     transform.x = transform.x + 10
 end
 

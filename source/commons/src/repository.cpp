@@ -96,6 +96,11 @@ void Repository::attachComponentHooks(entt::registry* r)
         attachHooks(r);
 }
 
+static bool inRecipeFolder(std::string scriptName)
+{
+    return scriptName.substr(0, scriptName.find_first_of('/')) == "recipes";
+}
+
 void Repository::indexScripts()
 {
     namespace fs   = std::filesystem;
@@ -113,6 +118,13 @@ void Repository::indexScripts()
 
         LOG::INFO("Found script:", scriptName);
         scripts.emplace(scriptName, script.path());
+
+        if (inRecipeFolder(scriptName))
+        {
+            auto recipe = scriptName.substr(scriptName.find_last_of('/') + 1, std::string::npos);
+            LOG::INFO("Adding to recipes:", recipe);
+            entityRecipes.emplace(recipe, script.path());
+        }
     }
 }
 
@@ -125,6 +137,11 @@ std::optional<std::filesystem::path> Repository::getScriptPath(const std::string
 
     LOG::ERROR("Script", name, "not found");
     return std::nullopt;
+}
+
+const Repository::PathMap& Repository::acessEntityRecipes()
+{
+    return entityRecipes;
 }
 
 void Repository::indexScenes()
